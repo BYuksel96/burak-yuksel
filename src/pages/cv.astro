@@ -114,10 +114,16 @@ const currentIndex = timeline.findIndex((item) => item.current);
         const prefersReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
         const layoutSpine = () => {
-          if (!timelineEl || !solid || !dotted || !current) return;
+          if (!timelineEl || !solid || !dotted || !current || items.length === 0) return;
           const tRect = timelineEl.getBoundingClientRect();
+          const firstRect = items[0].getBoundingClientRect();
           const cRect = current.getBoundingClientRect();
+          const startBase = firstRect.top + firstRect.height / 2 - tRect.top;
           const target = cRect.top + cRect.height / 2 - tRect.top;
+          // Start slightly above the first event so the solid line overlaps the dot fully.
+          const startOffset = -40;
+          const start = startBase + startOffset;
+          solid.style.top = `${start}px`;
           solid.style.height = '0px';
           dotted.style.height = '0px';
           dotted.style.top = `${target}px`;
@@ -127,7 +133,7 @@ const currentIndex = timeline.findIndex((item) => item.current);
           const dottedDuration = prefersReduce ? 0 : 0.8;
           const dottedDelay = prefersReduce ? 0 : 0.2;
 
-          gsap.to(solid, { height: target, duration: solidDuration, ease: 'power2.out' });
+          gsap.to(solid, { height: Math.max(target - start, 0), duration: solidDuration, ease: 'power2.out' });
           gsap.to(dotted, { height: Math.max(tRect.height - target, 0), duration: dottedDuration, delay: dottedDelay, ease: 'power2.out', opacity: 1 });
         };
 
