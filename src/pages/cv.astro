@@ -4,6 +4,7 @@ import timeline from '../content/timeline.json';
 import '../styles/cv.css';
 
 const base = import.meta.env.BASE_URL || '/';
+const resolveImageSrc = (src) => (src.startsWith('/') ? `${base}${src.slice(1)}` : `${base}${src}`);
 const currentIndex = timeline.findIndex((item) => item.current);
 ---
 
@@ -28,32 +29,35 @@ const currentIndex = timeline.findIndex((item) => item.current);
       <div class="spine dotted"></div>
 
       <div class="timeline-items">
-        {timeline.map((item, index) => (
-          <div
-            class={`timeline-row ${item.side === 'left' ? 'left' : 'right'}`}
-            data-current={item.current ? 'true' : 'false'}
-            data-index={index}
-          >
-            <div class="branch"></div>
-            <button
-              class="card"
-              data-id={item.id}
-              data-title={item.title}
-              data-date={item.date}
-              data-description={item.description}
-              data-image={item.imageSrc}
-              aria-label={`Open ${item.title}`}
+        {timeline.map((item, index) => {
+          const imageSrc = resolveImageSrc(item.imageSrc);
+          return (
+            <div
+              class={`timeline-row ${item.side === 'left' ? 'left' : 'right'}`}
+              data-current={item.current ? 'true' : 'false'}
+              data-index={index}
             >
-              <div class="card-inner">
-                <div class="face front" style={`background-image:url('${item.imageSrc}')`}></div>
-                <div class="face back">
-                  <div class="label">{item.title}</div>
-                  <div class="muted small">{item.date}</div>
+              <div class="branch"></div>
+              <button
+                class="card"
+                data-id={item.id}
+                data-title={item.title}
+                data-date={item.date}
+                data-description={item.description}
+                data-image={imageSrc}
+                aria-label={`Open ${item.title}`}
+              >
+                <div class="card-inner">
+                  <div class="face front" style={`background-image:url('${imageSrc}')`}></div>
+                  <div class="face back">
+                    <div class="label">{item.title}</div>
+                    <div class="muted small">{item.date}</div>
+                  </div>
                 </div>
-              </div>
-            </button>
-          </div>
-        ))}
+              </button>
+            </div>
+          );
+        })}
       </div>
     </section>
 
