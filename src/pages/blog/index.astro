@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog')).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+
+const base = import.meta.env.BASE_URL || '/';
+---
+
+<BaseLayout title="Blog" description="Markdown posts sourced from Astro content collections.">
+  <h1>Blog</h1>
+  <p class="muted">Content lives in `src/content/blog` and is rendered statically.</p>
+
+  <div class="posts">
+    {posts.map((post) => (
+      <a class="post-card" href={`${base}blog/${post.slug}/`}>
+        <div class="post-body">
+          <div class="post-meta">{post.data.pubDate.toLocaleDateString()}</div>
+          <h3>{post.data.title}</h3>
+          <p class="muted">{post.data.description}</p>
+        </div>
+      </a>
+    ))}
+  </div>
+</BaseLayout>

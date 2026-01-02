@@ -1,0 +1,251 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const base = import.meta.env.BASE_URL || '/';
+
+const links = [
+  { id: 'cv', label: 'CV', href: `${base}cv`, external: false, icon: 'doc' },
+  { id: 'blog', label: 'Latest Posts', href: `${base}blog/`, external: false, icon: 'pen' },
+  { id: 'github', label: 'GitHub', href: 'https://github.com/BYuksel96', external: true, icon: 'github' },
+];
+---
+
+<BaseLayout
+  title="Burak Yuksel"
+  description="Quick navigation to CV, blog, and GitHub with subtle monochrome motion."
+  hideHeader={true}
+  footerText="© 2026 Burak Yuksel"
+>
+  <div class="intro-overlay" aria-live="polite">
+    <button class="intro-name" type="button">Burak Yuksel</button>
+  </div>
+
+  <section class="hub-wrap">
+    <div class="hub">
+      <svg class="hub-spokes" viewBox="0 0 520 480" aria-hidden="true">
+        <!-- <circle cx="260" cy="220" r="6" /> -->
+      </svg>
+
+      {links.map(({ id, label, href, external, icon }) => (
+        <a
+          class="node"
+          href={href}
+          target={external ? '_blank' : undefined}
+          rel={external ? 'noopener noreferrer' : undefined}
+          data-id={id}
+        >
+          <div class="card">
+            <div class="face front">
+              {icon === 'doc' && (
+                <svg viewBox="0 0 24 24" width="52" height="52" fill="none" stroke="currentColor" stroke-width="1.6">
+                  <path d="M7 3h6l4 4v14H7z" />
+                  <path d="M13 3v5h5" />
+                  <path d="M9 13h6" />
+                  <path d="M9 16h6" />
+                  <path d="M9 19h3" />
+                </svg>
+              )}
+              {icon === 'pen' && (
+                <svg viewBox="0 0 24 24" width="52" height="52" fill="none" stroke="currentColor" stroke-width="1.6">
+                  <path d="M4 20h4l10.5-10.5a2.12 2.12 0 0 0-3-3L5 17v3z" />
+                  <path d="M12 7l3 3" />
+                </svg>
+              )}
+              {icon === 'github' && (
+                <svg viewBox="0 0 24 24" width="52" height="52" fill="currentColor">
+                  <path d="M12 .5a12 12 0 0 0-3.79 23.4c.6.11.82-.26.82-.58 0-.29-.01-1.06-.02-2.09-3.34.73-4.04-1.61-4.04-1.61-.55-1.4-1.35-1.77-1.35-1.77-1.11-.76.08-.74.08-.74 1.22.09 1.87 1.26 1.87 1.26 1.09 1.86 2.86 1.32 3.56 1.01.11-.8.43-1.32.78-1.62-2.67-.3-5.48-1.33-5.48-5.92 0-1.31.47-2.38 1.25-3.22-.13-.3-.54-1.52.12-3.16 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.64.25 2.86.12 3.16.78.84 1.24 1.91 1.24 3.22 0 4.6-2.82 5.61-5.5 5.91.44.38.83 1.13.83 2.28 0 1.65-.02 2.98-.02 3.39 0 .32.22.7.83.58A12 12 0 0 0 12 .5Z" />
+                </svg>
+              )}
+            </div>
+            <div class="face back">
+              <div class="label">{label}</div>
+            </div>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+  <script>
+    if (typeof window !== 'undefined') {
+      window.addEventListener('DOMContentLoaded', () => {
+        const overlay = document.querySelector('.intro-overlay');
+        const nameBtn = overlay?.querySelector('.intro-name');
+        const hub = document.querySelector('.hub');
+        const nodes = Array.from(document.querySelectorAll('.node'));
+        const prefersReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        let played = false;
+
+        if (!overlay || !nameBtn || !hub || nodes.length === 0 || typeof gsap === 'undefined') {
+          return;
+        }
+
+        const lockNodes = () => nodes.forEach((n) => (n.style.pointerEvents = 'none'));
+        const unlockNodes = () => nodes.forEach((n) => (n.style.pointerEvents = 'auto'));
+
+        const prepareNodes = () => {
+          const hubRect = hub.getBoundingClientRect();
+          const cx = hubRect.left + hubRect.width / 2;
+          const cy = hubRect.top + hubRect.height / 2;
+
+          nodes.forEach((node) => {
+            const rect = node.getBoundingClientRect();
+            const nx = rect.left + rect.width / 2;
+            const ny = rect.top + rect.height / 2;
+            const offsetX = cx - nx;
+            const offsetY = cy - ny;
+            node.dataset.offsetX = offsetX.toString();
+            node.dataset.offsetY = offsetY.toString();
+            gsap.set(node, { x: offsetX, y: offsetY, scale: 0.4, opacity: 0 });
+          });
+          gsap.set(hub, { rotation: 0, transformOrigin: '50% 50%' });
+          lockNodes();
+        };
+
+        const playReduced = () => {
+          gsap.to(overlay, { autoAlpha: 0, duration: 0.3, onComplete: () => overlay.remove() });
+          gsap.to(nodes, {
+            duration: 0.3,
+            opacity: 1,
+            scale: 1,
+            x: 0,
+            y: 0,
+            stagger: 0.05,
+            onComplete: unlockNodes,
+          });
+        };
+
+        const playIntro = () => {
+          if (played) return;
+          played = true;
+          prepareNodes();
+
+          if (prefersReduce) {
+            playReduced();
+            return;
+          }
+
+          const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+
+          tl.to(nameBtn, {
+            duration: 0.66,
+            rotate: 360,
+            scale: 0.6,
+            opacity: 0,
+            y: -10,
+          })
+            .to(
+              overlay,
+              {
+                autoAlpha: 0,
+                duration: 0.44,
+                onComplete: () => overlay.remove(),
+              },
+              '-=0.33'
+            )
+            .to(
+              nodes,
+              {
+                duration: 1.21,
+                opacity: 1,
+                scale: 1,
+                x: 0,
+                y: 0,
+                stagger: 0.08,
+                ease: 'power2.out',
+              },
+              '-=0.35'
+            )
+            .to(
+              hub,
+              {
+                duration: 1.21,
+                rotation: 360,
+                ease: 'power2.out',
+                onComplete: () => {
+                  gsap.set(hub, { rotation: 0 });
+                  unlockNodes();
+                },
+              },
+              '<'
+            );
+        };
+
+        nameBtn.addEventListener('click', playIntro);
+        nameBtn.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            playIntro();
+          }
+        });
+      });
+    }
+  </script>
+
+  <style>
+    .intro-overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      z-index: 5;
+    }
+    .intro-name {
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 3.78rem;
+      font-weight: 700;
+      padding: 0;
+      border-radius: 0;
+      cursor: pointer;
+      position: relative;
+      display: inline-block;
+      isolation: isolate;
+    }
+    .intro-name::after {
+      content: '';
+      position: absolute;
+      width: 140%;
+      height: 140%;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) scale(0.75);
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0) 65%);
+      opacity: 1;
+      animation: namePulse 5s ease-in-out infinite;
+      pointer-events: none;
+      z-index: -1;
+    }
+    @keyframes namePulse {
+      0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0);
+      }
+      25% {
+        opacity: 0.5;
+        transform: translate(-50%, -50%) scale(1);
+      }
+      50% {
+        opacity: 0.5;
+        transform: translate(-50%, -50%) scale(0);
+      }
+      75% {
+        opacity: 0.5;
+        transform: translate(-50%, -50%) scale(1);
+      }
+      100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0);
+      }
+    }
+    .intro-name:focus-visible {
+      outline: none;
+      text-decoration: underline;
+    }
+  </style>
+</BaseLayout>
