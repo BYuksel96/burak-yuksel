@@ -298,8 +298,9 @@ const currentIndex = timeline.findIndex((item) => item.current);
     .branch::after {
       content: '';
       position: absolute;
-      top: -6px;
-      right: -6px;
+      top: 50%;
+      right: -7px;
+      transform: translateY(-50%);
       width: 14px;
       height: 14px;
       border-radius: 50%;
@@ -314,7 +315,7 @@ const currentIndex = timeline.findIndex((item) => item.current);
     }
     .timeline-row.right .branch::after {
       right: auto;
-      left: -6px;
+      left: -7px;
     }
     .card {
       width: 220px;
