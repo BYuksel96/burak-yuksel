@@ -225,10 +225,13 @@
   display: grid;
   place-items: center;
   backface-visibility: hidden;
-  padding: 0.7vw;
+  /* padding: clamp(0.4rem, 2vw, 0.8rem); */
   text-align: center;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: clamp(0.75rem, 2vw, 1rem);
+  line-height: 1.2;
+  word-break: break-word;
+  white-space: normal;
   background: rgba(0, 0, 0, 0.35);
 }
 .icon-front {
