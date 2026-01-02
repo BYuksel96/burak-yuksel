@@ -272,7 +272,7 @@ article {
 
   .node[data-id='cv'] {
     top: 30%;
-    left: 35%;
+    left: 33%;
     transform: translate(-50%, 0);
     right: auto;
     bottom: auto;
@@ -280,14 +280,14 @@ article {
 
   .node[data-id='blog'] {
     top: 30%;
-    left: 65%;
+    left: 67%;
     right: auto;
     bottom: auto;
     transform: translate(-50%, 0);
   }
 
   .node[data-id='github'] {
-    top: 62%;
+    top: 55%;
     left: 50%;
     right: auto;
     bottom: auto;
