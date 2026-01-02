@@ -13,7 +13,9 @@
 }
 .nav-links {
   display: flex;
-  gap: 28px;
+  justify-content: space-between;
+  align-items: center;
+  width: 82.5%;
   font-weight: 600;
 }
 .nav-links a {
