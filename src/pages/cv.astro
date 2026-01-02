@@ -150,27 +150,95 @@ const currentIndex = timeline.findIndex((item) => item.current);
 
         items.forEach((row) => observer.observe(row));
 
+        let activeCard = null;
+        let activeOffsets = { x: 0, y: 0 };
+        let activeTimeline = null;
+
         const openModal = (card) => {
           if (!modal || !modalBackdrop || !modalTitle || !modalDate || !modalBody) return;
+          const cardInner = card.querySelector('.card-inner');
+          activeCard = card;
           modalTitle.textContent = card.dataset.title || '';
           modalDate.textContent = card.dataset.date || '';
           modalBody.textContent = card.dataset.description || '';
           modalBackdrop.classList.add('active');
-          gsap.fromTo(
-            modal,
-            { opacity: 0, scale: 0.9, rotateY: -10 },
-            { opacity: 1, scale: 1, rotateY: 0, duration: prefersReduce ? 0 : 0.6, ease: 'power2.out' }
-          );
-          gsap.to(card.querySelector('.card-inner'), { rotateY: 180, duration: prefersReduce ? 0 : 0.5, ease: 'power2.out' });
+
+          activeTimeline?.kill();
+          activeTimeline = null;
+
+          if (prefersReduce) {
+            gsap.set(cardInner, { rotateY: 180 });
+            gsap.set(card, { autoAlpha: 0 });
+            gsap.set(modal, { opacity: 1, scale: 1, x: 0, y: 0 });
+            return;
+          }
+
+          // Wait a frame so the modal can measure correctly after becoming visible.
+          requestAnimationFrame(() => {
+            const cardRect = cardInner?.getBoundingClientRect();
+            const modalRect = modal.getBoundingClientRect();
+            if (!cardRect || !modalRect) return;
+
+            const cardCenterX = cardRect.left + cardRect.width / 2;
+            const cardCenterY = cardRect.top + cardRect.height / 2;
+            const modalCenterX = modalRect.left + modalRect.width / 2;
+            const modalCenterY = modalRect.top + modalRect.height / 2;
+
+            activeOffsets = {
+              x: cardCenterX - modalCenterX,
+              y: cardCenterY - modalCenterY,
+            };
+
+            const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+            activeTimeline = tl;
+            tl.set(modal, { opacity: 0, scale: 0.75, x: activeOffsets.x, y: activeOffsets.y, transformOrigin: 'center center' });
+            tl.set(card, { autoAlpha: 1 });
+            tl.to(cardInner, { rotateY: 180, duration: 0.32, ease: 'power2.inOut' });
+            tl.set(card, { autoAlpha: 0 });
+            tl.to(modal, { opacity: 1, scale: 1, x: 0, y: 0, duration: 0.45 });
+          });
         };
 
         const closeModal = () => {
           if (!modal || !modalBackdrop) return;
-          modalBackdrop.classList.remove('active');
-          gsap.to(modal, { opacity: 0, scale: 0.95, duration: prefersReduce ? 0 : 0.25 });
-          document.querySelectorAll('.card-inner').forEach((inner) => {
-            gsap.set(inner, { rotateY: 0 });
+          const cardInner = activeCard?.querySelector('.card-inner');
+          const { x, y } = activeOffsets;
+
+          activeTimeline?.kill();
+          activeTimeline = null;
+
+          if (prefersReduce) {
+            gsap.set(modal, { clearProps: 'transform,opacity' });
+            if (activeCard) {
+              gsap.set(activeCard, { autoAlpha: 1 });
+              gsap.set(cardInner, { rotateY: 0 });
+            } else {
+              document.querySelectorAll('.card-inner').forEach((inner) => gsap.set(inner, { rotateY: 0 }));
+            }
+            modalBackdrop.classList.remove('active');
+            activeCard = null;
+            activeOffsets = { x: 0, y: 0 };
+            return;
+          }
+
+          const tl = gsap.timeline({
+            defaults: { ease: 'power2.out' },
+            onComplete: () => {
+              modalBackdrop.classList.remove('active');
+              activeCard = null;
+              activeOffsets = { x: 0, y: 0 };
+            },
           });
+          tl.to(modal, { opacity: 0, scale: 0.75, x, y, duration: 0.35 });
+          tl.set(modal, { clearProps: 'transform,opacity' });
+          if (activeCard && cardInner) {
+            tl.set(activeCard, { autoAlpha: 1 });
+            tl.to(cardInner, { rotateY: 0, duration: 0.3, ease: 'power2.inOut' });
+          } else {
+            tl.call(() => {
+              document.querySelectorAll('.card-inner').forEach((inner) => gsap.set(inner, { rotateY: 0 }));
+            });
+          }
         };
 
         document.addEventListener('click', (event) => {
