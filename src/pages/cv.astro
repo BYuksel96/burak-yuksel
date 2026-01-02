@@ -116,6 +116,7 @@ const currentIndex = timeline.findIndex((item) => item.current);
         const modalBody = document.getElementById('modalBody');
         const closeBtn = document.querySelector('.modal-close');
         const prefersReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const toVh = (value) => `${(value / Math.max(window.innerHeight, 1)) * 100}vh`;
 
         const layoutSpine = () => {
           if (!timelineEl || !solid || !dotted || !current || items.length === 0) return;
@@ -127,18 +128,21 @@ const currentIndex = timeline.findIndex((item) => item.current);
           // Start slightly above the first event so the solid line overlaps the dot fully.
           const startOffset = -40;
           const start = startBase + startOffset;
-          solid.style.top = `${start}px`;
-          solid.style.height = '0px';
-          dotted.style.height = '0px';
-          dotted.style.top = `${target}px`;
+          solid.style.top = toVh(start);
+          solid.style.height = '0';
+          dotted.style.height = '0';
+          dotted.style.top = toVh(target);
           dotted.style.opacity = '0';
 
           const solidDuration = prefersReduce ? 0 : 1;
           const dottedDuration = prefersReduce ? 0 : 0.8;
           const dottedDelay = prefersReduce ? 0 : 0.2;
 
-          gsap.to(solid, { height: Math.max(target - start, 0), duration: solidDuration, ease: 'power2.out' });
-          gsap.to(dotted, { height: Math.max(tRect.height - target, 0), duration: dottedDuration, delay: dottedDelay, ease: 'power2.out', opacity: 1 });
+          const solidHeight = Math.max(target - start, 0);
+          const dottedHeight = Math.max(tRect.height - target, 0);
+
+          gsap.to(solid, { height: toVh(solidHeight), duration: solidDuration, ease: 'power2.out' });
+          gsap.to(dotted, { height: toVh(dottedHeight), duration: dottedDuration, delay: dottedDelay, ease: 'power2.out', opacity: 1 });
         };
 
         const observer = new IntersectionObserver(

@@ -117,9 +117,9 @@ a:hover {
 
 .node {
   position: absolute;
-  width: 120px;
-  height: 120px;
-  perspective: 800px;
+  width: 28%;
+  aspect-ratio: 1 / 1;
+  perspective: 80rem;
   text-decoration: none;
   color: inherit;
   border-radius: 50%;
@@ -263,6 +263,35 @@ article {
   .nav {
     width: 100%;
     justify-content: center;
+  }
+
+  .node {
+    width: 32%;
+    aspect-ratio: 1 / 1;
+  }
+
+  .node[data-id='cv'] {
+    top: 30%;
+    left: 35%;
+    transform: translate(-50%, 0);
+    right: auto;
+    bottom: auto;
+  }
+
+  .node[data-id='blog'] {
+    top: 30%;
+    left: 65%;
+    right: auto;
+    bottom: auto;
+    transform: translate(-50%, 0);
+  }
+
+  .node[data-id='github'] {
+    top: 62%;
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    transform: translate(-50%, 0);
   }
 
 }
