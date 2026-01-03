@@ -15,76 +15,82 @@ const currentIndex = timeline.findIndex((item) => item.current);
   footerText="© 2026 Burak Yuksel"
 >
   <div class="cv-page">
-    <nav class="cv-nav">
-      <div class="nav-links">
-        <a href={base}>Homepage</a>
-        <a href={`${base}blog/`}>Blog</a>
-        <a href="https://github.com/BYuksel96" target="_blank" rel="noreferrer">GitHub</a>
-      </div>
-      <div class="nav-line"></div>
-    </nav>
+    <header class="cv-header">
+      <nav class="cv-nav">
+        <div class="nav-links">
+          <a href={base}>Homepage</a>
+          <a href={`${base}blog/`}>Blog</a>
+          <a href="https://github.com/BYuksel96" target="_blank" rel="noreferrer">GitHub</a>
+        </div>
+        <div class="nav-line"></div>
+      </nav>
+    </header>
 
-    <section class="timeline" data-current-index={currentIndex}>
-      <div class="spine solid"></div>
-      <div class="spine dotted"></div>
-
-      <div class="timeline-items">
-        {timeline.map((item, index) => {
-          const imageSrc = resolveImageSrc(item.imageSrc);
-          return (
-            <div
-              class={`timeline-row ${item.side === 'left' ? 'left' : 'right'}`}
-              data-current={item.current ? 'true' : 'false'}
-              data-index={index}
-            >
-              <div class="branch"></div>
-              <button
-                class="card"
-                data-id={item.id}
-                data-title={item.title}
-                data-date={item.date}
-                data-description={item.description}
-                data-image={imageSrc}
-                aria-label={`Open ${item.title}`}
+    <main class="cv-main">
+      <section class="timeline" data-current-index={currentIndex}>
+        <div class="spine solid"></div>
+        <div class="spine dotted"></div>
+  
+        <div class="timeline-items">
+          {timeline.map((item, index) => {
+            const imageSrc = resolveImageSrc(item.imageSrc);
+            return (
+              <div
+                class={`timeline-row ${item.side === 'left' ? 'left' : 'right'}`}
+                data-current={item.current ? 'true' : 'false'}
+                data-index={index}
               >
-                <div class="card-inner">
-                  <div class="face front" style={`background-image:url('${imageSrc}')`}></div>
-                  <div class="face back">
-                    <div class="label">{item.title}</div>
-                    <div class="muted small">{item.date}</div>
+                <div class="branch"></div>
+                <button
+                  class="card"
+                  data-id={item.id}
+                  data-title={item.title}
+                  data-date={item.date}
+                  data-description={item.description}
+                  data-image={imageSrc}
+                  aria-label={`Open ${item.title}`}
+                >
+                  <div class="card-inner">
+                    <div class="face front" style={`background-image:url('${imageSrc}')`}></div>
+                    <div class="face back">
+                      <div class="label">{item.title}</div>
+                      <div class="muted small">{item.date}</div>
+                    </div>
                   </div>
-                </div>
-              </button>
-            </div>
-          );
-        })}
-      </div>
-    </section>
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+    </main>
 
-    <div class="floating-icons">
-      <a class="icon-card" href={`${base}cv.pdf`} download>
-        <div class="icon-flip">
-          <div class="icon-face icon-front">
-            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6">
-              <path d="M12 3v12" />
-              <path d="M7 11l5 5 5-5" />
-              <path d="M5 19h14" />
-            </svg>
+    <footer class="cv-footer">
+      <div class="floating-icons">
+        <a class="icon-card" href={`${base}cv.pdf`} download>
+          <div class="icon-flip">
+            <div class="icon-face icon-front">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path d="M12 3v12" />
+                <path d="M7 11l5 5 5-5" />
+                <path d="M5 19h14" />
+              </svg>
+            </div>
+            <div class="icon-face icon-back">Download CV</div>
           </div>
-          <div class="icon-face icon-back">Download CV</div>
-        </div>
-      </a>
-      <a class="icon-card" href="https://linkedin.com" target="_blank" rel="noreferrer">
-        <div class="icon-flip">
-          <div class="icon-face icon-front">
-            <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
-              <path d="M4.98 3.5C4.98 4.88 3.88 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM.2 8.1h4.6V24H.2zM8.4 8.1h4.4v2.2h.06c.62-1.2 2.14-2.47 4.42-2.47 4.73 0 5.6 3.11 5.6 7.15V24h-4.6v-7.42c0-1.77-.03-4.05-2.47-4.05-2.47 0-2.85 1.93-2.85 3.92V24H8.4z" />
-            </svg>
+        </a>
+        <a class="icon-card" href="https://linkedin.com" target="_blank" rel="noreferrer">
+          <div class="icon-flip">
+            <div class="icon-face icon-front">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+                <path d="M4.98 3.5C4.98 4.88 3.88 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM.2 8.1h4.6V24H.2zM8.4 8.1h4.4v2.2h.06c.62-1.2 2.14-2.47 4.42-2.47 4.73 0 5.6 3.11 5.6 7.15V24h-4.6v-7.42c0-1.77-.03-4.05-2.47-4.05-2.47 0-2.85 1.93-2.85 3.92V24H8.4z" />
+              </svg>
+            </div>
+            <div class="icon-face icon-back">LinkedIn</div>
           </div>
-          <div class="icon-face icon-back">LinkedIn</div>
-        </div>
-      </a>
-    </div>
+        </a>
+      </div>
+    </footer>
 
     <div class="modal-backdrop" aria-hidden="true">
       <div class="modal">
