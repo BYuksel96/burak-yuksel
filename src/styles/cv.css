@@ -206,11 +206,12 @@
 
 .floating-icons {
   position: fixed;
-  bottom: 2.3vw;
-  left: 2.3vw;
+  bottom: calc(var(--site-footer-height) + 2rem);
+  right: clamp(1rem, 3vw, 1.8rem);
+  left: auto;
   display: grid;
   gap: 1vw;
-  z-index: 8;
+  z-index: 13;
 }
 .icon-card {
   width: clamp(4.06rem, 7vw, 5.31rem);
