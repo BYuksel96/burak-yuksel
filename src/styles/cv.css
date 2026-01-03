@@ -3,7 +3,8 @@
   min-height: 100%;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-x: visible;
+  overflow-y: hidden;
 }
 .cv-nav {
   display: flex;
@@ -15,8 +16,10 @@
 .cv-main {
   flex: 1;
   overflow-y: auto;
+  overflow-x: visible;
   padding-top: 2rem;
   padding-bottom: calc(var(--site-footer-height) + 4rem);
+  padding-inline: clamp(1rem, 4vw, 2.25rem);
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
