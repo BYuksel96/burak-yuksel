@@ -41,9 +41,15 @@
 .nav-links a {
   color: var(--text);
   text-decoration: none;
+  padding: 0.4rem 0.9rem;
+  border-radius: 10px;
+  transition: box-shadow 0.28s ease, text-shadow 0.28s ease, color 0.28s ease;
+  box-shadow: none;
 }
-.nav-links a:hover {
-  opacity: 0.8;
+.nav-links a:hover,
+.nav-links a:focus-visible {
+  box-shadow: none;
+  text-shadow: 0 0 30px rgba(255, 255, 255, 1), 0 0 60px rgba(255, 255, 255, 1), 0 0 48px rgba(255, 255, 255, 1);
 }
 .nav-line {
   width: 78vw;
