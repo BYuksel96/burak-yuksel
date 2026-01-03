@@ -1,14 +1,22 @@
 .cv-page {
-  min-height: 100vh;
+  height: 100%;
+  min-height: 100%;
   display: flex;
   flex-direction: column;
   gap: 4vw;
+  overflow: hidden;
 }
 .cv-nav {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1vw;
+  padding-top: 1.5rem;
+}
+.cv-main {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: calc(var(--site-footer-height) + 3rem);
 }
 .nav-links {
   display: flex;
@@ -323,4 +331,30 @@
   .spine {
     left: 50%;
   }
+}
+
+body.cv-body {
+  overflow: hidden;
+}
+
+body.cv-body .page {
+  min-height: 100vh;
+  height: 100vh;
+}
+
+body.cv-body .content {
+  height: calc(100vh - var(--site-footer-height));
+  padding: 0;
+  overflow: hidden;
+}
+
+body.cv-body .site-footer {
+  position: fixed;
+  inset: auto 0 0 0;
+  min-height: var(--site-footer-height);
+  display: flex;
+  align-items: center;
+  background: var(--surface);
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.35);
+  z-index: 12;
 }

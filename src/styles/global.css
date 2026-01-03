@@ -6,6 +6,7 @@
   --accent: #ffffff;
   --radius: 12px;
   --font: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --site-footer-height: 32px;
 }
 
 *,
