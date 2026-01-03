@@ -138,8 +138,8 @@
   box-shadow: 0 0 0.9vw rgba(0, 0, 0, 0.35);
 }
 .card {
-  width: 13.5vw;
-  height: 13.5vw;
+  width: clamp(5.5rem, 26vw, 14rem);
+  height: clamp(5.5rem, 26vw, 14rem);
   background: transparent;
   border: none;
   padding: 0;
@@ -316,6 +316,9 @@
   .timeline-row.left .card,
   .timeline-row.right .card {
     justify-self: center;
+    transform: none;
+    width: clamp(7rem, 70vw, 12rem);
+    height: clamp(7rem, 70vw, 12rem);
   }
   .spine {
     left: 50%;
