@@ -128,7 +128,7 @@ const currentIndex = timeline.findIndex((item) => item.current);
           // Start slightly above the first event so the solid line overlaps the dot fully.
           const startOffset = -40;
           const start = startBase + startOffset;
-          solid.style.top = toVh(start);
+          solid.style.top = toVh(start + 10);
           solid.style.height = '0';
           dotted.style.height = '0';
           dotted.style.top = toVh(target);
