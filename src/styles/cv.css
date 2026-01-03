@@ -15,8 +15,13 @@
 .cv-main {
   flex: 1;
   overflow-y: auto;
-  padding-top: 4rem;
-  padding-bottom: calc(var(--site-footer-height) + 6rem);
+  padding-top: 2rem;
+  padding-bottom: calc(var(--site-footer-height) + 4rem);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.cv-main::-webkit-scrollbar {
+  display: none;
 }
 .nav-links {
   display: flex;
