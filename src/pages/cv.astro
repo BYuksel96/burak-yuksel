@@ -91,6 +91,29 @@ const currentIndex = timeline.findIndex((item) => item.current);
           </div>
         </a>
       </div>
+      <div class="floating-tray">
+        <div class="tray-shell">
+          <button class="tray-toggle" aria-label="Open quick links" aria-expanded="false" aria-controls="trayMenu">
+            &gt;
+          </button>
+          <div class="tray-panel" id="trayMenu">
+            <a class="tray-item" href={`${base}cv.pdf`} download>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path d="M12 3v12" />
+                <path d="M7 11l5 5 5-5" />
+                <path d="M5 19h14" />
+              </svg>
+              <span>Download CV</span>
+            </a>
+            <a class="tray-item" href="https://linkedin.com" target="_blank" rel="noreferrer">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                <path d="M4.98 3.5C4.98 4.88 3.88 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM.2 8.1h4.6V24H.2zM8.4 8.1h4.4v2.2h.06c.62-1.2 2.14-2.47 4.42-2.47 4.73 0 5.6 3.11 5.6 7.15V24h-4.6v-7.42c0-1.77-.03-4.05-2.47-4.05-2.47 0-2.85 1.93-2.85 3.92V24H8.4z" />
+              </svg>
+              <span>LinkedIn Profile</span>
+            </a>
+          </div>
+        </div>
+      </div>
     </footer>
 
     <div class="modal-backdrop" aria-hidden="true">
@@ -273,6 +296,16 @@ const currentIndex = timeline.findIndex((item) => item.current);
         closeBtn?.addEventListener('click', closeModal);
         modalBackdrop?.addEventListener('click', (e) => {
           if (e.target === modalBackdrop) closeModal();
+        });
+
+        const trayToggle = document.querySelector('.tray-toggle');
+        const trayPanel = document.querySelector('.tray-panel');
+        const trayShell = document.querySelector('.tray-shell');
+        trayToggle?.addEventListener('click', () => {
+          if (!trayPanel || !trayToggle || !trayShell) return;
+          const isOpen = trayShell.classList.toggle('open');
+          trayPanel.classList.toggle('open', isOpen);
+          trayToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
         });
 
         layoutSpine();
