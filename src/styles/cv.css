@@ -297,12 +297,16 @@
 }
 .modal-close {
   background: transparent;
-  border: 0.2vw solid #f87171;
+  border: 0.12rem solid #f87171;
   color: #f87171;
-  border-radius: 0.8vw;
-  width: 3.3vw;
-  height: 3.3vw;
-  font-size: 1.1rem;
+  border-radius: 0.5rem;
+  width: clamp(2.2rem, 8vw, 2.8rem);
+  height: clamp(2.2rem, 8vw, 2.8rem);
+  font-size: clamp(1rem, 3vw, 1.15rem);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
   cursor: pointer;
 }
 .modal-body {
