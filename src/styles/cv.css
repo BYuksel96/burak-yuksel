@@ -175,7 +175,8 @@
   overflow: hidden;
   transform-style: preserve-3d;
   transition: transform 0.4s ease;
-  box-shadow: 0 1vw 7vw rgba(0, 0, 0, 0.5);
+  box-shadow: 0 1vw 9vw rgba(0, 0, 0, 0.65);
+  animation: card-glow 3.4s ease-in-out infinite;
 }
 .card .face {
   position: absolute;
@@ -317,6 +318,18 @@
   padding: 1.5vw;
   overflow-y: auto;
   line-height: 1.6;
+}
+
+@keyframes card-glow {
+  0% {
+    box-shadow: 0 1vw 9vw rgba(0, 0, 0, 0.65);
+  }
+  50% {
+    box-shadow: 0 1vw 11vw rgba(0, 0, 0, 0.78), 0 0 1.6vw rgba(255, 255, 255, 0.18);
+  }
+  100% {
+    box-shadow: 0 1vw 9vw rgba(0, 0, 0, 0.65);
+  }
 }
 
 @media (max-width: 90vmin) {
