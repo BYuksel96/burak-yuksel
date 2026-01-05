@@ -1,0 +1,318 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import timeline from '../content/timeline.json';
+import '../styles/cv.css';
+
+const base = import.meta.env.BASE_URL || '/';
+const resolveImageSrc = (src) => (src.startsWith('/') ? `${base}${src.slice(1)}` : `${base}${src}`);
+const currentIndex = timeline.findIndex((item) => item.current);
+---
+
+<BaseLayout
+  title="Burak Yuksel - CV"
+  description="CV timeline with milestones and quick links."
+  hideHeader={true}
+  bodyClass="cv-body"
+  footerText="© 2026 Burak Yuksel"
+>
+  <div class="cv-page">
+    <header class="cv-header">
+      <nav class="cv-nav">
+        <div class="nav-links">
+          <a href={base}>Homepage</a>
+          <a href={`${base}blog/`}>Blog</a>
+          <a href="https://github.com/BYuksel96" target="_blank" rel="noreferrer">GitHub</a>
+        </div>
+        <div class="nav-line"></div>
+      </nav>
+    </header>
+
+    <main class="cv-main">
+      <section class="timeline" data-current-index={currentIndex}>
+        <div class="spine solid"></div>
+        <div class="spine dotted"></div>
+  
+        <div class="timeline-items">
+          {timeline.map((item, index) => {
+            const imageSrc = resolveImageSrc(item.imageSrc);
+            return (
+              <div
+                class={`timeline-row ${item.side === 'left' ? 'left' : 'right'}`}
+                data-current={item.current ? 'true' : 'false'}
+                data-index={index}
+              >
+                <div class="branch"></div>
+                <button
+                  class="card"
+                  data-id={item.id}
+                  data-title={item.title}
+                  data-date={item.date}
+                  data-description={item.description}
+                  data-image={imageSrc}
+                  aria-label={`Open ${item.title}`}
+                >
+                  <div class="card-inner">
+                    <div class="face front" style={`background-image:url('${imageSrc}')`}></div>
+                    <div class="face back">
+                      <div class="label">{item.title}</div>
+                      <div class="muted small">{item.date}</div>
+                    </div>
+                  </div>
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+    </main>
+
+    <footer class="cv-footer">
+      <div class="floating-icons">
+        <a class="icon-card" href={`${base}cv.pdf`} download>
+          <div class="icon-flip">
+            <div class="icon-face icon-front">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path d="M12 3v12" />
+                <path d="M7 11l5 5 5-5" />
+                <path d="M5 19h14" />
+              </svg>
+            </div>
+            <div class="icon-face icon-back">Download CV</div>
+          </div>
+        </a>
+        <a class="icon-card" href="https://www.linkedin.com/in/burak-yuksel96/" target="_blank" rel="noreferrer">
+          <div class="icon-flip">
+            <div class="icon-face icon-front">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+                <path d="M4.98 3.5C4.98 4.88 3.88 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM.2 8.1h4.6V24H.2zM8.4 8.1h4.4v2.2h.06c.62-1.2 2.14-2.47 4.42-2.47 4.73 0 5.6 3.11 5.6 7.15V24h-4.6v-7.42c0-1.77-.03-4.05-2.47-4.05-2.47 0-2.85 1.93-2.85 3.92V24H8.4z" />
+              </svg>
+            </div>
+            <div class="icon-face icon-back">LinkedIn</div>
+          </div>
+        </a>
+      </div>
+      <div class="floating-tray">
+        <div class="tray-shell">
+          <button class="tray-toggle" aria-label="Open quick links" aria-expanded="false" aria-controls="trayMenu">
+            &gt;
+          </button>
+          <div class="tray-panel" id="trayMenu">
+            <a class="tray-item" href={`${base}cv.pdf`} download>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path d="M12 3v12" />
+                <path d="M7 11l5 5 5-5" />
+                <path d="M5 19h14" />
+              </svg>
+              <span>Download CV</span>
+            </a>
+            <a class="tray-item" href="https://www.linkedin.com/in/burak-yuksel96/" target="_blank" rel="noreferrer">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                <path d="M4.98 3.5C4.98 4.88 3.88 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM.2 8.1h4.6V24H.2zM8.4 8.1h4.4v2.2h.06c.62-1.2 2.14-2.47 4.42-2.47 4.73 0 5.6 3.11 5.6 7.15V24h-4.6v-7.42c0-1.77-.03-4.05-2.47-4.05-2.47 0-2.85 1.93-2.85 3.92V24H8.4z" />
+              </svg>
+              <span>LinkedIn Profile</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <div class="modal-backdrop" aria-hidden="true">
+      <div class="modal">
+        <header class="modal-head">
+          <div class="modal-title">
+            <h3 id="modalTitle"></h3>
+            <span class="muted" id="modalDate"></span>
+          </div>
+          <button class="modal-close" aria-label="Close modal">X</button>
+        </header>
+        <div class="modal-body" id="modalBody"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+  <script>
+    if (typeof window !== 'undefined') {
+      window.addEventListener('DOMContentLoaded', () => {
+        const timelineEl = document.querySelector('.timeline');
+        const solid = document.querySelector('.spine.solid');
+        const dotted = document.querySelector('.spine.dotted');
+        const current = document.querySelector('.timeline-row[data-current="true"]');
+        const items = document.querySelectorAll('.timeline-row');
+        const modalBackdrop = document.querySelector('.modal-backdrop');
+        const modal = document.querySelector('.modal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalDate = document.getElementById('modalDate');
+        const modalBody = document.getElementById('modalBody');
+        const closeBtn = document.querySelector('.modal-close');
+        const prefersReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const toVh = (value) => `${(value / Math.max(window.innerHeight, 1)) * 100}vh`;
+
+        const layoutSpine = () => {
+          if (!timelineEl || !solid || !dotted || !current || items.length === 0) return;
+          const tRect = timelineEl.getBoundingClientRect();
+          const firstRect = items[0].getBoundingClientRect();
+          const cRect = current.getBoundingClientRect();
+          const startBase = firstRect.top + firstRect.height / 2 - tRect.top;
+          const target = cRect.top + cRect.height / 2 - tRect.top;
+          // Start slightly above the first event so the solid line overlaps the dot fully.
+          const startOffset = -40;
+          const start = startBase + startOffset;
+          solid.style.top = toVh(start + 10);
+          solid.style.height = '0';
+          dotted.style.height = '0';
+          dotted.style.top = toVh(target);
+          dotted.style.opacity = '0';
+
+          const solidDuration = prefersReduce ? 0 : 1;
+          const dottedDuration = prefersReduce ? 0 : 0.8;
+          const dottedDelay = prefersReduce ? 0 : 0.2;
+
+          const solidHeight = Math.max(target - start, 0);
+          const dottedHeight = Math.max(tRect.height - target, 0);
+
+          gsap.to(solid, { height: toVh(solidHeight), duration: solidDuration, ease: 'power2.out' });
+          gsap.to(dotted, { height: toVh(dottedHeight), duration: dottedDuration, delay: dottedDelay, ease: 'power2.out', opacity: 1 });
+        };
+
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+              }
+            });
+          },
+          { threshold: 0.2 }
+        );
+
+        items.forEach((row) => observer.observe(row));
+
+        let activeCard = null;
+        let activeOffsets = { x: 0, y: 0 };
+        let activeTimeline = null;
+
+        const openModal = (card) => {
+          if (!modal || !modalBackdrop || !modalTitle || !modalDate || !modalBody) return;
+          const cardInner = card.querySelector('.card-inner');
+          activeCard = card;
+          modalTitle.textContent = card.dataset.title || '';
+          modalDate.textContent = card.dataset.date || '';
+          modalBody.textContent = card.dataset.description || '';
+          modalBackdrop.classList.add('active');
+
+          activeTimeline?.kill();
+          activeTimeline = null;
+
+          if (prefersReduce) {
+            gsap.set(cardInner, { rotateY: 180 });
+            gsap.set(card, { autoAlpha: 0 });
+            gsap.set(modal, { opacity: 1, scale: 1, x: 0, y: 0 });
+            return;
+          }
+
+          // Wait a frame so the modal can measure correctly after becoming visible.
+          requestAnimationFrame(() => {
+            const cardRect = cardInner?.getBoundingClientRect();
+            const modalRect = modal.getBoundingClientRect();
+            if (!cardRect || !modalRect) return;
+
+            const cardCenterX = cardRect.left + cardRect.width / 2;
+            const cardCenterY = cardRect.top + cardRect.height / 2;
+            const modalCenterX = modalRect.left + modalRect.width / 2;
+            const modalCenterY = modalRect.top + modalRect.height / 2;
+
+            activeOffsets = {
+              x: cardCenterX - modalCenterX,
+              y: cardCenterY - modalCenterY,
+            };
+
+            const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+            activeTimeline = tl;
+            tl.set(modal, { opacity: 0, scale: 0.6, x: activeOffsets.x, y: activeOffsets.y, transformOrigin: 'center center', autoAlpha: 0 });
+            tl.set(card, { autoAlpha: 1 });
+            tl.to(cardInner, { rotateY: 180, duration: 0.4, ease: 'power2.inOut' });
+            tl.set(card, { autoAlpha: 0 });
+            tl.to(modal, { opacity: 1, autoAlpha: 1, scale: 0.9, x: 0, y: 0, duration: 0.55, ease: 'power2.out' });
+            tl.to(modal, { scale: 1, duration: 0.25, ease: 'power1.out' }, '>-10%');
+          });
+        };
+
+        const closeModal = () => {
+          if (!modal || !modalBackdrop) return;
+          const cardInner = activeCard?.querySelector('.card-inner');
+          const { x, y } = activeOffsets;
+
+          activeTimeline?.kill();
+          activeTimeline = null;
+
+          if (prefersReduce) {
+            gsap.set(modal, { clearProps: 'transform,opacity' });
+            if (activeCard) {
+              gsap.set(activeCard, { autoAlpha: 1 });
+              gsap.set(cardInner, { rotateY: 0 });
+            } else {
+              document.querySelectorAll('.card-inner').forEach((inner) => gsap.set(inner, { rotateY: 0 }));
+            }
+            modalBackdrop.classList.remove('active');
+            activeCard = null;
+            activeOffsets = { x: 0, y: 0 };
+            return;
+          }
+
+          const tl = gsap.timeline({
+            defaults: { ease: 'power2.out' },
+            onComplete: () => {
+              modalBackdrop.classList.remove('active');
+              activeCard = null;
+              activeOffsets = { x: 0, y: 0 };
+            },
+          });
+          tl.to(modal, { opacity: 0.85, scale: 0.85, duration: 0.2 });
+          tl.to(modal, { opacity: 0, autoAlpha: 0, scale: 0.6, x, y, duration: 0.45 });
+          tl.set(modal, { autoAlpha: 0, clearProps: 'transform,opacity' });
+          if (activeCard && cardInner) {
+            tl.set(activeCard, { autoAlpha: 1 });
+            tl.set(cardInner, { rotateY: 180 });
+            tl.to(cardInner, { rotateY: 0, duration: 0.4, ease: 'power2.inOut' });
+          } else {
+            tl.call(() => {
+              document.querySelectorAll('.card-inner').forEach((inner) => gsap.set(inner, { rotateY: 0 }));
+            });
+          }
+        };
+
+        document.addEventListener('click', (event) => {
+          const card = (event.target instanceof Element && event.target.closest('.card')) || null;
+          if (card) {
+            event.preventDefault();
+            openModal(card);
+          }
+          if (event.target instanceof Element && event.target.classList.contains('modal-backdrop')) {
+            closeModal();
+          }
+        });
+
+        closeBtn?.addEventListener('click', closeModal);
+        modalBackdrop?.addEventListener('click', (e) => {
+          if (e.target === modalBackdrop) closeModal();
+        });
+
+        const trayToggle = document.querySelector('.tray-toggle');
+        const trayPanel = document.querySelector('.tray-panel');
+        const trayShell = document.querySelector('.tray-shell');
+        trayToggle?.addEventListener('click', () => {
+          if (!trayPanel || !trayToggle || !trayShell) return;
+          const isOpen = trayShell.classList.toggle('open');
+          trayPanel.classList.toggle('open', isOpen);
+          trayToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
+
+        layoutSpine();
+        window.addEventListener('resize', () => {
+          layoutSpine();
+        });
+      });
+    }
+  </script>
+</BaseLayout>

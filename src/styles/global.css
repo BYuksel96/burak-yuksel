@@ -6,6 +6,7 @@
   --accent: #ffffff;
   --radius: 12px;
   --font: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --site-footer-height: 32px;
 }
 
 *,
@@ -56,8 +57,15 @@ a:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 18px 0;
   gap: 12px;
+}
+
+.site-header .shell {
+  padding: 18px 0;
+}
+
+.site-footer .shell {
+  padding: 0;
 }
 
 .brand {
@@ -80,7 +88,7 @@ a:hover {
 
 .content {
   flex: 1;
-  padding: 48px 0 64px;
+  padding: 20px 0 32px;
   display: flex;
   justify-content: center;
 }
@@ -117,9 +125,9 @@ a:hover {
 
 .node {
   position: absolute;
-  width: 120px;
-  height: 120px;
-  perspective: 800px;
+  width: 28%;
+  aspect-ratio: 1 / 1;
+  perspective: 80rem;
   text-decoration: none;
   color: inherit;
   border-radius: 50%;
@@ -263,6 +271,35 @@ article {
   .nav {
     width: 100%;
     justify-content: center;
+  }
+
+  .node {
+    width: 32%;
+    aspect-ratio: 1 / 1;
+  }
+
+  .node[data-id='cv'] {
+    top: 30%;
+    left: 33%;
+    transform: translate(-50%, 0);
+    right: auto;
+    bottom: auto;
+  }
+
+  .node[data-id='blog'] {
+    top: 30%;
+    left: 67%;
+    right: auto;
+    bottom: auto;
+    transform: translate(-50%, 0);
+  }
+
+  .node[data-id='github'] {
+    top: 55%;
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    transform: translate(-50%, 0);
   }
 
 }
