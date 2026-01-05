@@ -4,6 +4,6 @@ import { defineConfig } from 'astro/config';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://byuksel96.github.io/burak-yuksel/',
-  base: '/burak-yuksel',
+  base: '/burak-yuksel/',
   output: 'static',
 });
