@@ -36,6 +36,9 @@ const currentIndex = timeline.findIndex((item) => item.current);
         <div class="timeline-items">
           {timeline.map((item, index) => {
             const imageSrc = resolveImageSrc(item.imageSrc);
+            const description = Array.isArray(item.description)
+              ? item.description.join('\n')
+              : item.description;
             return (
               <div
                 class={`timeline-row ${item.side === 'left' ? 'left' : 'right'}`}
@@ -48,7 +51,7 @@ const currentIndex = timeline.findIndex((item) => item.current);
                   data-id={item.id}
                   data-title={item.title}
                   data-date={item.date}
-                  data-description={item.description}
+                  data-description={description}
                   data-image={imageSrc}
                   aria-label={`Open ${item.title}`}
                 >

@@ -1,11 +1,15 @@
 [
   {
     "id": "born",
-    "title": "Born",
+    "title": "Programme Kick-Off: Human v1.0",
     "date": "1996",
     "side": "left",
-    "imageSrc": "/BY-logo.png",
-    "description": "A simple starting point in the journey. Replace this text with your own story.",
+    "imageSrc": "/me_baby.jpeg",
+    "description": [
+      "Launched initial version in 1996 following successful delivery milestone.",
+      "Entered iterative development phase focused on learning, resilience, and continuous optimisation.",
+      "Subsequent versions have demonstrated increasing capability, maturity, and impact."
+    ],
     "current": false
   },
   {
