@@ -13,29 +13,38 @@
     "current": false
   },
   {
-    "id": "school",
-    "title": "High School",
-    "date": "2014",
+    "id": "university",
+    "title": "University",
+    "date": "2014 - 2018",
     "side": "right",
-    "imageSrc": "/BY-logo.png",
+    "imageSrc": "Graduation.jpg",
     "description": "Finished high school. Add highlights, achievements, or key memories here.",
     "current": false
   },
   {
-    "id": "university",
-    "title": "University",
-    "date": "2018",
+    "id": "ge",
+    "title": "General Electric Internship",
+    "date": "2016 - 2017",
     "side": "left",
-    "imageSrc": "/BY-logo.png",
+    "imageSrc": "/ge_logo.jpg",
     "description": "Earned a degree. Share program details, awards, research, or clubs that mattered.",
     "current": false
   },
   {
-    "id": "current-role",
-    "title": "Current Role",
-    "date": "2026",
+    "id": "barclays",
+    "title": "Barclaycard",
+    "date": "2018 - 2024",
     "side": "right",
-    "imageSrc": "/BY-logo.png",
+    "imageSrc": "/barclaycard_logo.jpg",
+    "description": "Working on modern web projects with Astro and content-driven experiences. Describe responsibilities, stack, and impact.",
+    "current": false
+  },
+  {
+    "id": "discover",
+    "title": "Discover Financial Services",
+    "date": "2024 - Present",
+    "side": "left",
+    "imageSrc": "/discover_logo.jpg",
     "description": "Working on modern web projects with Astro and content-driven experiences. Describe responsibilities, stack, and impact.",
     "current": true
   },
@@ -43,8 +52,8 @@
     "id": "future",
     "title": "Next Chapter",
     "date": "Future",
-    "side": "left",
-    "imageSrc": "/BY-logo.png",
+    "side": "Right",
+    "imageSrc": "/you.png",
     "description": "Placeholder for upcoming milestones. Update this as your journey continues.",
     "current": false
   }

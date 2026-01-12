@@ -173,6 +173,9 @@ const links = [
             );
         };
 
+        const autoDelayMs = 2400;
+        const autoTimer = window.setTimeout(playIntro, autoDelayMs);
+
         nameBtn.addEventListener('click', playIntro);
         nameBtn.addEventListener('keydown', (event) => {
           if (event.key === 'Enter' || event.key === ' ') {
@@ -206,42 +209,19 @@ const links = [
       position: relative;
       display: inline-block;
       isolation: isolate;
+      transform-origin: center;
+      transform: scale(0);
+      opacity: 0;
+      animation: nameGrow 2.2s ease-out forwards;
     }
-    .intro-name::after {
-      content: '';
-      position: absolute;
-      width: 140%;
-      height: 140%;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%) scale(0.75);
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0) 65%);
-      opacity: 1;
-      animation: namePulse 5s ease-in-out infinite;
-      pointer-events: none;
-      z-index: -1;
-    }
-    @keyframes namePulse {
+    @keyframes nameGrow {
       0% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(0);
-      }
-      25% {
-        opacity: 0.5;
-        transform: translate(-50%, -50%) scale(1);
-      }
-      50% {
-        opacity: 0.5;
-        transform: translate(-50%, -50%) scale(0);
-      }
-      75% {
-        opacity: 0.5;
-        transform: translate(-50%, -50%) scale(1);
+        transform: scale(0);
+        opacity: 0;
       }
       100% {
+        transform: scale(1);
         opacity: 1;
-        transform: translate(-50%, -50%) scale(0);
       }
     }
     .intro-name:focus-visible {
