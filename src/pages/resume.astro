@@ -232,6 +232,9 @@ const currentIndex = timeline.findIndex((item) => item.current);
             return;
           }
 
+          solid.classList.add('shimmer');
+          dotted.classList.add('shimmer');
+
           const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
 
           rows.forEach((row, idx) => {
@@ -241,9 +244,13 @@ const currentIndex = timeline.findIndex((item) => item.current);
             const inner = cardInners[idx];
 
             tl.to(dot, { autoAlpha: 1, scale: 1, duration: 0.2 });
+            tl.call(() => {
+              if (dot) dot.classList.add('pulse');
+            }, [], '<');
             tl.to(branch, { scaleX: 1, duration: 0.32 }, '<');
             tl.to(card, { autoAlpha: 1, duration: 0.2 }, '<');
-            tl.to(inner, { scale: 1, duration: 0.38 }, '<');
+            tl.to(inner, { scale: 1.05, duration: 0.28 }, '<');
+            tl.to(inner, { scale: 1, duration: 0.22 }, '>-15%');
 
             if (idx < rows.length - 1) {
               const nextCenter = centers[idx + 1];
@@ -260,6 +267,10 @@ const currentIndex = timeline.findIndex((item) => item.current);
             const dottedHeight = Math.max(tRect.height - currentCenter, 0);
             tl.to(dotted, { height: toVh(dottedHeight), duration: 0.5 }, '>');
           }
+          tl.call(() => {
+            solid.classList.remove('shimmer');
+            dotted.classList.remove('shimmer');
+          });
         };
 
         let activeCard = null;
