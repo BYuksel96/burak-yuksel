@@ -45,6 +45,7 @@ const currentIndex = timeline.findIndex((item) => item.current);
                 data-current={item.current ? 'true' : 'false'}
                 data-index={index}
               >
+                <span class="spine-dot" aria-hidden="true"></span>
                 <div class="branch"></div>
                 <button
                   class="card"
@@ -179,18 +180,87 @@ const currentIndex = timeline.findIndex((item) => item.current);
           gsap.to(dotted, { height: toVh(dottedHeight), duration: dottedDuration, delay: dottedDelay, ease: 'power2.out', opacity: 1 });
         };
 
-        const observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-              }
-            });
-          },
-          { threshold: 0.2 }
-        );
+        const playTimelineSequence = () => {
+          if (!timelineEl || !solid || !dotted || items.length === 0 || typeof gsap === 'undefined') return;
 
-        items.forEach((row) => observer.observe(row));
+          const rows = Array.from(items);
+          const dots = rows.map((row) => row.querySelector('.spine-dot'));
+          const branches = rows.map((row) => row.querySelector('.branch'));
+          const cards = rows.map((row) => row.querySelector('.card'));
+          const cardInners = rows.map((row) => row.querySelector('.card-inner'));
+
+          const tRect = timelineEl.getBoundingClientRect();
+          const centers = rows.map((row) => {
+            const rect = row.getBoundingClientRect();
+            return rect.top + rect.height / 2 - tRect.top;
+          });
+
+          const rawIndex = Number(timelineEl.dataset.currentIndex);
+          const safeIndex = Number.isFinite(rawIndex) && rawIndex >= 0 ? Math.min(rawIndex, rows.length - 1) : rows.length - 1;
+
+          const firstCenter = centers[0] ?? 0;
+          const currentCenter = centers[safeIndex] ?? firstCenter;
+          const startOffset = -40;
+          const start = firstCenter + startOffset;
+
+          solid.style.top = toVh(start + 10);
+          solid.style.height = toVh(Math.max(firstCenter - start, 0));
+          dotted.style.top = toVh(currentCenter);
+          dotted.style.height = '0';
+          dotted.style.opacity = '0';
+
+          rows.forEach((row, idx) => {
+            const branch = branches[idx];
+            if (branch) {
+              const origin = row.classList.contains('left') ? '100% 50%' : '0% 50%';
+              gsap.set(branch, { transformOrigin: origin });
+            }
+          });
+
+          gsap.set(rows, { opacity: 1, y: 0 });
+          gsap.set(dots, { autoAlpha: 0, scale: 0 });
+          gsap.set(branches, { scaleX: 0 });
+          gsap.set(cards, { autoAlpha: 0 });
+          gsap.set(cardInners, { scale: 0.6 });
+
+          if (prefersReduce) {
+            gsap.set(dots, { autoAlpha: 1, scale: 1 });
+            gsap.set(branches, { scaleX: 1 });
+            gsap.set(cards, { autoAlpha: 1 });
+            gsap.set(cardInners, { scale: 1 });
+            layoutSpine();
+            return;
+          }
+
+          const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+
+          rows.forEach((row, idx) => {
+            const dot = dots[idx];
+            const branch = branches[idx];
+            const card = cards[idx];
+            const inner = cardInners[idx];
+
+            tl.to(dot, { autoAlpha: 1, scale: 1, duration: 0.2 });
+            tl.to(branch, { scaleX: 1, duration: 0.32 }, '<');
+            tl.to(card, { autoAlpha: 1, duration: 0.2 }, '<');
+            tl.to(inner, { scale: 1, duration: 0.38 }, '<');
+
+            if (idx < rows.length - 1) {
+              const nextCenter = centers[idx + 1];
+              const lineTarget = idx < safeIndex ? solid : dotted;
+              const lineHeight = idx < safeIndex ? nextCenter - start : nextCenter - currentCenter;
+              if (lineTarget === dotted) {
+                tl.set(dotted, { opacity: 1 });
+              }
+              tl.to(lineTarget, { height: toVh(Math.max(lineHeight, 0)), duration: 0.5 }, '>');
+            }
+          });
+
+          if (safeIndex < rows.length - 1) {
+            const dottedHeight = Math.max(tRect.height - currentCenter, 0);
+            tl.to(dotted, { height: toVh(dottedHeight), duration: 0.5 }, '>');
+          }
+        };
 
         let activeCard = null;
         let activeOffsets = { x: 0, y: 0 };
@@ -312,7 +382,7 @@ const currentIndex = timeline.findIndex((item) => item.current);
           trayToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
         });
 
-        layoutSpine();
+        playTimelineSequence();
         window.addEventListener('resize', () => {
           layoutSpine();
         });
