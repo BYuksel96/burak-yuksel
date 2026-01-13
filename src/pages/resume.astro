@@ -283,7 +283,31 @@ const currentIndex = timeline.findIndex((item) => item.current);
           activeCard = card;
           modalTitle.textContent = card.dataset.title || '';
           modalDate.textContent = card.dataset.date || '';
-          modalBody.textContent = card.dataset.description || '';
+          const description = card.dataset.description || '';
+          const lines = description.split('\n').map((line) => line.trim()).filter(Boolean);
+          let html = '';
+          let listOpen = false;
+          lines.forEach((line) => {
+            if (line.startsWith('-')) {
+              if (!listOpen) {
+                html += '<ul>';
+                listOpen = true;
+              }
+              html += `<li>${line.replace(/^-+\s*/, '')}</li>`;
+              return;
+            }
+            if (listOpen) {
+              html += '</ul>';
+              listOpen = false;
+            }
+            if (line.endsWith(':')) {
+              html += `<p class="modal-section">${line}</p>`;
+            } else {
+              html += `<p>${line}</p>`;
+            }
+          });
+          if (listOpen) html += '</ul>';
+          modalBody.innerHTML = html;
           modalBackdrop.classList.add('active');
 
           activeTimeline?.kill();
