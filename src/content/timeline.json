@@ -6,9 +6,7 @@
     "side": "left",
     "imageSrc": "/me_baby.jpeg",
     "description": [
-      "Launched initial version in 1996 following successful delivery milestone.",
-      "Entered iterative development phase focused on learning, resilience, and continuous optimisation.",
-      "Subsequent versions have demonstrated increasing capability, maturity, and impact."
+      "Launched initial version in 1996 following successful delivery milestone. Entered iterative development phase focused on learning, resilience, and continuous optimisation. Subsequent versions have demonstrated increasing capability, maturity, and impact."
     ],
     "current": false
   },
@@ -27,7 +25,16 @@
     "date": "2016 - 2017",
     "side": "left",
     "imageSrc": "/ge_logo.jpg",
-    "description": "Earned a degree. Share program details, awards, research, or clubs that mattered.",
+    "description": [
+      "Tech stack:",
+      "- Full-stack international business toolset: PHP, MySQL, HTML/CSS, JavaScript, AJAX, jQuery, XML, Python",
+      "- Debugging, performance improvements, and maintainable code with long-term impact in mind",
+      "Agile & SDLC:",
+      "- Scrum-style cadence with backlog grooming, iterative delivery, and peer reviews",
+      "- Full SDLC flow with verification and validation before sign-off",
+      "Collaboration:",
+      "- Partnered with on-site and global teams to unblock dependencies and deliver to end-user standards on time"
+    ],
     "current": false
   },
   {
@@ -36,7 +43,26 @@
     "date": "2018 - 2024",
     "side": "right",
     "imageSrc": "/barclaycard_logo.jpg",
-    "description": "Working on modern web projects with Astro and content-driven experiences. Describe responsibilities, stack, and impact.",
+    "description": [
+      "Joining Barclaycard (Graduate Programme, 2018):",
+      "- Joined the graduate programme after an interview experience that genuinely clicked; the people, culture, and ambitious tech roadmap felt like the right home",
+      "- I was excited to finish uni and start contributing to real products with real impact from day one",
+      "Junior Software Engineer (Jul 2018 - Apr 2020):",
+      "- Role summary: Joined the PaaS team building the internal platform that powers Barclaycard Payment Solutions",
+      "- Platform/tech: AWS (EC2, S3, RDS, IAM, SSM, KMS, CloudWatch, SNS, VPC, Transit Gateway, Direct Connect), Terraform, Chef, Packer, Ruby, Jenkins, OpenShift, Windows Server 2016, RHEL",
+      "- Delivery: CI/CD automation, Java app deployments, PCI-compliant infrastructure, troubleshooting and support",
+      "Software Engineer (Apr 2020 - Oct 2020):",
+      "- Role summary: Increased ownership of deliverables, coached others, and led more complex changes",
+      "- Delivery: Reliability improvements and platform enhancements with a focus on long-term stability",
+      "Scrum Master / DevOps Engineer (Oct 2020 - Apr 2022):",
+      "- Role summary: Split role by choice to lean into the people side of delivery while staying hands-on",
+      "- Agile/leadership: Scrum/Kanban ceremonies, impediment removal, stakeholder alignment, backlog prioritisation",
+      "- Coaching: Onboarded and mentored offshore teams through pairing and guided learning",
+      "Scrum Master (Apr 2022 - Mar 2024):",
+      "- Role summary: Went full-time SM to drive broader impact across teams and a more challenging environment",
+      "- Outcomes: 80%+ predictability, 33% backlog waste reduction, delivery maturity uplift across two cross-functional teams",
+      "- Leadership: Psychological safety focus, SM community learning groups, coaching new SMs; Jira/Confluence power-user"
+    ],
     "current": false
   },
   {
