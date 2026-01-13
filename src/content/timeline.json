@@ -16,7 +16,7 @@
     "date": "2014 - 2018",
     "side": "right",
     "imageSrc": "Graduation.jpg",
-    "description": "Finished high school. Add highlights, achievements, or key memories here.",
+    "description": "University content",
     "current": false
   },
   {
@@ -71,7 +71,7 @@
     "date": "2024 - Present",
     "side": "left",
     "imageSrc": "/discover_logo.jpg",
-    "description": "Working on modern web projects with Astro and content-driven experiences. Describe responsibilities, stack, and impact.",
+    "description": "DFS",
     "current": true
   },
   {
@@ -80,7 +80,7 @@
     "date": "Future",
     "side": "Right",
     "imageSrc": "/you.png",
-    "description": "Placeholder for upcoming milestones. Update this as your journey continues.",
+    "description": "The future could be you...?",
     "current": false
   }
 ]
