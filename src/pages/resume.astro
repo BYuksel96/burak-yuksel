@@ -73,7 +73,7 @@ const currentIndex = timeline.findIndex((item) => item.current);
 
     <footer class="cv-footer">
       <div class="floating-icons">
-        <a class="icon-card" href={`${base}cv.pdf`} download>
+        <a class="icon-card" href={`${base}Resume-BURAK-YUKSEL.pdf`} download>
           <div class="icon-flip">
             <div class="icon-face icon-front">
               <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6">
@@ -102,7 +102,7 @@ const currentIndex = timeline.findIndex((item) => item.current);
             &gt;
           </button>
           <div class="tray-panel" id="trayMenu">
-            <a class="tray-item" href={`${base}cv.pdf`} download>
+            <a class="tray-item" href={`${base}Resume-BURAK-YUKSEL.pdf`} download>
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6">
                 <path d="M12 3v12" />
                 <path d="M7 11l5 5 5-5" />
@@ -178,6 +178,14 @@ const currentIndex = timeline.findIndex((item) => item.current);
 
           gsap.to(solid, { height: toVh(solidHeight), duration: solidDuration, ease: 'power2.out' });
           gsap.to(dotted, { height: toVh(dottedHeight), duration: dottedDuration, delay: dottedDelay, ease: 'power2.out', opacity: 1 });
+        };
+
+        const refreshTimeline = () => {
+          if (!timelineEl || items.length === 0) return;
+          activeTimeline?.kill();
+          activeTimeline = null;
+          playTimelineSequence();
+          layoutSpine();
         };
 
         const playTimelineSequence = () => {
@@ -418,8 +426,22 @@ const currentIndex = timeline.findIndex((item) => item.current);
         });
 
         playTimelineSequence();
+        if (document.fonts && typeof document.fonts.ready?.then === 'function') {
+          document.fonts.ready.then(() => {
+            refreshTimeline();
+          });
+        }
+        window.addEventListener('load', () => {
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => refreshTimeline());
+          });
+          setTimeout(() => refreshTimeline(), 350);
+        });
         window.addEventListener('resize', () => {
           layoutSpine();
+        });
+        window.addEventListener('orientationchange', () => {
+          refreshTimeline();
         });
       });
     }
