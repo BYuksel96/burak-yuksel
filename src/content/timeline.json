@@ -6,17 +6,35 @@
     "side": "left",
     "imageSrc": "/me_baby.jpeg",
     "description": [
+      "<strong><em>Where lifes journey begins...</em></strong>",
       "Launched initial version in 1996 following successful delivery milestone. Entered iterative development phase focused on learning, resilience, and continuous optimisation. Subsequent versions have demonstrated increasing capability, maturity, and impact."
     ],
     "current": false
   },
   {
     "id": "university",
-    "title": "University",
+    "title": "University - BSc (Hons) First-Class Honours in Software Engineering",
     "date": "2014 - 2018",
     "side": "right",
     "imageSrc": "Graduation.jpg",
-    "description": "University content",
+    "description": [
+      "<strong><em>Growth begins the moment comfort ends</em></strong>",
+      "<strong>My Univeristy Years:</strong>",
+      "Life doesn’t always hand you clarity when you want it. Finishing my A-levels, I didn’t have some grand vision of who I wanted to become or what path I was destined to follow. Truthfully, my choices were influenced more by noise than conviction — teachers, friends and the constant hum of <em>“tech is the future.”</em>",
+      "My parents, on the other hand, had a far more traditional ambition for me. Medicine. Doctor. A noble path, just not my path. And perhaps it was that relentless push that nudged me further away. Combined with a fairly blasé attitude toward education at the time, I was a walking contradiction: capable of far more than I was willing to give. A foolish boy, in hindsight; But one about to learn an important lesson.",
+      "University became my reset button. A chance to turn things around.",
+      "I chose Software Engineering not from some lifelong passion, but because it felt… possible. My grades were good enough. The opportunity was there. Why not? And then something unexpected happened... I loved it.",
+      "What had once felt like “just another subject” suddenly clicked. I found myself genuinely curious. Engaged. Motivated. That spark changed everything. I applied myself fully and was rewarded with a <b>First-class performance in my first year</b>",
+      "Second year told a different story. I still worked hard, but I also lived; Probably a little too enthusiastically. Socialising, learning who I was, and developing confidence beyond the lecture theatre. The result? A 2:1. Respectable, but not what I wanted. I was disappointed and that discomfort mattered. It showed me I cared.",
+      "So when my final year arrived, I made a decision...",
+      "I committed. Fully!",
+      "The hours were long. The dedication intense. Even I surprised myself. My work, particularly in software testing, reflected that drive. I poured everything into my modules and dissertation; Even achieving a score of 95%+ in my Software Testing module, not just because I enjoyed it, but because I was determined to prove something to myself. I loved the discipline, the structure, the precision. It resonated deeply.",
+      "When results day came and I saw <b>First-Class Honours</b>, the pride I felt was unmatched. Not because of the title, but because I earned it. And because I could see, unmistakably, how proud my parents were. I hadn’t become a doctor, but I had become someone who followed through.",
+      "That moment became a core memory. One that will stay with me forever.",
+      "<strong>What It Set In Motion:</strong>",
+      "University taught me far more than software engineering. It taught me ownership. Discipline. Resilience. It showed me that progress doesn’t come from knowing, it comes from doing. From choosing effort over excuses. Growth over comfort.",
+      "Those lessons shaped everything that followed; How I work, how I lead and how I challenge myself to keep moving forward."
+    ],
     "current": false
   },
   {
@@ -33,7 +51,13 @@
       "- Scrum-style cadence with backlog grooming, iterative delivery, and peer reviews",
       "- Full SDLC flow with verification and validation before sign-off",
       "Collaboration:",
-      "- Partnered with on-site and global teams to unblock dependencies and deliver to end-user standards on time"
+      "- Partnered with on-site and global teams to unblock dependencies and deliver to end-user standards on time",
+      "- Truly an early insight into working in a large corporate environment with distributed teams",
+      "- Developing fndamental skills in collaborating with my team, cross-functional partners, and stakeholders to deliver value",
+      "- Learning a lot about myself as well, the type of character I want to be and the kind of work environment I thrive in",
+      "- I built some truly good lasting relationships and connections that I still value to this day",
+      "- Not to mention what a beautiful part of the country I got to experience while working there as well! The Cotswolds are truly stunning",
+      "- I will never forget my time at GE and the valuable life lessons I learned whilst interning there"
     ],
     "current": false
   },
@@ -44,6 +68,7 @@
     "side": "right",
     "imageSrc": "/barclaycard_logo.jpg",
     "description": [
+      "<strong><em>This was where I really stopped learning in theory and started delivering in reality!</em></strong>",
       "Joining Barclaycard (Graduate Programme, 2018):",
       "- Joined the graduate programme after an interview experience that genuinely clicked; the people, culture, and ambitious tech roadmap felt like the right home",
       "- I was excited to finish uni and start contributing to real products with real impact from day one",
@@ -51,36 +76,68 @@
       "- Role summary: Joined the PaaS team building the internal platform that powers Barclaycard Payment Solutions",
       "- Platform/tech: AWS (EC2, S3, RDS, IAM, SSM, KMS, CloudWatch, SNS, VPC, Transit Gateway, Direct Connect), Terraform, Chef, Packer, Ruby, Jenkins, OpenShift, Windows Server 2016, RHEL",
       "- Delivery: CI/CD automation, Java app deployments, PCI-compliant infrastructure, troubleshooting and support",
-      "Software Engineer (Apr 2020 - Oct 2020):",
+      "- It was here where I built a solid foundation in software engineering, cloud infrastructure, and DevOps practices. Along with a growing desire to my team succeed beyond just code.",
+      "DevOps Engineer (Apr 2020 - Oct 2020):",
       "- Role summary: Increased ownership of deliverables, coached others, and led more complex changes",
       "- Delivery: Reliability improvements and platform enhancements with a focus on long-term stability",
+      "- With my confidence growing, I found myself naturally gravitating towards helping others and facilitating smoother delivery processes. This shift in focus laid the groundwork for my transition into Scrum Mastery. Fulfilling my desire to help others grow and succeed in their roles, enabling better team outcomes overall.",
       "Scrum Master / DevOps Engineer (Oct 2020 - Apr 2022):",
       "- Role summary: Split role by choice to lean into the people side of delivery while staying hands-on",
       "- Agile/leadership: Scrum/Kanban ceremonies, impediment removal, stakeholder alignment, backlog prioritisation",
       "- Coaching: Onboarded and mentored offshore teams through pairing and guided learning",
+      "- I loved the work we were doing. Particularily the testing and coaching element of the role, but the fire for being a Scrum Master started shining bright. Helping teams overcome challenges, improve their processes and deliver value started becoming my primary focus. This period solidified my passion for Agile leadership and set the stage for my next career chapter. I was eager to dive in full-time but was not ready to give up the code just yet.",
       "Scrum Master (Apr 2022 - Mar 2024):",
       "- Role summary: Went full-time SM to drive broader impact across teams and a more challenging environment",
       "- Outcomes: 80%+ predictability, 33% backlog waste reduction, delivery maturity uplift across two cross-functional teams",
-      "- Leadership: Psychological safety focus, SM community learning groups, coaching new SMs; Jira/Confluence power-user"
+      "- Leadership: Psychological safety focus, SM community learning groups, coaching new SMs; Jira/Confluence power-user",
+      "- Then this perfect oportunity came along and presented itself. A chance to go all-in on Scrum Mastery and Agile leadership in a high-stakes environment. I embraced the challenge wholeheartedly, dedicating myself to helping teams excel and deliver exceptional results. Even more so with it being a new domain it was a real challenge I was looking to dig my teeth into. This role was a defining moment in my career, cementing my commitment to Agile principles and my desire to lead teams to success."
     ],
     "current": false
   },
   {
     "id": "discover",
     "title": "Discover Financial Services",
-    "date": "2024 - Present",
+    "date": "Mar 2024 - Present",
     "side": "left",
     "imageSrc": "/discover_logo.jpg",
-    "description": "DFS",
+    "description": [
+      "<strong><em>Fear of failure is the enemy of progress. To not do is to fail. So I choose to do. To try. To learn. To grow. And in doing so, I find success beyond measure!</em></strong>",
+      "Agile Programme Manager (Mar 2025 - Present):",
+      "- Leading delivery across 7 engineering ensuring predictable and transparent delivery across key programmes.",
+      "- Achieved 80-90% sprint predictability through capacity-based planning, WIP control and proactive risk escalation.",
+      "- Reduced epic cycle times from 100+ days to ~55 days by improving slicing quality, readiness and flow discipline.",
+      "- Uplifted backlog maturity to 2+ months of ready work, coaching POs and engineers on refinement standards and Agile metrics.",
+      "- Embedded a data-led delivery culture by building dashboards that improved transparency, predictability and decision-making.",
+      "- Led full PI Planning cycles across TRDC, driving roadmap alignment, objective setting, dependency mapping and ROAM-based risk management.",
+      "- Owned programme-level RAID management, identifying risks early, coordinating dependencies and implementing mitigation plans.",
+      "- Established structured programme plans and governance rhythms (weekly stakeholder updates, milestone tracking, cross-team syncs).",
+      "- Directed cross-team collaboration for current modernisation project, owning roadmap alignment, risk mitigation and delivery coordination across multiple domains.",
+      "- Increased release cadence and reliability through weekly cross-functional release alignment sessions.",
+      "- Supported secure delivery, compliance practices and risk governance across TRDC, enhancing reliability and audit readiness.",
+      "- Strengthened ADM's organisational reputation by championing Agile practices, improving delivery maturity and influencing lasting mindset shifts among partner teams.",
+      "- Life is always about challenging oneself and pushing boundaries. For if we stagnate in a position for too long, we don't grow! We become complacent and comfortable. Which is the antithesis of progress. So when the opportunity to become an APM was presented to me, I jumped at the chance. It was a step up in responsibility, complexity and impact. And I was ready for it. I embraced the challenge wholeheartedly, dedicating myself to driving excellence across multiple teams and programmes. This role has been challenging at times, but it has been incredibly rewarding. I am proud of the impact I have made so far and excited for what lies ahead.",
+      "Scrum Master (Mar 2024 - Mar 2025):",
+      "- Facilitated Agile ceremonies and uplifted delivery practices across multiple UK and India teams.",
+      "- Introduced comprehensive predictability reporting, improving transparency and enabling earlier risk intervention.",
+      "- Coached Product Owners on backlog health, refinement discipline, risk management and dependency handling.",
+      "- Mentored engineers through Discover's Personal Growth framework, shaping development goals and building engineering capability.",
+      "- Strengthened team collaboration and resilience during high-pressure periods, maintaining delivery stability.",
+      "- Made agile stick — and got teams genuinely excited about retros. Bringing energy and purpose back to scrum ceremonies"
+    ],
     "current": true
   },
   {
     "id": "future",
-    "title": "Next Chapter",
-    "date": "Future",
+    "title": "The Next Chapter",
+    "date": "👀",
     "side": "Right",
     "imageSrc": "/you.png",
-    "description": "The future could be you...?",
+    "description": [
+      "<strong><em>The future could be you...?</em></strong>",
+      "Fancy flirting with destiny? Drop me a line or give me a call.",
+      "📧 beyuksel96@gmail.com",
+      "📞 +44 7450 955663"
+    ],
     "current": false
   }
 ]
