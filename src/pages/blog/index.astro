@@ -87,6 +87,7 @@ const formatModalDate = (date) =>
                         data-slug={post.slug}
                         data-title={post.data.title}
                         data-meta={meta}
+                        data-description={post.data.description}
                       >
                         <span class="post-row-title">{post.data.title}</span>
                         <span class="post-row-date">{rowDate}</span>
@@ -154,11 +155,15 @@ const formatModalDate = (date) =>
           const slug = trigger.dataset.slug;
           const meta = trigger.dataset.meta || '';
           const title = trigger.dataset.title || '';
+          const description = trigger.dataset.description || '';
           const content = document.querySelector(`[data-post-content="${slug}"]`);
           if (!content) return;
           metaEl.textContent = meta;
           titleEl.textContent = title;
-          bodyEl.innerHTML = content.innerHTML;
+          const tldr = description
+            ? `<p class="post-modal-tldr"><span>TL;DR</span> ${description}</p>`
+            : '';
+          bodyEl.innerHTML = `${tldr}${content.innerHTML}`;
           backdrop.classList.add('active');
           modal.classList.add('active');
           backdrop.setAttribute('aria-hidden', 'false');
