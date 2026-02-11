@@ -131,6 +131,7 @@ const currentIndex = timeline.findIndex((item) => item.current);
           <button class="modal-close" aria-label="Close modal">X</button>
         </header>
         <div class="modal-body" id="modalBody"></div>
+        <button class="modal-scroll" type="button" aria-label="Scroll to bottom">V</button>
       </div>
     </div>
   </div>
@@ -150,6 +151,7 @@ const currentIndex = timeline.findIndex((item) => item.current);
         const modalDate = document.getElementById('modalDate');
         const modalBody = document.getElementById('modalBody');
         const closeBtn = document.querySelector('.modal-close');
+        const scrollBtn = document.querySelector('.modal-scroll');
         const prefersReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         const toVh = (value) => `${(value / Math.max(window.innerHeight, 1)) * 100}vh`;
 
@@ -317,6 +319,8 @@ const currentIndex = timeline.findIndex((item) => item.current);
           if (listOpen) html += '</ul>';
           modalBody.innerHTML = html;
           modalBackdrop.classList.add('active');
+          modalBody.scrollTop = 0;
+          requestAnimationFrame(() => updateScrollHint());
 
           activeTimeline?.kill();
           activeTimeline = null;
@@ -411,9 +415,23 @@ const currentIndex = timeline.findIndex((item) => item.current);
         });
 
         closeBtn?.addEventListener('click', closeModal);
+        scrollBtn?.addEventListener('click', () => {
+          if (!modalBody) return;
+          modalBody.scrollTo({ top: modalBody.scrollHeight, behavior: 'smooth' });
+        });
+        modalBody?.addEventListener('scroll', () => {
+          updateScrollHint();
+        });
         modalBackdrop?.addEventListener('click', (e) => {
           if (e.target === modalBackdrop) closeModal();
         });
+
+        const updateScrollHint = () => {
+          if (!modalBody || !scrollBtn) return;
+          const remaining = modalBody.scrollHeight - modalBody.scrollTop - modalBody.clientHeight;
+          const shouldShow = modalBody.scrollHeight > modalBody.clientHeight && remaining > 8;
+          scrollBtn.classList.toggle('visible', shouldShow);
+        };
 
         const trayToggle = document.querySelector('.tray-toggle');
         const trayPanel = document.querySelector('.tray-panel');

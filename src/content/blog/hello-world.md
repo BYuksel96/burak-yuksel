@@ -79,7 +79,7 @@ No algorithms.
 No optimisation for engagement.
 
 Just:
-- A **CV** that reflects my journey  
+- A **resume** that reflects my journey  
 - A **blog** for ideas and experiments  
 - A **GitHub** for things I’m building  
 
