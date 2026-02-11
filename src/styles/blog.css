@@ -201,6 +201,18 @@
   margin: 0 0 1rem;
 }
 
+.post-modal-tldr {
+  margin: 0 0 1.2rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.post-modal-tldr span {
+  color: var(--text);
+  font-weight: 700;
+  margin-right: 0.4rem;
+}
+
 .post-modal-body ul {
   margin: 0 0 1rem 1.1rem;
   padding: 0;
