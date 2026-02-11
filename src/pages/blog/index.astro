@@ -112,6 +112,7 @@ const formatModalDate = (date) =>
         </header>
         <h2 class="post-modal-title" id="postModalTitle"></h2>
         <div class="post-modal-body" id="postModalBody"></div>
+        <button class="post-modal-scroll" type="button" aria-label="Scroll to bottom">V</button>
       </div>
     </div>
   </div>
@@ -125,6 +126,7 @@ const formatModalDate = (date) =>
         const titleEl = document.getElementById('postModalTitle');
         const bodyEl = document.getElementById('postModalBody');
         const closeBtn = document.querySelector('.post-modal-close');
+        const scrollBtn = document.querySelector('.post-modal-scroll');
         const postsShell = document.querySelector('.posts-shell');
         const navLinks = document.querySelectorAll('.nav-links a');
 
@@ -160,6 +162,8 @@ const formatModalDate = (date) =>
           backdrop.classList.add('active');
           modal.classList.add('active');
           backdrop.setAttribute('aria-hidden', 'false');
+          bodyEl.scrollTop = 0;
+          requestAnimationFrame(() => updateScrollHint());
         };
 
         const closeModal = () => {
@@ -167,6 +171,13 @@ const formatModalDate = (date) =>
           modal.classList.remove('active');
           backdrop.classList.remove('active');
           backdrop.setAttribute('aria-hidden', 'true');
+        };
+
+        const updateScrollHint = () => {
+          if (!bodyEl || !scrollBtn) return;
+          const remaining = bodyEl.scrollHeight - bodyEl.scrollTop - bodyEl.clientHeight;
+          const shouldShow = bodyEl.scrollHeight > bodyEl.clientHeight && remaining > 8;
+          scrollBtn.classList.toggle('visible', shouldShow);
         };
 
         document.addEventListener('click', (event) => {
@@ -180,6 +191,13 @@ const formatModalDate = (date) =>
         });
 
         closeBtn?.addEventListener('click', closeModal);
+        scrollBtn?.addEventListener('click', () => {
+          if (!bodyEl) return;
+          bodyEl.scrollTo({ top: bodyEl.scrollHeight, behavior: 'smooth' });
+        });
+        bodyEl?.addEventListener('scroll', () => {
+          updateScrollHint();
+        });
         document.addEventListener('keydown', (event) => {
           if (event.key === 'Escape') closeModal();
         });

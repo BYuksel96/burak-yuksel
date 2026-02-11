@@ -29,21 +29,10 @@
   padding: 2.5rem 0 4.5rem;
   overflow-y: auto;
   overflow-x: hidden;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+  scrollbar-width: none;
 }
 .posts-main::-webkit-scrollbar {
-  width: 6px;
-}
-.posts-main::-webkit-scrollbar-track {
-  background: transparent;
-}
-.posts-main::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.35);
-  border-radius: 999px;
-}
-.posts-main::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.5);
+  display: none;
 }
 
 .posts-shell {
@@ -139,7 +128,7 @@
 .post-modal {
   width: min(820px, 92vw);
   max-height: 80vh;
-  overflow: auto;
+  overflow: hidden;
   background: rgba(35, 37, 40, 0.98);
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 16px;
@@ -148,6 +137,13 @@
   transform: scale(0.94);
   opacity: 0;
   transition: transform 0.25s ease, opacity 0.25s ease;
+  scrollbar-width: none;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.post-modal::-webkit-scrollbar {
+  display: none;
 }
 
 .post-modal.active {
@@ -187,9 +183,18 @@
 }
 
 .post-modal-body {
+  flex: 1;
+  overflow-y: auto;
   font-size: 0.95rem;
   line-height: 1.7;
   color: var(--text);
+  padding-bottom: 2.5rem;
+}
+.post-modal-body {
+  scrollbar-width: none;
+}
+.post-modal-body::-webkit-scrollbar {
+  display: none;
 }
 
 .post-modal-body p {
@@ -203,6 +208,45 @@
 
 .post-modal-body li {
   margin-bottom: 0.4rem;
+}
+
+.post-modal-scroll {
+  position: absolute;
+  left: 50%;
+  bottom: 0.8rem;
+  transform: translateX(-50%);
+  width: 48px;
+  height: 48px;
+  border-radius: 0;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-weight: 700;
+  font-size: 1.5rem;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.post-modal-scroll.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(-4px);
+  animation: scrollHintPulse 1.4s ease-in-out infinite;
+}
+
+@keyframes scrollHintPulse {
+  0% {
+    transform: translateX(-50%) translateY(-4px) scale(1);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-6px) scale(1.15);
+  }
+  100% {
+    transform: translateX(-50%) translateY(-4px) scale(1);
+  }
 }
 
 .blog-body .page {
