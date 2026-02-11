@@ -186,7 +186,7 @@ a:hover {
 
 .face.back {
   transform: rotateY(180deg);
-  background: rgba(0, 0, 0, 0.15);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
 }
 
 .label {
