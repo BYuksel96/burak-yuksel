@@ -24,7 +24,7 @@ const { data } = post;
   <article>
     <p class="post-meta">{data.pubDate.toLocaleDateString()}</p>
     <h1>{data.title}</h1>
-    <p class="muted">{data.description}</p>
+    <p class="post-tldr"><span>TL;DR</span> {data.description}</p>
     <Content />
   </article>
 </BaseLayout>

@@ -254,6 +254,17 @@ article {
   color: var(--muted);
 }
 
+.post-tldr {
+  margin: 0 0 1rem;
+  color: var(--muted);
+}
+
+.post-tldr span {
+  color: var(--text);
+  font-weight: 700;
+  margin-right: 0.4rem;
+}
+
 .hero,
 .card,
 .pill,

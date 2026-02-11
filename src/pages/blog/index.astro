@@ -1,27 +1,220 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import '../../styles/cv.css';
+import '../../styles/blog.css';
 
+const base = import.meta.env.BASE_URL || '/';
 const posts = (await getCollection('blog')).sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
 );
 
-const base = import.meta.env.BASE_URL || '/';
+const wordsPerMinute = 140;
+const countWords = (text = '') =>
+  text
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean).length;
+const estimateReadMinutes = (text = '') =>
+  Math.max(1, Math.ceil(countWords(text) / wordsPerMinute));
+
+const groups = [];
+posts.forEach((post) => {
+  const year = post.data.pubDate.getFullYear();
+  const last = groups[groups.length - 1];
+  if (!last || last.year !== year) {
+    groups.push({ year, posts: [post] });
+  } else {
+    last.posts.push(post);
+  }
+});
+
+const rendered = await Promise.all(posts.map((post) => post.render()));
+const renderedBySlug = new Map(posts.map((post, index) => [post.slug, rendered[index]]));
+
+const formatRowDate = (date) =>
+  date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: '2-digit',
+  });
+const formatModalDate = (date) =>
+  date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: '2-digit',
+  });
 ---
 
-<BaseLayout title="Blog" description="Markdown posts sourced from Astro content collections.">
-  <h1>Blog</h1>
-  <p class="muted">Content lives in `src/content/blog` and is rendered statically.</p>
-
-  <div class="posts">
-    {posts.map((post) => (
-      <a class="post-card" href={`${base}blog/${post.slug}/`}>
-        <div class="post-body">
-          <div class="post-meta">{post.data.pubDate.toLocaleDateString()}</div>
-          <h3>{post.data.title}</h3>
-          <p class="muted">{post.data.description}</p>
+<BaseLayout
+  title="Posts"
+  description="Blog posts by Burak Yuksel."
+  hideHeader={true}
+  bodyClass="blog-body"
+  footerText="© 2026 Burak Yuksel"
+>
+  <div class="posts-page">
+    <header class="posts-header">
+      <nav class="cv-nav">
+        <div class="nav-links">
+          <a href={base}>Home</a>
+          <a href={`${base}resume/`}>Resume</a>
+          <a href="https://github.com/BYuksel96" target="_blank" rel="noreferrer">Github</a>
         </div>
-      </a>
-    ))}
+        <div class="nav-line"></div>
+      </nav>
+    </header>
+
+    <main class="posts-main">
+      <div class="posts-shell">
+        <h1 class="posts-title">Posts</h1>
+
+        <div class="posts-list">
+          {groups.map((group) => (
+            <div class="posts-year-group">
+              <div class="posts-year">{group.year}</div>
+              <div class="posts-entries">
+                {group.posts.map((post) => {
+                  const { Content } = renderedBySlug.get(post.slug);
+                  const rowDate = formatRowDate(post.data.pubDate);
+                  const modalDate = formatModalDate(post.data.pubDate);
+                  const readMinutes = estimateReadMinutes(post.body || '');
+                  const meta = `${modalDate} - ${readMinutes} min read`;
+                  return (
+                    <div class="post-entry">
+                      <a
+                        class="post-row"
+                        href={`${base}blog/${post.slug}/`}
+                        data-slug={post.slug}
+                        data-title={post.data.title}
+                        data-meta={meta}
+                        data-description={post.data.description}
+                      >
+                        <span class="post-row-title">{post.data.title}</span>
+                        <span class="post-row-date">{rowDate}</span>
+                      </a>
+                      <div class="post-content" data-post-content={post.slug} hidden>
+                        <Content />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </main>
+
+    <div class="post-modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
+      <div class="post-modal" role="document">
+        <header class="post-modal-head">
+          <div class="post-modal-meta" id="postModalMeta"></div>
+          <button class="post-modal-close" type="button" aria-label="Close post">X</button>
+        </header>
+        <h2 class="post-modal-title" id="postModalTitle"></h2>
+        <div class="post-modal-body" id="postModalBody"></div>
+        <button class="post-modal-scroll" type="button" aria-label="Scroll to bottom">V</button>
+      </div>
+    </div>
   </div>
+
+  <script>
+    if (typeof window !== 'undefined') {
+      window.addEventListener('DOMContentLoaded', () => {
+        const backdrop = document.querySelector('.post-modal-backdrop');
+        const modal = document.querySelector('.post-modal');
+        const metaEl = document.getElementById('postModalMeta');
+        const titleEl = document.getElementById('postModalTitle');
+        const bodyEl = document.getElementById('postModalBody');
+        const closeBtn = document.querySelector('.post-modal-close');
+        const scrollBtn = document.querySelector('.post-modal-scroll');
+        const postsShell = document.querySelector('.posts-shell');
+        const navLinks = document.querySelectorAll('.nav-links a');
+
+        const alignPostsShell = () => {
+          if (!postsShell || navLinks.length < 2) return;
+          const first = navLinks[0];
+          const last = navLinks[navLinks.length - 1];
+          const firstRect = first.getBoundingClientRect();
+          const lastRect = last.getBoundingClientRect();
+          const firstStyle = window.getComputedStyle(first);
+          const lastStyle = window.getComputedStyle(last);
+          const leftPad = parseFloat(firstStyle.paddingLeft) || 0;
+          const rightPad = parseFloat(lastStyle.paddingRight) || 0;
+          const left = firstRect.left + leftPad;
+          const right = lastRect.right - rightPad;
+          const width = Math.max(right - left, 0);
+          if (width <= 0) return;
+          postsShell.style.width = `${width}px`;
+          postsShell.style.marginLeft = `${left}px`;
+          postsShell.style.marginRight = '0';
+        };
+
+        const openModal = (trigger) => {
+          if (!backdrop || !modal || !metaEl || !titleEl || !bodyEl) return;
+          const slug = trigger.dataset.slug;
+          const meta = trigger.dataset.meta || '';
+          const title = trigger.dataset.title || '';
+          const description = trigger.dataset.description || '';
+          const content = document.querySelector(`[data-post-content="${slug}"]`);
+          if (!content) return;
+          metaEl.textContent = meta;
+          titleEl.textContent = title;
+          const tldr = description
+            ? `<p class="post-modal-tldr"><span>TL;DR</span> ${description}</p>`
+            : '';
+          bodyEl.innerHTML = `${tldr}${content.innerHTML}`;
+          backdrop.classList.add('active');
+          modal.classList.add('active');
+          backdrop.setAttribute('aria-hidden', 'false');
+          bodyEl.scrollTop = 0;
+          requestAnimationFrame(() => updateScrollHint());
+        };
+
+        const closeModal = () => {
+          if (!backdrop || !modal) return;
+          modal.classList.remove('active');
+          backdrop.classList.remove('active');
+          backdrop.setAttribute('aria-hidden', 'true');
+        };
+
+        const updateScrollHint = () => {
+          if (!bodyEl || !scrollBtn) return;
+          const remaining = bodyEl.scrollHeight - bodyEl.scrollTop - bodyEl.clientHeight;
+          const shouldShow = bodyEl.scrollHeight > bodyEl.clientHeight && remaining > 8;
+          scrollBtn.classList.toggle('visible', shouldShow);
+        };
+
+        document.addEventListener('click', (event) => {
+          const trigger = event.target instanceof Element ? event.target.closest('.post-row') : null;
+          if (trigger) {
+            event.preventDefault();
+            openModal(trigger);
+            return;
+          }
+          if (event.target === backdrop) closeModal();
+        });
+
+        closeBtn?.addEventListener('click', closeModal);
+        scrollBtn?.addEventListener('click', () => {
+          if (!bodyEl) return;
+          bodyEl.scrollTo({ top: bodyEl.scrollHeight, behavior: 'smooth' });
+        });
+        bodyEl?.addEventListener('scroll', () => {
+          updateScrollHint();
+        });
+        document.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape') closeModal();
+        });
+
+        alignPostsShell();
+        if (document.fonts && typeof document.fonts.ready?.then === 'function') {
+          document.fonts.ready.then(() => alignPostsShell());
+        }
+        window.addEventListener('resize', () => {
+          alignPostsShell();
+        });
+      });
+    }
+  </script>
 </BaseLayout>
