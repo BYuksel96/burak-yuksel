@@ -15,9 +15,9 @@ This blog is a home for thinking out loud.
 
 Not polished conclusions.  
 Not perfectly packaged opinions.  
-But ideas, experiments, lessons, and reflections as they happen.
+But ideas, experiments, lessons and reflections as they happen.
 
-I’ve always found that the most interesting learning happens *mid-journey* — while things are still messy, uncertain and evolving. This space exists to capture exactly that.
+I’ve always found that the most interesting learning happens *mid-journey*; While things are still messy, uncertain and evolving. This space exists to capture exactly that.
 
 ---
 
@@ -26,11 +26,11 @@ I’ve always found that the most interesting learning happens *mid-journey* —
 This isn’t a niche blog.
 
 You’ll find posts about:
-- **Agile & delivery** — what works, what doesn’t, and what I’m still questioning  
-- **GenAI** — tools I’m building, experiments I’m running, and ideas I’m testing  
-- **Projects** — side projects, half-finished ideas, and things I’m actively working on  
-- **Learning** — topics I’m studying, frameworks I’m exploring, skills I’m sharpening  
-- **Thoughts & reflections** — leadership, growth, creativity, and occasionally life itself  
+- **Agile & delivery**: what works, what doesn’t and what I’m still questioning  
+- **GenAI**: tools I’m building, experiments I’m running and ideas I’m testing  
+- **Projects**: side projects, half-finished ideas and things I’m actively working on  
+- **Learning**: topics I’m studying, frameworks I’m exploring, skills I’m sharpening  
+- **Thoughts & reflections**: leadership, growth, creativity and occasionally life itself  
 
 Some posts will be practical.  
 Some will be technical.  
@@ -57,7 +57,7 @@ Writing forces clarity.
 Building forces humility.  
 Sharing forces accountability.
 
-This blog keeps me honest about what I’m learning, what I believe, and how those things change over time. It’s a record of growth, not a highlight reel.
+This blog keeps me honest about what I’m learning, what I believe and how those things change over time. It’s a record of growth, not a highlight reel.
 
 I’m also deeply curious about the intersection of:
 - People and systems  
@@ -98,7 +98,7 @@ Expect:
 
 Expect me to change my mind.
 
-If something here resonates, challenges you, or gets you thinking — that’s a win in my book.
+If something here resonates, challenges you, or gets you thinking; That’s a win in my book.
 
 And if nothing else, this blog will always be an honest snapshot of where my head was at, at that moment in time.
 
