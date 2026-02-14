@@ -1,6 +1,7 @@
 ---
 title: "Hello World 👀"
 description: "A living space for ideas, experiments, reflections and work-in-progress thinking."
+slug: "hello-world"
 pubDate: 2026-02-11
 updatedDate: 2026-02-11
 tags:

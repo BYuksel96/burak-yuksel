@@ -79,6 +79,7 @@ const formatModalDate = (date) =>
                   const modalDate = formatModalDate(post.data.pubDate);
                   const readMinutes = estimateReadMinutes(post.body || '');
                   const meta = `${modalDate} - ${readMinutes} min read`;
+                  const sharePath = `${base}blog/${post.slug}/`;
                   return (
                     <div class="post-entry">
                       <a
@@ -88,6 +89,7 @@ const formatModalDate = (date) =>
                         data-title={post.data.title}
                         data-meta={meta}
                         data-description={post.data.description}
+                        data-share-path={sharePath}
                       >
                         <span class="post-row-title">{post.data.title}</span>
                         <span class="post-row-date">{rowDate}</span>
@@ -109,13 +111,34 @@ const formatModalDate = (date) =>
       <div class="post-modal" role="document">
         <header class="post-modal-head">
           <div class="post-modal-meta" id="postModalMeta"></div>
-          <button class="post-modal-close" type="button" aria-label="Close post">X</button>
+          <div class="post-modal-actions">
+            <button
+              class="post-modal-share"
+              type="button"
+              aria-label="Share post"
+              aria-controls="postModalSharePanel"
+              aria-expanded="false"
+            >
+              Share
+            </button>
+            <button class="post-modal-close" type="button" aria-label="Close post">X</button>
+          </div>
         </header>
+        <div class="post-modal-share-panel" id="postModalSharePanel" aria-hidden="true">
+          <button class="post-modal-share-option" type="button" data-share-action="copy">
+            🔗 Copy Link
+          </button>
+          <button class="post-modal-share-option" type="button" data-share-action="linkedin">
+            <span class="linkedin-icon" aria-hidden="true">in</span>
+            Share on LinkedIn
+          </button>
+        </div>
         <h2 class="post-modal-title" id="postModalTitle"></h2>
         <div class="post-modal-body" id="postModalBody"></div>
         <button class="post-modal-scroll" type="button" aria-label="Scroll to bottom">V</button>
       </div>
     </div>
+    <div class="post-copy-toast" id="postCopyToast" role="status" aria-live="polite">Link Copied</div>
   </div>
 
   <script>
@@ -127,9 +150,16 @@ const formatModalDate = (date) =>
         const titleEl = document.getElementById('postModalTitle');
         const bodyEl = document.getElementById('postModalBody');
         const closeBtn = document.querySelector('.post-modal-close');
+        const shareBtn = document.querySelector('.post-modal-share');
+        const sharePanel = document.getElementById('postModalSharePanel');
+        const copyToast = document.getElementById('postCopyToast');
         const scrollBtn = document.querySelector('.post-modal-scroll');
         const postsShell = document.querySelector('.posts-shell');
         const navLinks = document.querySelectorAll('.nav-links a');
+        const linkedInShareText =
+          'Checkout this latest post that I just read by Burak Yuksel! Definitely worth the read!';
+        let activeShareUrl = '';
+        let copyToastTimer = null;
 
         const alignPostsShell = () => {
           if (!postsShell || navLinks.length < 2) return;
@@ -150,20 +180,70 @@ const formatModalDate = (date) =>
           postsShell.style.marginRight = '0';
         };
 
+        const setSharePanelOpen = (isOpen) => {
+          if (!modal || !sharePanel || !shareBtn) return;
+          modal.classList.toggle('share-open', isOpen);
+          sharePanel.classList.toggle('active', isOpen);
+          sharePanel.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+          shareBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+          requestAnimationFrame(() => updateScrollHint());
+        };
+
+        const showCopyToast = () => {
+          if (!copyToast) return;
+          copyToast.classList.add('visible');
+          if (copyToastTimer) window.clearTimeout(copyToastTimer);
+          copyToastTimer = window.setTimeout(() => {
+            copyToast.classList.remove('visible');
+          }, 1600);
+        };
+
+        const copyToClipboard = async (text) => {
+          if (!text) return false;
+          if (navigator.clipboard?.writeText) {
+            try {
+              await navigator.clipboard.writeText(text);
+              return true;
+            } catch {
+              // Fallback handled below.
+            }
+          }
+          const helper = document.createElement('textarea');
+          helper.value = text;
+          helper.setAttribute('readonly', 'true');
+          helper.style.position = 'absolute';
+          helper.style.left = '-9999px';
+          document.body.appendChild(helper);
+          helper.select();
+          const copied = document.execCommand('copy');
+          document.body.removeChild(helper);
+          return copied;
+        };
+
+        const openLinkedInShare = () => {
+          if (!activeShareUrl) return;
+          const prefilled = `${linkedInShareText} ${activeShareUrl}`;
+          const linkedInUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(prefilled)}`;
+          window.open(linkedInUrl, '_blank', 'noopener,noreferrer');
+        };
+
         const openModal = (trigger) => {
           if (!backdrop || !modal || !metaEl || !titleEl || !bodyEl) return;
           const slug = trigger.dataset.slug;
           const meta = trigger.dataset.meta || '';
           const title = trigger.dataset.title || '';
           const description = trigger.dataset.description || '';
+          const sharePath = trigger.dataset.sharePath || '';
           const content = document.querySelector(`[data-post-content="${slug}"]`);
           if (!content) return;
           metaEl.textContent = meta;
           titleEl.textContent = title;
+          activeShareUrl = sharePath ? new URL(sharePath, window.location.origin).toString() : window.location.href;
           const tldr = description
             ? `<p class="post-modal-tldr"><span>TL;DR</span> ${description}</p>`
             : '';
           bodyEl.innerHTML = `${tldr}${content.innerHTML}`;
+          setSharePanelOpen(false);
           backdrop.classList.add('active');
           modal.classList.add('active');
           backdrop.setAttribute('aria-hidden', 'false');
@@ -173,6 +253,8 @@ const formatModalDate = (date) =>
 
         const closeModal = () => {
           if (!backdrop || !modal) return;
+          setSharePanelOpen(false);
+          activeShareUrl = '';
           modal.classList.remove('active');
           backdrop.classList.remove('active');
           backdrop.setAttribute('aria-hidden', 'true');
@@ -193,9 +275,38 @@ const formatModalDate = (date) =>
             return;
           }
           if (event.target === backdrop) closeModal();
+          const isShareOpen = !!sharePanel?.classList.contains('active');
+          const isModalOpen = !!modal?.classList.contains('active');
+          const targetNode = event.target;
+          if (!isShareOpen || !isModalOpen || !(targetNode instanceof Node) || !modal || !sharePanel) return;
+          const clickedInsideModal = modal.contains(targetNode);
+          const clickedSharePanel = sharePanel.contains(targetNode);
+          const clickedShareButton = !!shareBtn?.contains(targetNode);
+          if (clickedInsideModal && !clickedSharePanel && !clickedShareButton) {
+            setSharePanelOpen(false);
+          }
         });
 
         closeBtn?.addEventListener('click', closeModal);
+        shareBtn?.addEventListener('click', () => {
+          if (!sharePanel) return;
+          setSharePanelOpen(!sharePanel.classList.contains('active'));
+        });
+        sharePanel?.addEventListener('click', async (event) => {
+          const option = event.target instanceof Element ? event.target.closest('[data-share-action]') : null;
+          if (!option) return;
+          const action = option.getAttribute('data-share-action');
+          if (action === 'copy') {
+            const didCopy = await copyToClipboard(activeShareUrl);
+            setSharePanelOpen(false);
+            if (didCopy) showCopyToast();
+            return;
+          }
+          if (action === 'linkedin') {
+            setSharePanelOpen(false);
+            openLinkedInShare();
+          }
+        });
         scrollBtn?.addEventListener('click', () => {
           if (!bodyEl) return;
           bodyEl.scrollTo({ top: bodyEl.scrollHeight, behavior: 'smooth' });
