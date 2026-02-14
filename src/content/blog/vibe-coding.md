@@ -1,6 +1,7 @@
 ---
 title: "Come Vibe (Code) With Me 🖥️"
 description: "How I went from doom-scrolling to vibe coding."
+slug: "vibe-coding-to-the-max"
 pubDate: 2026-02-14
 updatedDate: 2026-02-14
 tags: ["AI", "Vibe Coding", "Agile", "Building in Public", "Product Thinking", "Software Development"]

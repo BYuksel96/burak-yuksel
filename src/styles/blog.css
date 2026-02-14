@@ -185,6 +185,12 @@
   margin-bottom: 0.6rem;
 }
 
+.post-modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
 .post-modal-meta {
   font-size: 0.9rem;
   color: var(--muted);
@@ -192,6 +198,7 @@
   text-transform: uppercase;
 }
 
+.post-modal-share,
 .post-modal-close {
   width: 34px;
   height: 34px;
@@ -202,6 +209,24 @@
   cursor: pointer;
   font-weight: 600;
   transition: border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.post-modal-share {
+  width: 78px;
+  font-size: 0.62rem;
+  letter-spacing: 0.05em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.post-modal-share:hover,
+.post-modal-share:focus-visible,
+.post-modal-share:focus,
+.post-modal-share:active {
+  border-color: rgba(250, 204, 21, 0.95);
+  color: #facc15;
+  background: rgba(250, 204, 21, 0.14);
+  box-shadow: 0 0 12px rgba(250, 204, 21, 0.35);
 }
 
 .post-modal-close:hover,
@@ -215,12 +240,82 @@
 }
 
 @media (hover: none) and (pointer: coarse) {
+  .post-modal-share {
+    background: transparent;
+    color: #facc15;
+    border-color: #facc15;
+    box-shadow: 0 0 12px rgba(250, 204, 21, 0.35);
+  }
+
   .post-modal-close {
     background: transparent;
     color: #f87171;
     border-color: #f87171;
     box-shadow: 0 0 12px rgba(248, 113, 113, 0.35);
   }
+}
+
+.post-modal-share-panel {
+  position: absolute;
+  top: 4.2rem;
+  right: 1.8rem;
+  width: min(340px, calc(100% - 3.6rem));
+  padding: 0.45rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  background: rgba(35, 37, 40, 0.98);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.45);
+  z-index: 40;
+  opacity: 0;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  transform: translateY(-8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.post-modal-share-panel.active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.post-modal-share-option {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  font-size: 0.9rem;
+  padding: 0.55rem 0.8rem;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.post-modal-share-option:hover,
+.post-modal-share-option:focus-visible {
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.linkedin-icon {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 2px;
+  background: #0a66c2;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-family: Arial, sans-serif;
+  line-height: 1;
 }
 
 .post-modal-title {
@@ -294,6 +389,29 @@
   pointer-events: auto;
   transform: translateX(-50%) translateY(-4px);
   animation: scrollHintPulse 1.4s ease-in-out infinite;
+}
+
+.post-copy-toast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 0.72rem 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  background: rgba(35, 37, 40, 0.96);
+  color: var(--text);
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 35;
+}
+
+.post-copy-toast.visible {
+  opacity: 1;
 }
 
 @keyframes scrollHintPulse {
