@@ -1,6 +1,8 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection, getEntryBySlug } from 'astro:content';
+import '../../styles/cv.css';
+import '../../styles/blog.css';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
@@ -18,13 +20,37 @@ if (!post) {
 
 const { Content } = await post.render();
 const { data } = post;
+const base = import.meta.env.BASE_URL || '/';
 ---
 
-<BaseLayout title={data.title} description={data.description}>
-  <article>
-    <p class="post-meta">{data.pubDate.toLocaleDateString()}</p>
-    <h1>{data.title}</h1>
-    <p class="post-tldr"><span>TL;DR</span> {data.description}</p>
-    <Content />
-  </article>
+<BaseLayout
+  title={data.title}
+  description={data.description}
+  hideHeader={true}
+  bodyClass="blog-body"
+  footerText="© 2026 Burak Yuksel"
+>
+  <div class="posts-page">
+    <header class="posts-header">
+      <nav class="cv-nav">
+        <div class="nav-links">
+          <a href={base}>Home</a>
+          <a href={`${base}resume/`}>Resume</a>
+          <a href="https://github.com/BYuksel96" target="_blank" rel="noreferrer">Github</a>
+        </div>
+        <div class="nav-line"></div>
+      </nav>
+    </header>
+
+    <main class="posts-main">
+      <div class="posts-shell">
+        <article>
+          <p class="post-meta">{data.pubDate.toLocaleDateString()}</p>
+          <h1>{data.title}</h1>
+          <p class="post-tldr"><span>TL;DR</span> {data.description}</p>
+          <Content />
+        </article>
+      </div>
+    </main>
+  </div>
 </BaseLayout>
