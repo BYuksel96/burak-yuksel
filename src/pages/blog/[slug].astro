@@ -30,7 +30,7 @@ const base = import.meta.env.BASE_URL || '/';
   bodyClass="blog-body"
   footerText="© 2026 Burak Yuksel"
 >
-  <div class="posts-page">
+  <div class="posts-page single-post-page">
     <header class="posts-header">
       <nav class="cv-nav">
         <div class="nav-links">
@@ -42,10 +42,33 @@ const base = import.meta.env.BASE_URL || '/';
       </nav>
     </header>
 
-    <main class="posts-main">
-      <div class="posts-shell">
+    <main class="posts-main single-post-main">
+      <div class="posts-shell single-post-shell">
         <article>
-          <p class="post-meta">{data.pubDate.toLocaleDateString()}</p>
+          <header class="single-post-head">
+            <p class="post-meta">{data.pubDate.toLocaleDateString()}</p>
+            <div class="single-post-actions">
+              <a class="single-post-back" href={`${base}blog/`} aria-label="Back to blog posts">Back to Blog</a>
+              <button
+                class="post-modal-share single-post-share"
+                type="button"
+                aria-label="Share post"
+                aria-controls="singlePostSharePanel"
+                aria-expanded="false"
+              >
+                Share
+              </button>
+            </div>
+          </header>
+          <div class="post-modal-share-panel single-post-share-panel" id="singlePostSharePanel" aria-hidden="true">
+            <button class="post-modal-share-option" type="button" data-share-action="copy">
+              🔗 Copy Link
+            </button>
+            <button class="post-modal-share-option" type="button" data-share-action="linkedin">
+              <span class="linkedin-icon" aria-hidden="true">in</span>
+              Share on LinkedIn
+            </button>
+          </div>
           <h1>{data.title}</h1>
           <p class="post-tldr"><span>TL;DR</span> {data.description}</p>
           <Content />
@@ -53,4 +76,99 @@ const base = import.meta.env.BASE_URL || '/';
       </div>
     </main>
   </div>
+  <div class="post-copy-toast" id="singlePostCopyToast" role="status" aria-live="polite">Link Copied</div>
+
+  <script>
+    if (typeof window !== 'undefined') {
+      window.addEventListener('DOMContentLoaded', () => {
+        const shareBtn = document.querySelector('.single-post-share');
+        const sharePanel = document.getElementById('singlePostSharePanel');
+        const copyToast = document.getElementById('singlePostCopyToast');
+        const article = document.querySelector('.single-post-shell > article');
+        const linkedInShareText =
+          'Checkout this latest post by Burak Yuksel that I just read! Definitely worth the read!';
+        let copyToastTimer = null;
+
+        const setSharePanelOpen = (isOpen) => {
+          if (!sharePanel || !shareBtn) return;
+          sharePanel.classList.toggle('active', isOpen);
+          sharePanel.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+          shareBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        };
+
+        const showCopyToast = () => {
+          if (!copyToast) return;
+          copyToast.classList.add('visible');
+          if (copyToastTimer) window.clearTimeout(copyToastTimer);
+          copyToastTimer = window.setTimeout(() => {
+            copyToast.classList.remove('visible');
+          }, 1600);
+        };
+
+        const copyToClipboard = async (text) => {
+          if (!text) return false;
+          if (navigator.clipboard?.writeText) {
+            try {
+              await navigator.clipboard.writeText(text);
+              return true;
+            } catch {
+              // Fallback handled below.
+            }
+          }
+          const helper = document.createElement('textarea');
+          helper.value = text;
+          helper.setAttribute('readonly', 'true');
+          helper.style.position = 'absolute';
+          helper.style.left = '-9999px';
+          document.body.appendChild(helper);
+          helper.select();
+          const copied = document.execCommand('copy');
+          document.body.removeChild(helper);
+          return copied;
+        };
+
+        const openLinkedInShare = () => {
+          const prefilled = `${linkedInShareText} ${window.location.href}`;
+          const linkedInUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(prefilled)}`;
+          window.open(linkedInUrl, '_blank', 'noopener,noreferrer');
+        };
+
+        shareBtn?.addEventListener('click', () => {
+          if (!sharePanel) return;
+          setSharePanelOpen(!sharePanel.classList.contains('active'));
+        });
+
+        sharePanel?.addEventListener('click', async (event) => {
+          const option = event.target instanceof Element ? event.target.closest('[data-share-action]') : null;
+          if (!option) return;
+          const action = option.getAttribute('data-share-action');
+          if (action === 'copy') {
+            const didCopy = await copyToClipboard(window.location.href);
+            setSharePanelOpen(false);
+            if (didCopy) showCopyToast();
+            return;
+          }
+          if (action === 'linkedin') {
+            setSharePanelOpen(false);
+            openLinkedInShare();
+          }
+        });
+
+        document.addEventListener('click', (event) => {
+          const isShareOpen = !!sharePanel?.classList.contains('active');
+          const targetNode = event.target;
+          if (!isShareOpen || !(targetNode instanceof Node) || !sharePanel) return;
+          const clickedSharePanel = sharePanel.contains(targetNode);
+          const clickedShareButton = !!shareBtn?.contains(targetNode);
+          if (!clickedSharePanel && !clickedShareButton) {
+            setSharePanelOpen(false);
+          }
+        });
+
+        document.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape') setSharePanelOpen(false);
+        });
+      });
+    }
+  </script>
 </BaseLayout>
