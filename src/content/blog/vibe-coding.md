@@ -1,12 +1,12 @@
 ---
-title: "Vibe Coding to the Max 🚀"
+title: "Come Vibe (Code) With Me 🖥️"
 description: "How I went from doom-scrolling to vibe coding."
 pubDate: 2026-02-14
 updatedDate: 2026-02-14
 tags: ["AI", "Vibe Coding", "Agile", "Building in Public", "Product Thinking", "Software Development"]
 ---
 
-# Vibe Coding to the Max 🚀
+## Vibe Coding to the Max 🚀
 
 I didn’t start vibe coding because I had a genius idea. I started because I was procrastinating. Scrolling! Watching people ship websites, Apps, Micro tools and more. Seeing those Lovable ads pop up every five minutes. And then I had this moment:
 
