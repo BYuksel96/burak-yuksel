@@ -31,7 +31,6 @@ posts.forEach((post) => {
 
 const rendered = await Promise.all(posts.map((post) => post.render()));
 const renderedBySlug = new Map(posts.map((post, index) => [post.slug, rendered[index]]));
-const site = Astro.site;
 
 const formatRowDate = (date) =>
   date.toLocaleDateString('en-US', {
@@ -81,7 +80,6 @@ const formatModalDate = (date) =>
                   const readMinutes = estimateReadMinutes(post.body || '');
                   const meta = `${modalDate} - ${readMinutes} min read`;
                   const sharePath = `${base}blog/${post.slug}/`;
-                  const shareUrl = site ? new URL(sharePath, site).toString() : sharePath;
                   return (
                     <div class="post-entry">
                       <a
@@ -91,7 +89,7 @@ const formatModalDate = (date) =>
                         data-title={post.data.title}
                         data-meta={meta}
                         data-description={post.data.description}
-                        data-share-url={shareUrl}
+                        data-share-path={sharePath}
                       >
                         <span class="post-row-title">{post.data.title}</span>
                         <span class="post-row-date">{rowDate}</span>
@@ -235,12 +233,12 @@ const formatModalDate = (date) =>
           const meta = trigger.dataset.meta || '';
           const title = trigger.dataset.title || '';
           const description = trigger.dataset.description || '';
-          const shareUrl = trigger.dataset.shareUrl || '';
+          const sharePath = trigger.dataset.sharePath || '';
           const content = document.querySelector(`[data-post-content="${slug}"]`);
           if (!content) return;
           metaEl.textContent = meta;
           titleEl.textContent = title;
-          activeShareUrl = shareUrl ? new URL(shareUrl, window.location.origin).toString() : window.location.href;
+          activeShareUrl = sharePath ? new URL(sharePath, window.location.origin).toString() : window.location.href;
           const tldr = description
             ? `<p class="post-modal-tldr"><span>TL;DR</span> ${description}</p>`
             : '';
