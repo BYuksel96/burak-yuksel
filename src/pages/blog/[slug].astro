@@ -32,11 +32,9 @@ const base = import.meta.env.BASE_URL || '/';
 >
   <div class="posts-page single-post-page">
     <header class="posts-header">
-      <nav class="cv-nav">
-        <div class="nav-links">
-          <a href={base}>Home</a>
-          <a href={`${base}resume/`}>Resume</a>
-          <a href="https://github.com/BYuksel96" target="_blank" rel="noreferrer">Github</a>
+      <nav class="cv-nav single-post-nav">
+        <div class="single-post-nav-title">
+          {data.title}
         </div>
         <div class="nav-line"></div>
       </nav>
@@ -69,7 +67,6 @@ const base = import.meta.env.BASE_URL || '/';
               Share on LinkedIn
             </button>
           </div>
-          <h1>{data.title}</h1>
           <p class="post-tldr"><span>TL;DR</span> {data.description}</p>
           <Content />
         </article>

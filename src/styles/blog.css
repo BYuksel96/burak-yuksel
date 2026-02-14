@@ -54,6 +54,18 @@
   padding-top: 1rem;
 }
 
+.single-post-nav-title {
+  width: 78vw;
+  max-width: 82%;
+  margin: 0 auto;
+  padding: 0.4rem 0.9rem;
+  text-align: center;
+  color: var(--text);
+  font-size: clamp(1.3rem, 2.6vw, 1.9rem);
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
 .posts-main {
   flex: 1;
   padding: 2.5rem 0 4.5rem;
@@ -97,6 +109,7 @@
   overflow-y: auto;
   scrollbar-width: none;
   margin: 0;
+  padding-top: 0;
   position: relative;
 }
 
@@ -109,6 +122,13 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  padding: 1.25rem 0 0.8rem;
+  margin: 0 0 0.65rem;
+  background: var(--surface);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .single-post-head .post-meta {
