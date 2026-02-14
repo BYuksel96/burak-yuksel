@@ -24,6 +24,10 @@
   overflow: hidden;
 }
 
+.blog-slug-body {
+  --site-footer-height: 48px;
+}
+
 @supports (height: 100dvh) {
   .blog-body .content {
     height: calc(100dvh - var(--site-footer-height));
