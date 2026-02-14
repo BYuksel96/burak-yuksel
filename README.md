@@ -124,4 +124,12 @@ See `CONTENT-LICENSE.md` for details.
 
 ---
 
+## 📌 Future Implementation / Post Ideas
+
+- Notify users of a new blog post. Subscription system.
+- Add a share function to the blog posts. So someone can share the post. When clicked on it will take the user to the specific post that was shared.
+- Future post: Talk about the importance of coming prepared to a meeting as a Technical Program Manager. This differentiates "oh not another meeting" to "Oh this was a great meeting and a good use of everyones time". Current project at work I supported bringing technical leads to one call. Talked over the technical elements and drew up an action plan for all to follow-up on.
+
+---
+
 © 2026 Burak Yuksel
