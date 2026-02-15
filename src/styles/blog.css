@@ -170,7 +170,8 @@
 }
 
 .single-post-share-panel {
-  top: 3.6rem;
+  top: calc(100% - 0.1rem);
+  right: 0;
 }
 
 .posts-title {
@@ -396,6 +397,11 @@
   transform: translateY(0);
 }
 
+.post-modal-share-panel.single-post-share-panel {
+  top: calc(100% - 0.1rem);
+  right: 0;
+}
+
 .post-modal-share-option {
   width: 100%;
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -572,7 +578,11 @@
   }
 
   .single-post-main {
-    padding: 1.6rem 0 calc(1.6rem + 0.9rem);
+    padding: 1.6rem 0 calc(3rem + env(safe-area-inset-bottom));
+  }
+
+  .single-post-shell {
+    margin-bottom: 0.7rem;
   }
 
   .posts-shell {

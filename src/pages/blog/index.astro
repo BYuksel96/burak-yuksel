@@ -75,16 +75,17 @@ const formatModalDate = (date) =>
               <div class="posts-entries">
                 {group.posts.map((post) => {
                   const { Content } = renderedBySlug.get(post.slug);
+                  const routeSlug = post.data.canonicalSlug || post.slug;
                   const rowDate = formatRowDate(post.data.pubDate);
                   const modalDate = formatModalDate(post.data.pubDate);
                   const readMinutes = estimateReadMinutes(post.body || '');
                   const meta = `${modalDate} - ${readMinutes} min read`;
-                  const sharePath = `${base}blog/${post.slug}/`;
+                  const sharePath = `${base}blog/${routeSlug}/`;
                   return (
                     <div class="post-entry">
                       <a
                         class="post-row"
-                        href={`${base}blog/${post.slug}/`}
+                        href={`${base}blog/${routeSlug}/`}
                         data-slug={post.slug}
                         data-title={post.data.title}
                         data-meta={meta}
