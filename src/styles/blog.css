@@ -572,7 +572,11 @@
   }
 
   .single-post-main {
-    padding: 1.6rem 0 calc(1.6rem + 0.9rem);
+    padding: 1.6rem 0 calc(3rem + env(safe-area-inset-bottom));
+  }
+
+  .single-post-shell {
+    margin-bottom: 0.7rem;
   }
 
   .posts-shell {

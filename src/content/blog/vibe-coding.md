@@ -1,7 +1,7 @@
 ---
 title: "Come Vibe (Code) With Me 🖥️"
 description: "How I went from doom-scrolling to vibe coding."
-slug: "vibe-coding-to-the-max"
+canonicalSlug: "vibe-coding-to-the-max"
 pubDate: 2026-02-14
 updatedDate: 2026-02-14
 tags: ["AI", "Vibe Coding", "Agile", "Building in Public", "Product Thinking", "Software Development"]
@@ -26,7 +26,7 @@ That was it! The spark that started this journey!
 
 If I could do that… I could do more.
 
-Then I watched another friend engineer his site **[forefinders.golf](https://forefinders.golf)** purely through vibe coding. Watching him iterate fast, ship quickly, break things, fix things — it was addictive.
+Then I watched another friend engineer his site **[forefinder.golf](https://forefinder.golf)** purely through vibe coding. Watching him iterate fast, ship quickly, break things, fix things — it was addictive.
 
 And when I say addictive, I mean addictive.
 
