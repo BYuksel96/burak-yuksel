@@ -329,7 +329,7 @@
 
 .post-modal-share:hover,
 .post-modal-share:focus-visible,
-.post-modal-share:focus,
+.post-modal-share[aria-expanded='true'],
 .post-modal-share:active {
   border-color: rgba(250, 204, 21, 0.95);
   color: #facc15;
