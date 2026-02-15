@@ -58,16 +58,16 @@ const base = import.meta.env.BASE_URL || '/';
                 Share
               </button>
             </div>
+            <div class="post-modal-share-panel single-post-share-panel" id="singlePostSharePanel" aria-hidden="true">
+              <button class="post-modal-share-option" type="button" data-share-action="copy">
+                🔗 Copy Link
+              </button>
+              <button class="post-modal-share-option" type="button" data-share-action="linkedin">
+                <span class="linkedin-icon" aria-hidden="true">in</span>
+                Share on LinkedIn
+              </button>
+            </div>
           </header>
-          <div class="post-modal-share-panel single-post-share-panel" id="singlePostSharePanel" aria-hidden="true">
-            <button class="post-modal-share-option" type="button" data-share-action="copy">
-              🔗 Copy Link
-            </button>
-            <button class="post-modal-share-option" type="button" data-share-action="linkedin">
-              <span class="linkedin-icon" aria-hidden="true">in</span>
-              Share on LinkedIn
-            </button>
-          </div>
           <p class="post-tldr"><span>TL;DR</span> {data.description}</p>
           <Content />
         </article>

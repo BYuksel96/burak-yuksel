@@ -170,7 +170,8 @@
 }
 
 .single-post-share-panel {
-  top: 3.6rem;
+  top: calc(100% - 0.1rem);
+  right: 0;
 }
 
 .posts-title {
