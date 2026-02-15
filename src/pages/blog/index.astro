@@ -313,6 +313,7 @@ const formatModalDate = (date) =>
           bodyEl.scrollTo({ top: bodyEl.scrollHeight, behavior: 'smooth' });
         });
         bodyEl?.addEventListener('scroll', () => {
+          setSharePanelOpen(false);
           updateScrollHint();
         });
         document.addEventListener('keydown', (event) => {
