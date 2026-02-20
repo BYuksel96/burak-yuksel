@@ -1,4 +1,5 @@
 .cv-page {
+  --cv-usable-midpoint: calc((100vh - var(--site-footer-height)) / 2);
   position: relative;
   height: 100%;
   min-height: 100%;
@@ -7,10 +8,15 @@
   overflow-x: visible;
   overflow-y: hidden;
 }
+@supports (height: 100dvh) {
+  .cv-page {
+    --cv-usable-midpoint: calc((100dvh - var(--site-footer-height)) / 2);
+  }
+}
 .resume-side-label {
   position: fixed;
   left: clamp(-13rem, -12vw, -2.2rem);
-  top: 50%;
+  top: var(--cv-usable-midpoint);
   transform: translateY(-50%) rotate(270deg);
   transform-origin: center;
   z-index: 1;
@@ -224,7 +230,7 @@
   --quick-tile-size: clamp(4.06rem, 7vw, 5.31rem);
   --quick-tile-gap: 0.75rem;
   position: fixed;
-  top: calc(50% - (2 * (var(--quick-tile-size) + var(--quick-tile-gap)) + (var(--quick-tile-size) / 2)));
+  top: calc(var(--cv-usable-midpoint) - (2 * (var(--quick-tile-size) + var(--quick-tile-gap)) + (var(--quick-tile-size) / 2)));
   bottom: auto;
   right: clamp(1rem, 3vw, 1.8rem);
   left: auto;
