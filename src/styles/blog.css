@@ -556,20 +556,11 @@
   position: fixed;
   inset: auto 0 0 0;
   min-height: var(--site-footer-height);
-  height: var(--site-footer-height);
   display: flex;
   align-items: center;
   background: var(--surface);
   box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.35);
   z-index: 12;
-}
-
-.blog-body .site-footer .shell {
-  height: 100%;
-}
-
-.blog-body .site-footer p {
-  margin: 0;
 }
 
 @media (max-width: 720px) {
