@@ -1,4 +1,5 @@
 .cv-page {
+  position: relative;
   height: 100%;
   min-height: 100%;
   display: flex;
@@ -8,20 +9,22 @@
 }
 .resume-side-label {
   position: fixed;
-  left: -1.7rem;
+  left: clamp(-13rem, -12vw, -2.2rem);
   top: 50%;
   transform: translateY(-50%) rotate(270deg);
   transform-origin: center;
-  z-index: 10;
+  z-index: 1;
   color: rgba(245, 245, 245, 0.55);
-  font-size: clamp(1.2rem, 2.2vw, 1.9rem);
+  font-size: clamp(1.8rem, 5.8vw, 5rem);
   font-weight: 800;
-  letter-spacing: 0.5rem;
+  letter-spacing: clamp(0.9rem, 2.2vw, 2.2rem);
   text-transform: uppercase;
   pointer-events: none;
   user-select: none;
 }
 .cv-main {
+  position: relative;
+  z-index: 2;
   flex: 1;
   overflow-y: auto;
   overflow-x: visible;
@@ -580,9 +583,6 @@
   }
   .mobile-nav {
     display: block;
-  }
-  .resume-side-label {
-    display: none;
   }
 }
 
