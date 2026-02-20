@@ -81,16 +81,20 @@ The CV timeline is driven from structured data, allowing updates without touchin
 ---
 
 ## GitHub Pages Setup
-1. Update `site` and `base` in `astro.config.mjs` to match your repo. Example for a repo named `burak-yuksel`:  
+1. Set `site` and `base` in `astro.config.mjs` for your custom domain root deployment:  
    ```js
    export default defineConfig({
-     site: 'https://<your-username>.github.io/burak-yuksel',
-     base: '/burak-yuksel/',
+     site: 'https://burakyuksel.dev',
+     base: '/',
      output: 'static',
    });
    ```
-2. Build the site: `npm run build` (outputs to `dist/`).
-3. Deploy `dist/` to GitHub Pages (e.g., push with a `gh-pages` branch or configure Pages to serve from `dist` via GitHub Actions).
+2. Add `public/CNAME` containing:
+   ```txt
+   burakyuksel.dev
+   ```
+3. Build the site: `npm run build` (outputs to `dist/`).
+4. Deploy with GitHub Pages (this repo uses GitHub Actions workflow deployment).
 
 Markdown posts live in `src/content/blog`. Frontmatter is validated by the schema in `src/content/config.ts`, and the routes are generated statically for GitHub Pages-friendly hosting.
 
@@ -127,7 +131,6 @@ See `CONTENT-LICENSE.md` for details.
 ## 📌 Future Implementation / Post Ideas
 
 - Notify users of a new blog post. Subscription system.
-- Add a share function to the blog posts. So someone can share the post. When clicked on it will take the user to the specific post that was shared.
 - Future post: Talk about the importance of coming prepared to a meeting as a Technical Program Manager. This differentiates "oh not another meeting" to "Oh this was a great meeting and a good use of everyones time". Current project at work I supported bringing technical leads to one call. Talked over the technical elements and drew up an action plan for all to follow-up on.
 
 ---
