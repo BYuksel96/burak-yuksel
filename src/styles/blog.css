@@ -13,6 +13,7 @@
 }
 
 .posts-page {
+  --cv-usable-midpoint: calc((100vh - var(--site-footer-height)) / 2);
   min-height: 100vh;
   height: 100vh;
   display: flex;
@@ -29,6 +30,10 @@
 }
 
 @supports (height: 100dvh) {
+  .posts-page {
+    --cv-usable-midpoint: calc((100dvh - var(--site-footer-height)) / 2);
+  }
+
   .blog-body .content {
     height: calc(100dvh - var(--site-footer-height));
   }
@@ -40,6 +45,10 @@
 }
 
 @supports (height: 100svh) {
+  .posts-page {
+    --cv-usable-midpoint: calc((100svh - var(--site-footer-height)) / 2);
+  }
+
   .blog-body .content {
     height: calc(100svh - var(--site-footer-height));
   }
@@ -48,65 +57,6 @@
     min-height: 100svh;
     height: 100svh;
   }
-}
-
-.posts-header {
-  padding-top: 1rem;
-}
-
-.blog-body .cv-nav {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1vw;
-}
-
-.blog-body .nav-links {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  justify-items: center;
-  align-items: center;
-  text-align: center;
-  column-gap: clamp(1.5rem, 6vw, 3rem);
-  width: 78vw;
-  max-width: 82%;
-  margin: 0 auto;
-  font-weight: 600;
-}
-
-.blog-body .nav-links a {
-  color: var(--text);
-  text-decoration: none;
-  padding: 0.4rem 0.9rem;
-  border-radius: 10px;
-  transition: box-shadow 0.28s ease, text-shadow 0.28s ease, color 0.28s ease;
-  box-shadow: none;
-}
-
-.blog-body .nav-links a:hover,
-.blog-body .nav-links a:focus-visible {
-  box-shadow: none;
-  text-shadow: 0 0 30px rgba(255, 255, 255, 1), 0 0 60px rgba(255, 255, 255, 1), 0 0 48px rgba(255, 255, 255, 1);
-}
-
-.blog-body .nav-line {
-  width: 78vw;
-  max-width: 82%;
-  margin: 0 auto;
-  height: 0.1vw;
-  background: rgba(255, 255, 255, 0.25);
-}
-
-.single-post-nav-title {
-  width: 78vw;
-  max-width: 82%;
-  margin: 0 auto;
-  padding: 0.4rem 0.9rem;
-  text-align: center;
-  color: var(--text);
-  font-size: clamp(1.3rem, 2.6vw, 1.9rem);
-  font-weight: 800;
-  letter-spacing: 0.03em;
 }
 
 .posts-main {
@@ -123,6 +73,16 @@
 .posts-shell {
   width: min(820px, 78vw);
   margin: 0 auto;
+}
+
+@media (min-width: 1200px) {
+  .posts-shell {
+    width: min(1200px, 84vw);
+  }
+
+  .post-modal {
+    width: min(1040px, 90vw);
+  }
 }
 
 .single-post-main {
@@ -219,8 +179,11 @@
 
 .posts-title {
   margin: 0 0 2.5rem;
+  color: rgba(245, 245, 245, 0.55);
   font-size: clamp(1.6rem, 3vw, 2.2rem);
-  letter-spacing: 0.04em;
+  font-weight: 800;
+  letter-spacing: clamp(0.18rem, 0.45vw, 0.5rem);
+  text-transform: uppercase;
 }
 
 .posts-list {
