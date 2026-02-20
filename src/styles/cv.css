@@ -203,17 +203,20 @@
 }
 
 .floating-icons {
+  --quick-tile-size: clamp(4.06rem, 7vw, 5.31rem);
+  --quick-tile-gap: 0.75rem;
   position: fixed;
-  bottom: calc(var(--site-footer-height) + 2rem);
+  top: calc(50% - (2 * (var(--quick-tile-size) + var(--quick-tile-gap)) + (var(--quick-tile-size) / 2)));
+  bottom: auto;
   right: clamp(1rem, 3vw, 1.8rem);
   left: auto;
   display: grid;
-  gap: 0.75rem;
+  gap: var(--quick-tile-gap);
   z-index: 13;
 }
 .icon-card {
-  width: clamp(4.06rem, 7vw, 5.31rem);
-  height: clamp(4.06rem, 7vw, 5.31rem);
+  width: var(--quick-tile-size);
+  height: var(--quick-tile-size);
   border: clamp(0.094rem, 0.14vw, 0.19rem) solid rgba(255, 255, 255, 0.35);
   border-radius: clamp(0.7rem, 1.18vw, 1.18rem);
   background: rgba(255, 255, 255, 0.03);
