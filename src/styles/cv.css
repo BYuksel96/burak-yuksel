@@ -6,6 +6,21 @@
   overflow-x: visible;
   overflow-y: hidden;
 }
+.resume-side-label {
+  position: fixed;
+  left: -1.7rem;
+  top: 50%;
+  transform: translateY(-50%) rotate(270deg);
+  transform-origin: center;
+  z-index: 10;
+  color: rgba(245, 245, 245, 0.55);
+  font-size: clamp(1.2rem, 2.2vw, 1.9rem);
+  font-weight: 800;
+  letter-spacing: 0.5rem;
+  text-transform: uppercase;
+  pointer-events: none;
+  user-select: none;
+}
 .cv-main {
   flex: 1;
   overflow-y: auto;
@@ -565,6 +580,9 @@
   }
   .mobile-nav {
     display: block;
+  }
+  .resume-side-label {
+    display: none;
   }
 }
 
