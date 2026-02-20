@@ -79,10 +79,6 @@
   .posts-shell {
     width: min(1200px, 84vw);
   }
-
-  .post-modal {
-    width: min(1040px, 90vw);
-  }
 }
 
 .single-post-main {
@@ -289,6 +285,12 @@
 .post-modal.active {
   transform: scale(1);
   opacity: 1;
+}
+
+@media (min-width: 1200px) {
+  .post-modal {
+    width: min(1200px, 84vw);
+  }
 }
 
 .post-modal-head {
