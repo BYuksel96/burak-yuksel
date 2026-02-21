@@ -297,10 +297,10 @@
   width: 50px;
   height: 50px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 12px;
-  background: rgba(0, 0, 0, 0.78);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+  border: 0.5px solid rgba(245, 245, 245, 0.55);
+  border-radius: 10px;
+  background: var(--surface);
+  box-shadow: none;
   transition:
     width 0.28s ease,
     height 0.28s ease,
@@ -313,9 +313,9 @@
   width: min(285px, calc(100vw - 2rem));
   height: min(250px, calc(100vh - 2rem));
   border-radius: 14px;
-  border-color: rgba(255, 255, 255, 0.3);
-  background: rgba(0, 0, 0, 0.9);
-  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.5);
+  border-color: rgba(245, 245, 245, 0.55);
+  background: var(--surface);
+  box-shadow: none;
 }
 .mobile-nav-toggle {
   position: absolute;
