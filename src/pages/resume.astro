@@ -199,7 +199,7 @@ const currentIndex = timeline.findIndex((item) => item.current);
         const prefersReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         const toVh = (value) => `${(value / Math.max(window.innerHeight, 1)) * 100}vh`;
 
-        const layoutSpine = () => {
+        const layoutSpine = (immediate = false) => {
           if (!timelineEl || !solid || !dotted || !current || items.length === 0) return;
           const tRect = timelineEl.getBoundingClientRect();
           const firstRect = items[0].getBoundingClientRect();
@@ -222,8 +222,34 @@ const currentIndex = timeline.findIndex((item) => item.current);
           const solidHeight = Math.max(target - start, 0);
           const dottedHeight = Math.max(tRect.height - target, 0);
 
+          if (immediate) {
+            gsap.set(solid, { height: toVh(solidHeight) });
+            gsap.set(dotted, { height: toVh(dottedHeight), opacity: 1 });
+            return;
+          }
+
           gsap.to(solid, { height: toVh(solidHeight), duration: solidDuration, ease: 'power2.out' });
           gsap.to(dotted, { height: toVh(dottedHeight), duration: dottedDuration, delay: dottedDelay, ease: 'power2.out', opacity: 1 });
+        };
+
+        const syncTimelineLayout = () => {
+          if (!timelineEl || !solid || !dotted || items.length === 0 || typeof gsap === 'undefined') return;
+          const rows = Array.from(items);
+          const dots = rows.map((row) => row.querySelector('.spine-dot'));
+          const branches = rows.map((row) => row.querySelector('.branch'));
+          const cards = rows.map((row) => row.querySelector('.card'));
+          const cardInners = rows.map((row) => row.querySelector('.card-inner'));
+
+          // Clear branch transforms so active media-query CSS is reapplied after viewport changes.
+          gsap.set(branches, { clearProps: 'transform,transformOrigin' });
+          gsap.set(rows, { opacity: 1, y: 0 });
+          gsap.set(dots, { autoAlpha: 1, scale: 1 });
+          gsap.set(cards, { autoAlpha: 1 });
+          gsap.set(cardInners, { scale: 1 });
+
+          solid.classList.remove('shimmer');
+          dotted.classList.remove('shimmer');
+          layoutSpine(true);
         };
 
         const refreshTimeline = () => {
@@ -520,12 +546,29 @@ const currentIndex = timeline.findIndex((item) => item.current);
           });
           setTimeout(() => refreshTimeline(), 350);
         });
-        window.addEventListener('resize', () => {
-          layoutSpine();
-        });
+        let resizeRaf = null;
+        const scheduleTimelineSync = () => {
+          if (resizeRaf !== null) cancelAnimationFrame(resizeRaf);
+          resizeRaf = requestAnimationFrame(() => {
+            resizeRaf = null;
+            syncTimelineLayout();
+          });
+        };
+
+        window.addEventListener('resize', scheduleTimelineSync);
+        window.visualViewport?.addEventListener('resize', scheduleTimelineSync);
         window.addEventListener('orientationchange', () => {
           refreshTimeline();
         });
+
+        if (typeof ResizeObserver !== 'undefined') {
+          const observer = new ResizeObserver(() => {
+            scheduleTimelineSync();
+          });
+          observer.observe(timelineEl);
+          const cvMain = document.querySelector('.cv-main');
+          if (cvMain) observer.observe(cvMain);
+        }
       });
     }
   </script>
