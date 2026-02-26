@@ -197,9 +197,10 @@ const currentIndex = timeline.findIndex((item) => item.current);
         const closeBtn = document.querySelector('.modal-close');
         const scrollBtn = document.querySelector('.modal-scroll');
         const prefersReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const toVh = (value) => `${(value / Math.max(window.innerHeight, 1)) * 100}vh`;
+        const toPx = (value) => `${value}px`;
+        const toPxSize = (value) => `${Math.max(value, 0)}px`;
 
-        const layoutSpine = () => {
+        const layoutSpine = (immediate = false) => {
           if (!timelineEl || !solid || !dotted || !current || items.length === 0) return;
           const tRect = timelineEl.getBoundingClientRect();
           const firstRect = items[0].getBoundingClientRect();
@@ -209,10 +210,10 @@ const currentIndex = timeline.findIndex((item) => item.current);
           // Start slightly above the first event so the solid line overlaps the dot fully.
           const startOffset = -40;
           const start = startBase + startOffset;
-          solid.style.top = toVh(start + 10);
+          solid.style.top = toPx(start + 10);
           solid.style.height = '0';
           dotted.style.height = '0';
-          dotted.style.top = toVh(target);
+          dotted.style.top = toPx(target);
           dotted.style.opacity = '0';
 
           const solidDuration = prefersReduce ? 0 : 1;
@@ -222,16 +223,70 @@ const currentIndex = timeline.findIndex((item) => item.current);
           const solidHeight = Math.max(target - start, 0);
           const dottedHeight = Math.max(tRect.height - target, 0);
 
-          gsap.to(solid, { height: toVh(solidHeight), duration: solidDuration, ease: 'power2.out' });
-          gsap.to(dotted, { height: toVh(dottedHeight), duration: dottedDuration, delay: dottedDelay, ease: 'power2.out', opacity: 1 });
+          if (immediate) {
+            gsap.set(solid, { height: toPxSize(solidHeight) });
+            gsap.set(dotted, { height: toPxSize(dottedHeight), opacity: 1 });
+            return;
+          }
+
+          gsap.to(solid, { height: toPxSize(solidHeight), duration: solidDuration, ease: 'power2.out' });
+          gsap.to(dotted, { height: toPxSize(dottedHeight), duration: dottedDuration, delay: dottedDelay, ease: 'power2.out', opacity: 1 });
+        };
+
+        const syncTimelineLayout = () => {
+          if (!timelineEl || !solid || !dotted || items.length === 0 || typeof gsap === 'undefined') return;
+          timelineSequence?.kill();
+          timelineSequence = null;
+          gsap.killTweensOf([solid, dotted]);
+          const rows = Array.from(items);
+          const dots = rows.map((row) => row.querySelector('.spine-dot'));
+          const branches = rows.map((row) => row.querySelector('.branch'));
+          const cards = rows.map((row) => row.querySelector('.card'));
+          const cardInners = rows.map((row) => row.querySelector('.card-inner'));
+
+          // Clear branch transforms so active media-query CSS is reapplied after viewport changes.
+          gsap.set(branches, { clearProps: 'transform,transformOrigin' });
+          gsap.set(rows, { opacity: 1, y: 0 });
+          gsap.set(dots, { autoAlpha: 1, scale: 1 });
+          gsap.set(cards, { autoAlpha: 1 });
+          gsap.set(cardInners, { scale: 1 });
+
+          solid.classList.remove('shimmer');
+          dotted.classList.remove('shimmer');
+          layoutSpine(true);
         };
 
         const refreshTimeline = () => {
           if (!timelineEl || items.length === 0) return;
           activeTimeline?.kill();
           activeTimeline = null;
+          timelineSequence?.kill();
+          timelineSequence = null;
+          if (typeof gsap !== 'undefined') {
+            gsap.killTweensOf([solid, dotted]);
+          }
           playTimelineSequence();
           layoutSpine();
+        };
+
+        const completeInitialTimelineSync = () => {
+          if (timelineReadyForAutoSync) return;
+          syncTimelineLayout();
+          timelineReadyForAutoSync = true;
+          pendingInitialSync = false;
+          if (initialSyncTimeout !== null) {
+            clearTimeout(initialSyncTimeout);
+            initialSyncTimeout = null;
+          }
+        };
+
+        const requestInitialTimelineSync = () => {
+          if (timelineReadyForAutoSync) return;
+          if (initialAnimationDone) {
+            completeInitialTimelineSync();
+            return;
+          }
+          pendingInitialSync = true;
         };
 
         const playTimelineSequence = () => {
@@ -257,11 +312,15 @@ const currentIndex = timeline.findIndex((item) => item.current);
           const startOffset = -40;
           const start = firstCenter + startOffset;
 
-          solid.style.top = toVh(start + 10);
-          solid.style.height = toVh(Math.max(firstCenter - start, 0));
-          dotted.style.top = toVh(currentCenter);
+          solid.style.top = toPx(start + 10);
+          solid.style.height = toPxSize(Math.max(firstCenter - start, 0));
+          dotted.style.top = toPx(currentCenter);
           dotted.style.height = '0';
           dotted.style.opacity = '0';
+
+          timelineSequence?.kill();
+          timelineSequence = null;
+          gsap.killTweensOf([solid, dotted]);
 
           rows.forEach((row, idx) => {
             const branch = branches[idx];
@@ -283,13 +342,33 @@ const currentIndex = timeline.findIndex((item) => item.current);
             gsap.set(cards, { autoAlpha: 1 });
             gsap.set(cardInners, { scale: 1 });
             layoutSpine();
+            initialAnimationDone = true;
+            if (pendingInitialSync && !timelineReadyForAutoSync) {
+              completeInitialTimelineSync();
+            }
             return;
           }
 
           solid.classList.add('shimmer');
           dotted.classList.add('shimmer');
 
-          const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+          const tl = gsap.timeline({
+            defaults: { ease: 'power2.out' },
+            onComplete: () => {
+              timelineSequence = null;
+              initialAnimationDone = true;
+              if (pendingInitialSync && !timelineReadyForAutoSync) {
+                completeInitialTimelineSync();
+              }
+              solid.classList.remove('shimmer');
+              dotted.classList.remove('shimmer');
+            },
+            onInterrupt: () => {
+              solid.classList.remove('shimmer');
+              dotted.classList.remove('shimmer');
+            },
+          });
+          timelineSequence = tl;
 
           rows.forEach((row, idx) => {
             const dot = dots[idx];
@@ -313,23 +392,24 @@ const currentIndex = timeline.findIndex((item) => item.current);
               if (lineTarget === dotted) {
                 tl.set(dotted, { opacity: 1 });
               }
-              tl.to(lineTarget, { height: toVh(Math.max(lineHeight, 0)), duration: 0.5 }, '>');
+              tl.to(lineTarget, { height: toPxSize(Math.max(lineHeight, 0)), duration: 0.5 }, '>');
             }
           });
 
           if (safeIndex < rows.length - 1) {
             const dottedHeight = Math.max(tRect.height - currentCenter, 0);
-            tl.to(dotted, { height: toVh(dottedHeight), duration: 0.5 }, '>');
+            tl.to(dotted, { height: toPxSize(dottedHeight), duration: 0.5 }, '>');
           }
-          tl.call(() => {
-            solid.classList.remove('shimmer');
-            dotted.classList.remove('shimmer');
-          });
         };
 
         let activeCard = null;
         let activeOffsets = { x: 0, y: 0 };
         let activeTimeline = null;
+        let timelineSequence = null;
+        let timelineReadyForAutoSync = false;
+        let initialAnimationDone = false;
+        let pendingInitialSync = false;
+        let initialSyncTimeout = null;
 
         const openModal = (card) => {
           if (!modal || !modalBackdrop || !modalTitle || !modalDate || !modalBody) return;
@@ -509,23 +589,70 @@ const currentIndex = timeline.findIndex((item) => item.current);
         });
 
         playTimelineSequence();
-        if (document.fonts && typeof document.fonts.ready?.then === 'function') {
+        const startupState = {
+          fontsReady: !(document.fonts && typeof document.fonts.ready?.then === 'function'),
+          windowLoaded: document.readyState === 'complete',
+        };
+        const maybeRequestInitialSync = () => {
+          if (startupState.fontsReady && startupState.windowLoaded) {
+            requestInitialTimelineSync();
+          }
+        };
+        if (!startupState.fontsReady) {
           document.fonts.ready.then(() => {
-            refreshTimeline();
+            startupState.fontsReady = true;
+            maybeRequestInitialSync();
           });
         }
-        window.addEventListener('load', () => {
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => refreshTimeline());
+        if (!startupState.windowLoaded) {
+          window.addEventListener('load', () => {
+            startupState.windowLoaded = true;
+            maybeRequestInitialSync();
+          }, { once: true });
+        }
+        maybeRequestInitialSync();
+        initialSyncTimeout = setTimeout(() => {
+          requestInitialTimelineSync();
+        }, 1200);
+
+        let resizeRaf = null;
+        const scheduleTimelineSync = () => {
+          if (!timelineReadyForAutoSync) return;
+          if (resizeRaf !== null) cancelAnimationFrame(resizeRaf);
+          resizeRaf = requestAnimationFrame(() => {
+            resizeRaf = null;
+            syncTimelineLayout();
           });
-          setTimeout(() => refreshTimeline(), 350);
-        });
-        window.addEventListener('resize', () => {
-          layoutSpine();
-        });
+        };
+
+        window.addEventListener('resize', scheduleTimelineSync);
+        window.visualViewport?.addEventListener('resize', scheduleTimelineSync);
+        let orientationTimeout = null;
         window.addEventListener('orientationchange', () => {
-          refreshTimeline();
+          if (!timelineReadyForAutoSync) {
+            requestInitialTimelineSync();
+            return;
+          }
+          scheduleTimelineSync();
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              syncTimelineLayout();
+            });
+          });
+          if (orientationTimeout !== null) clearTimeout(orientationTimeout);
+          orientationTimeout = setTimeout(() => {
+            syncTimelineLayout();
+          }, 280);
         });
+
+        if (typeof ResizeObserver !== 'undefined') {
+          const observer = new ResizeObserver(() => {
+            scheduleTimelineSync();
+          });
+          observer.observe(timelineEl);
+          const cvMain = document.querySelector('.cv-main');
+          if (cvMain) observer.observe(cvMain);
+        }
       });
     }
   </script>
