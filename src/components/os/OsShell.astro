@@ -1,0 +1,26 @@
+---
+import MonitorFrame from './MonitorFrame.astro';
+import '../../styles/os.css';
+---
+
+<main class="os-shell" aria-labelledby="os-title">
+  <MonitorFrame label="Burak OS shell">
+    <div class="os-screen">
+      <header class="os-topbar" aria-label="Burak OS status">
+        <div class="os-system-name">Burak OS</div>
+        <div class="os-status-cluster" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </header>
+
+      <section class="os-desktop" aria-label="Burak OS desktop">
+        <div class="os-brand-lockup">
+          <div class="os-brand-mark" aria-hidden="true">BY</div>
+          <h1 id="os-title">Burak OS</h1>
+        </div>
+      </section>
+    </div>
+  </MonitorFrame>
+</main>

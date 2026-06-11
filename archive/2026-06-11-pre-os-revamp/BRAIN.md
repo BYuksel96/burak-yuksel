@@ -248,29 +248,7 @@ Help button:
 - CSS is spread by page but selectors overlap names like `.card`, `.face`, `.floating-icons`, and `.mobile-nav`; watch for cross-page side effects.
 - `public/Resume-BURAK-YUKSEL.pdf` was already modified before this brain file was created; treat it as user-owned unless explicitly asked to update it.
 
-## Phase Handoffs
-
-### Phase 1: Archive and foundation
-
-- Status: implemented on 2026-06-11 on branch `feature/portfolio_revamp`.
-- Archive location: `archive/2026-06-11-pre-os-revamp/`.
-- Archive contents: tracked source/config/content/docs/workflow/public image assets, plus `ARCHIVE-NOTE.md`.
-- Archive exclusions: `node_modules/`, `dist/`, `.astro/`, `.git/`, and protected `public/Resume-BURAK-YUKSEL.pdf`.
-- Files changed for foundation:
-  - `src/pages/index.astro`
-  - `src/components/os/OsShell.astro`
-  - `src/components/os/MonitorFrame.astro`
-  - `src/styles/os.css`
-  - `BRAIN.md`
-  - `archive/2026-06-11-pre-os-revamp/`
-- Structure decision: new OS-specific Astro components live under `src/components/os/`; OS styling is isolated in `src/styles/os.css`; homepage route mounts only the OS shell.
-- Current homepage behavior: static monitor/OS foundation only. No loading sequence, desktop icons, taskbar, app windows, folder windows, GitHub fetching, Downloads, Bin, Resume.exe, or Blog.exe behavior yet.
-- Preserved routes/content: `src/pages/resume.astro`, `src/pages/blog/*`, `src/content/timeline.json`, and `src/content/blog/*` were left functionally untouched.
-- Verification: `npm run build` passed after Phase 1 and generated 5 pages.
-- Lint note: `package.json` has no lint script; no lint command was run or invented.
-
 ## Running Log
-- 2026-06-11: Phase 1 archive/foundation completed. Current implementation archived at `archive/2026-06-11-pre-os-revamp/`; homepage now renders the static `Burak OS` monitor shell; later app behavior remains queued for Phases 2-8. `npm run build` passed. No lint script exists.
 - 2026-06-11: Created operational brain for website revamp. Repo inspected as Astro static personal site on `feature/mobile_optimisation`; `npm run build` previously verified successfully with 5 generated pages. Existing dirty tracked file: `public/Resume-BURAK-YUKSEL.pdf`.
 
 ## Next Work Queue

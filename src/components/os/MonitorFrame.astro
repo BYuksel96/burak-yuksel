@@ -1,0 +1,19 @@
+---
+interface Props {
+  label?: string;
+}
+
+const { label = 'Burak OS monitor' } = Astro.props as Props;
+---
+
+<section class="monitor-frame" aria-label={label}>
+  <div class="monitor-bezel">
+    <div class="monitor-screen">
+      <slot />
+    </div>
+  </div>
+  <div class="monitor-stand" aria-hidden="true">
+    <div class="monitor-neck"></div>
+    <div class="monitor-foot"></div>
+  </div>
+</section>
