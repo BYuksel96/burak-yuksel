@@ -16,6 +16,9 @@
   --os-cyan: #7dd3fc;
   --os-amber: #f2cf66;
   --os-red: #f87171;
+  --os-control-size: 1.07rem;
+  --os-control-symbol-size: 0.68rem;
+  --os-control-gap: 0.42rem;
   color-scheme: dark;
   background:
     radial-gradient(circle at 18% 18%, var(--os-page-glow-a), transparent 28rem),
@@ -291,6 +294,12 @@
   cursor: default;
 }
 
+.os-status-button--language {
+  border-color: color-mix(in srgb, var(--os-text) 76%, transparent);
+  background: var(--os-text);
+  color: var(--os-screen-bg);
+}
+
 .os-status-button svg {
   width: 0.95rem;
   height: 0.95rem;
@@ -505,8 +514,10 @@
 }
 
 .os-window--main {
-  inset: 0.75rem;
-  bottom: 0.85rem;
+  top: clamp(0.72rem, 1.4vw, 1.05rem);
+  right: clamp(0.72rem, 1.4vw, 1.05rem);
+  bottom: clamp(5.4rem, 9vh, 6.1rem);
+  left: clamp(0.72rem, 1.4vw, 1.05rem);
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent 34%),
     linear-gradient(180deg, color-mix(in srgb, var(--os-screen-surface-strong) 92%, transparent), var(--os-screen-surface-strong));
@@ -538,46 +549,110 @@
   display: inline-flex;
   grid-column: 1;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--os-control-gap);
   justify-self: start;
+  min-height: var(--os-control-size);
 }
 
 .os-window-control,
 .os-help-close {
-  width: 1.36rem;
-  height: 1.36rem;
+  width: var(--os-control-size);
+  height: var(--os-control-size);
   display: grid;
   place-items: center;
   padding: 0;
-  border: 1px solid var(--os-screen-line-strong);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50%;
-  background:
-    radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.28), transparent 34%),
-    rgba(255, 255, 255, 0.1);
-  color: var(--os-text);
+  color: #101315;
   font: inherit;
-  font-size: 0.7rem;
+  font-size: var(--os-control-symbol-size);
   font-weight: 800;
   line-height: 1;
   cursor: pointer;
-  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.36),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.34),
+    0 0.12rem 0.35rem rgba(0, 0, 0, 0.18);
   text-align: center;
 }
 
-.os-window-control--close:hover {
-  border-color: color-mix(in srgb, var(--os-red) 72%, white);
-  background: var(--os-red);
-  color: #111315;
+.os-window-control span,
+.os-help-close span {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  line-height: 1;
+  transform: none;
+}
+
+.os-window-control--close,
+.os-help-close {
+  border-color: color-mix(in srgb, var(--os-red) 58%, rgba(0, 0, 0, 0.3));
+  background:
+    radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.6) 0 0.12rem, transparent 0.13rem),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--os-red) 82%, white) 0%,
+      color-mix(in srgb, var(--os-red) 70%, #5c0709) 48%,
+      color-mix(in srgb, var(--os-red) 54%, #260304) 100%
+    );
+}
+
+.os-window-control--close:hover,
+.os-help-close:hover {
+  border-color: color-mix(in srgb, var(--os-red) 78%, white);
+  background:
+    radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.68) 0 0.12rem, transparent 0.13rem),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--os-red) 88%, white) 0%,
+      color-mix(in srgb, var(--os-red) 78%, #7a1113) 48%,
+      color-mix(in srgb, var(--os-red) 62%, #3b0506) 100%
+    );
 }
 
 .os-window-control--minimise {
-  color: var(--os-muted);
+  border-color: color-mix(in srgb, var(--os-amber) 32%, var(--os-muted));
+  background:
+    radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.44) 0 0.1rem, transparent 0.11rem),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--os-amber) 42%, var(--os-muted)) 0%,
+      color-mix(in srgb, var(--os-amber) 28%, #5a5550) 52%,
+      color-mix(in srgb, var(--os-amber) 18%, #2c3032) 100%
+    );
+  color: color-mix(in srgb, #101315 66%, var(--os-muted));
   cursor: not-allowed;
-  opacity: 0.5;
+  opacity: 0.68;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
 }
 
 .os-window-control--help {
-  color: var(--os-cyan);
+  border-color: color-mix(in srgb, var(--os-green) 56%, rgba(0, 0, 0, 0.3));
+  background:
+    radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.56) 0 0.12rem, transparent 0.13rem),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--os-green) 78%, white) 0%,
+      color-mix(in srgb, var(--os-green) 68%, #063a1c) 50%,
+      color-mix(in srgb, var(--os-green) 52%, #031c0d) 100%
+    );
+  color: #101315;
+}
+
+.os-window-control--help:hover {
+  border-color: color-mix(in srgb, var(--os-green) 78%, white);
+  background:
+    radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.66) 0 0.12rem, transparent 0.13rem),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--os-green) 88%, white) 0%,
+      color-mix(in srgb, var(--os-green) 76%, #0b5c2c) 50%,
+      color-mix(in srgb, var(--os-green) 60%, #052b14) 100%
+    );
 }
 
 .os-window-title {
@@ -668,31 +743,37 @@
   height: 100%;
   padding: 0;
   border: 0;
-  background: rgba(0, 0, 0, 0.42);
+  background: rgba(0, 0, 0, 0.48);
   cursor: default;
+  animation: osHelpBackdropIn 0.16s ease both;
 }
 
 .os-help-panel {
   position: relative;
   z-index: 1;
-  width: min(25rem, 100%);
+  width: min(26rem, 100%);
   display: grid;
-  gap: 0.75rem;
-  padding: 1.2rem;
+  gap: 0.9rem;
+  padding: 1rem 1.05rem 1.15rem;
   border: 1px solid var(--os-screen-line-strong);
-  border-radius: 8px;
-  background: var(--os-screen-surface-strong);
-  box-shadow: 0 1.4rem 3.4rem var(--os-shadow);
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent 5rem),
+    var(--os-screen-surface-strong);
+  box-shadow:
+    0 1.4rem 3.4rem var(--os-shadow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transform-origin: var(--help-origin-x, 50%) var(--help-origin-y, 50%);
+  animation: osHelpPanelOpen 0.18s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
-.os-help-close {
-  justify-self: end;
-}
-
-.os-help-close:hover {
-  border-color: var(--os-red);
-  background: var(--os-red);
-  color: #111315;
+.os-help-header {
+  display: inline-grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.62rem;
+  justify-self: start;
+  min-width: 0;
 }
 
 .os-help-panel h2,
@@ -702,14 +783,16 @@
 
 .os-help-panel h2 {
   color: var(--os-text);
-  font-size: 1rem;
+  font-size: 0.98rem;
   font-weight: 800;
+  line-height: 1.2;
 }
 
 .os-help-panel p {
   color: var(--os-muted);
   font-size: 0.92rem;
   line-height: 1.5;
+  padding-left: calc(var(--os-control-size) + 0.62rem);
 }
 
 .os-taskbar {
@@ -735,9 +818,9 @@
 }
 
 .os-screen[data-taskbar-mode='compact'] .os-taskbar {
-  bottom: 0.42rem;
-  padding: 0.34rem;
-  transform: translateX(-50%) scale(0.56);
+  bottom: 0.58rem;
+  padding: 0.44rem;
+  transform: translateX(-50%) scale(0.75);
 }
 
 .taskbar-items {
@@ -745,8 +828,7 @@
   align-items: center;
   gap: 0.48rem;
   max-width: 100%;
-  overflow-x: auto;
-  overflow-y: visible;
+  overflow: visible;
   scrollbar-width: none;
 }
 
@@ -756,14 +838,14 @@
 
 .taskbar-item {
   position: relative;
-  width: 4.6rem;
-  height: 4.25rem;
+  width: 4.1rem;
+  height: 4.7rem;
   display: grid;
   justify-items: center;
   align-content: center;
-  padding: 0.34rem;
+  padding: 0.34rem 0.22rem;
   border: 1px solid transparent;
-  border-radius: 14px;
+  border-radius: 0;
   background: transparent;
   color: var(--os-text);
   cursor: pointer;
@@ -773,28 +855,13 @@
 
 .taskbar-item:is(:hover, :focus-visible),
 .taskbar-item[data-os-open] {
-  border-color: var(--os-screen-line-strong);
-  background: rgba(255, 255, 255, 0.07);
+  border-color: transparent;
+  background: transparent;
 }
 
 .taskbar-item[data-os-active] {
-  border-color: var(--os-cyan);
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--os-cyan) 18%, transparent), rgba(255, 255, 255, 0.045)),
-    rgba(255, 255, 255, 0.06);
-}
-
-.taskbar-item[data-os-open]::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  bottom: 0.22rem;
-  width: 0.36rem;
-  height: 0.36rem;
-  border-radius: 50%;
-  background: var(--os-cyan);
-  transform: translateX(-50%);
-  box-shadow: 0 0 0.7rem color-mix(in srgb, var(--os-cyan) 70%, transparent);
+  border-color: transparent;
+  background: transparent;
 }
 
 .taskbar-item:active {
@@ -802,37 +869,72 @@
 }
 
 .taskbar-icon {
+  position: relative;
   width: 3.1rem;
   height: 3.1rem;
   display: grid;
   place-items: center;
+  overflow: hidden;
   border: 1px solid var(--os-screen-line);
   border-radius: 12px;
   background:
     linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.03)),
     rgba(255, 255, 255, 0.06);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: border-color 0.16s ease, background 0.16s ease, transform 0.16s ease;
+}
+
+.taskbar-item[data-os-open] .taskbar-icon::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0.28rem;
+  width: 0.34rem;
+  height: 0.34rem;
+  border-radius: 50%;
+  background: var(--os-cyan);
+  box-shadow: 0 0 0.64rem color-mix(in srgb, var(--os-cyan) 72%, transparent);
+  transform: translateX(-50%);
+  z-index: 1;
+}
+
+.taskbar-item:is(:hover, :focus-visible) .taskbar-icon {
+  border-color: var(--os-screen-line-strong);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.17), rgba(255, 255, 255, 0.04)),
+    rgba(255, 255, 255, 0.08);
+}
+
+.taskbar-item[data-os-open] .taskbar-icon {
+  border-color: var(--os-screen-line-strong);
+}
+
+.taskbar-item[data-os-active] .taskbar-icon {
+  border-color: var(--os-cyan);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--os-cyan) 18%, transparent), rgba(255, 255, 255, 0.045)),
+    rgba(255, 255, 255, 0.06);
 }
 
 .taskbar-label {
   position: absolute;
   left: 50%;
-  bottom: calc(100% + 0.52rem);
+  top: 4.06rem;
   width: max-content;
   max-width: 9rem;
-  padding: 0.32rem 0.5rem;
-  border: 1px solid var(--os-screen-line);
-  border-radius: 8px;
-  background: var(--os-screen-surface-strong);
-  box-shadow: 0 0.55rem 1.2rem var(--os-shadow);
-  color: var(--os-text);
-  font-size: 0.68rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--os-muted);
+  font-size: 0.62rem;
   font-weight: 800;
   line-height: 1;
   text-align: center;
   opacity: 0;
   pointer-events: none;
-  transform: translate(-50%, 0.3rem);
+  transform: translate(-50%, 0.16rem);
   transition: opacity 0.14s ease, transform 0.14s ease;
   white-space: nowrap;
 }
@@ -848,13 +950,33 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .taskbar-item:is(:hover, :focus-visible) {
-    transform: translateY(-0.22rem) scale(1.06);
+  .taskbar-item:is(:hover, :focus-visible) .taskbar-icon {
+    transform: translateY(-0.12rem) scale(1.05);
   }
 
   .taskbar-item:is(:hover, :focus-visible) .taskbar-label {
     opacity: 1;
     transform: translate(-50%, 0);
+  }
+}
+
+@keyframes osHelpBackdropIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes osHelpPanelOpen {
+  from {
+    opacity: 0;
+    transform: scale(0.82) translateY(0.4rem);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
 }
 
@@ -887,6 +1009,12 @@
 }
 
 @media (max-width: 760px) {
+  .os-body {
+    --os-control-size: 1.02rem;
+    --os-control-symbol-size: 0.66rem;
+    --os-control-gap: 0.38rem;
+  }
+
   .os-shell {
     padding: 12px;
     width: 100%;
@@ -974,19 +1102,15 @@
   }
 
   .os-window--main {
-    inset: 0.38rem;
-    bottom: 0.5rem;
+    top: 0.48rem;
+    right: 0.48rem;
+    bottom: 4.65rem;
+    left: 0.48rem;
   }
 
   .os-window-topbar {
     min-height: 2.65rem;
     padding: 0 0.62rem;
-  }
-
-  .os-window-control,
-  .os-help-close {
-    width: 1.32rem;
-    height: 1.32rem;
   }
 
   .os-window-body {
@@ -1007,8 +1131,8 @@
   }
 
   .os-taskbar {
-    width: min(calc(100% - 0.8rem), 28rem);
-    max-width: calc(100% - 0.8rem);
+    width: max-content;
+    max-width: min(28rem, calc(100% - 2rem));
     bottom: 0.55rem;
     padding: 0.42rem;
     border-radius: 16px;
@@ -1017,11 +1141,15 @@
   .taskbar-items {
     justify-content: center;
     gap: 0.36rem;
+    overflow-x: auto;
+    overflow-y: hidden;
   }
 
   .taskbar-item {
     width: 3.7rem;
     height: 3.55rem;
+    align-content: center;
+    padding: 0.28rem;
     border-radius: 12px;
   }
 
@@ -1031,9 +1159,19 @@
     border-radius: 10px;
   }
 
+  .taskbar-item[data-os-open] .taskbar-icon::after {
+    bottom: 0.2rem;
+    width: 0.28rem;
+    height: 0.28rem;
+  }
+
   .taskbar-separator {
     height: 2.5rem;
     margin: 0 0.08rem;
+  }
+
+  .taskbar-label {
+    display: none;
   }
 
   .os-screen[data-taskbar-mode='compact'] .os-taskbar {
@@ -1042,6 +1180,10 @@
 }
 
 @media (max-width: 460px) {
+  .os-taskbar {
+    max-width: min(24rem, calc(100% - 1.7rem));
+  }
+
   .os-loading-card {
     width: min(18rem, calc(100% - 1rem));
   }
@@ -1083,6 +1225,10 @@
 }
 
 @media (max-width: 380px) {
+  .os-taskbar {
+    max-width: calc(100% - 1.45rem);
+  }
+
   .os-status-time {
     font-size: 0.64rem;
   }
@@ -1126,9 +1272,9 @@
 }
 
 @media (hover: none) {
-  .os-window-control--close {
+  .os-window-control--close,
+  .os-help-close {
     border-color: color-mix(in srgb, var(--os-red) 72%, white);
-    background: var(--os-red);
     color: #111315;
   }
 }

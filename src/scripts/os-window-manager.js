@@ -7,9 +7,15 @@ const isFolderApp = (id) => FOLDER_APPS.includes(id);
 
 const uniqueFolders = (folders) => folders.filter((id, index) => FOLDER_APPS.includes(id) && folders.indexOf(id) === index);
 
-export const createLauncherOpenAction = (launcherType, id) => {
+const isTargetOpen = (state, id) => (isMainApp(id) ? state.activeMainApp === id : state.openFolders.includes(id));
+
+export const createLauncherOpenAction = (launcherType, id, state = createInitialOsState()) => {
   if (!['desktop', 'taskbar'].includes(launcherType) || !ALL_TARGETS.includes(id)) {
     return null;
+  }
+
+  if (launcherType === 'taskbar' && isTargetOpen(state, id)) {
+    return { type: 'close', id };
   }
 
   return { type: 'open', id };
@@ -132,7 +138,7 @@ export const initOsWindowManager = (screen) => {
   const statusTime = screen.querySelector('[data-os-status-time]');
   let statusTimeInterval;
 
-  const isWindowOpen = (id) => (isMainApp(id) ? state.activeMainApp === id : state.openFolders.includes(id));
+  const isWindowOpen = (id) => isTargetOpen(state, id);
 
   const getHelpSource = (id) => windows.find((windowElement) => windowElement.getAttribute('data-os-window-id') === id);
 
@@ -196,6 +202,19 @@ export const initOsWindowManager = (screen) => {
     render();
   };
 
+  const setHelpDialogOrigin = (button) => {
+    if (!helpDialog || !(button instanceof Element)) return;
+
+    const buttonRect = button.getBoundingClientRect();
+    const screenRect = screen.getBoundingClientRect();
+    const originX = ((buttonRect.left + buttonRect.width / 2 - screenRect.left) / screenRect.width) * 100;
+    const originY = ((buttonRect.top + buttonRect.height / 2 - screenRect.top) / screenRect.height) * 100;
+
+    helpDialog.style.setProperty('--help-origin-x', `${originX}%`);
+    helpDialog.style.setProperty('--help-origin-y', `${originY}%`);
+    helpDialog.dataset.helpOrigin = 'button';
+  };
+
   const updateStatusTime = () => {
     if (!statusTime) return;
 
@@ -210,7 +229,7 @@ export const initOsWindowManager = (screen) => {
 
     const taskbarLauncher = target.closest('[data-os-launcher="taskbar"]');
     if (taskbarLauncher) {
-      dispatch(createLauncherOpenAction('taskbar', getTargetId(taskbarLauncher)));
+      dispatch(createLauncherOpenAction('taskbar', getTargetId(taskbarLauncher), state));
       return;
     }
 
@@ -228,6 +247,7 @@ export const initOsWindowManager = (screen) => {
 
     const helpButton = target.closest('[data-os-window-help]');
     if (helpButton) {
+      setHelpDialogOrigin(helpButton);
       dispatch({ type: 'open-help', id: getWindowId(helpButton) });
       return;
     }

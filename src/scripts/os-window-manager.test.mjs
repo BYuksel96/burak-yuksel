@@ -64,6 +64,18 @@ test('launcher open actions support single-click desktop and taskbar paths', () 
   assert.equal(createLauncherOpenAction('desktop', ''), null);
 });
 
+test('taskbar launcher toggles an already-open matching target closed', () => {
+  let state = createInitialOsState();
+  state = reduceOsWindowState(state, { type: 'open', id: 'resume' });
+
+  assert.deepEqual(createLauncherOpenAction('taskbar', 'resume', state), { type: 'close', id: 'resume' });
+  assert.deepEqual(createLauncherOpenAction('desktop', 'resume', state), { type: 'open', id: 'resume' });
+
+  state = reduceOsWindowState(state, { type: 'open', id: 'downloads' });
+  assert.deepEqual(createLauncherOpenAction('taskbar', 'downloads', state), { type: 'close', id: 'downloads' });
+  assert.deepEqual(createLauncherOpenAction('taskbar', 'blog', state), { type: 'open', id: 'blog' });
+});
+
 test('formats browser-local status time without seconds', () => {
   const date = new Date('2026-06-11T22:14:30');
 
