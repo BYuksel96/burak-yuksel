@@ -8,7 +8,15 @@ interface Props {
 const { id, label, icon } = Astro.props as Props;
 ---
 
-<div class={`desktop-icon desktop-icon--${icon}`} data-os-target={id} aria-label={`${label} placeholder`}>
+<button
+  class={`desktop-icon desktop-icon--${icon}`}
+  type="button"
+  data-os-launcher="desktop"
+  data-os-target={id}
+  aria-controls={`os-window-${id}`}
+  aria-label={`Open ${label}`}
+  title={`Open ${label}`}
+>
   <span class="desktop-icon-glyph" aria-hidden="true">
     {icon === 'resume' && (
       <svg viewBox="0 0 32 32" focusable="false">
@@ -37,4 +45,4 @@ const { id, label, icon } = Astro.props as Props;
     )}
   </span>
   <span class="desktop-icon-label">{label}</span>
-</div>
+</button>

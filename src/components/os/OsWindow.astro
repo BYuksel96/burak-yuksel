@@ -1,0 +1,45 @@
+---
+interface Props {
+  id: string;
+  title: string;
+  kind: 'main' | 'folder';
+  helpText: string;
+}
+
+const { id, title, kind, helpText } = Astro.props as Props;
+const windowId = `os-window-${id}`;
+---
+
+<section
+  id={windowId}
+  class={`os-window os-window--${kind}`}
+  data-os-window
+  data-os-window-id={id}
+  data-os-window-kind={kind}
+  data-os-help-title={`${title} Help`}
+  data-os-help-copy={helpText}
+  aria-hidden="true"
+  hidden
+>
+  <div class="os-window-topbar">
+    <div class="os-window-controls" aria-label={`${title} window controls`}>
+      <button class="os-window-control os-window-control--close" type="button" data-os-window-close aria-label={`Close ${title}`} title={`Close ${title}`}>
+        <span aria-hidden="true">x</span>
+      </button>
+      <button class="os-window-control os-window-control--minimise" type="button" aria-label={`Minimise ${title} unavailable`} title="Minimise unavailable" disabled>
+        <span aria-hidden="true">-</span>
+      </button>
+      <button class="os-window-control os-window-control--help" type="button" data-os-window-help aria-label={`Open ${title} help`} title={`Open ${title} help`}>
+        <span aria-hidden="true">?</span>
+      </button>
+    </div>
+
+    <h2 class="os-window-title">{title}</h2>
+  </div>
+
+  <div class="os-window-divider" aria-hidden="true"></div>
+
+  <div class="os-window-body">
+    <slot />
+  </div>
+</section>

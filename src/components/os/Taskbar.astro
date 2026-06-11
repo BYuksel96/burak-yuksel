@@ -16,13 +16,16 @@ const { items } = Astro.props as Props;
   <div class="taskbar-items">
     {items.map((item, index) => (
       <>
-        {index === 3 && <span class="taskbar-separator" aria-hidden="true">|</span>}
+        {index === 3 && <span class="taskbar-separator" aria-hidden="true"></span>}
         <button
           class={`taskbar-item taskbar-item--${item.icon}`}
           type="button"
+          data-os-launcher="taskbar"
           data-os-target={item.id}
-          aria-label={`${item.label} placeholder`}
-          disabled
+          aria-controls={`os-window-${item.id}`}
+          aria-label={`Open ${item.label}`}
+          aria-pressed="false"
+          title={item.label}
         >
           <span class="taskbar-icon" aria-hidden="true">
             {item.icon === 'resume' && (

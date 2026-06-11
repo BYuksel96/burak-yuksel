@@ -109,7 +109,7 @@ Source: User revamp brief provided on 2026-06-11. The `Next Work Queue` phases b
 ### Icon Interaction
 
 * Taskbar icons open with one click.
-* Desktop icons open with double click.
+* Desktop icons open with one click.
 * Main apps open inside the monitor/OS, not through normal page navigation.
 * External links such as LinkedIn and GitHub repo links open in a new real browser tab.
 
@@ -296,7 +296,34 @@ Help button:
 - Loading/viewport correction preserved behavior: desktop icons and taskbar remain inert visual placeholders; no app windows, click/open behavior, folders, help dialogs, GitHub fetching, Resume.exe, Blog.exe, Downloads, or Bin functionality was added.
 - Loading/viewport correction verification: `npm run build` passed and generated 5 pages. `package.json` still has no lint script.
 
+### Phase 3: Window/app system
+
+- Status: implemented on 2026-06-11 on branch `feature/portfolio_revamp`.
+- Files changed:
+  - `src/components/os/OsShell.astro`
+  - `src/components/os/DesktopIcon.astro`
+  - `src/components/os/Taskbar.astro`
+  - `src/components/os/OsWindow.astro`
+  - `src/components/os/HelpDialog.astro`
+  - `src/scripts/os-window-manager.js`
+  - `src/scripts/os-window-manager.test.mjs`
+  - `src/styles/os.css`
+  - `BRAIN.md`
+- State decision: `resume`, `blog`, and `github` are exclusive fullscreen main apps controlled by one `activeMainApp`; `downloads` and `bin` are independent centred folder windows controlled by `openFolders` and can coexist with the desktop or a main app.
+- Current homepage behavior: taskbar icons and desktop icons open with one click; main apps show fullscreen placeholder shells; Downloads and Bin show centred placeholder/empty folder shells; taskbar highlights open/active targets and shrinks only while a main app is open; all windows have close, disabled minimise, help, centred title, and divider controls.
+- Mobile decision: folder windows stay centred and modal-like on small screens; no draggable or complex multi-window behaviour was added.
+- Help decision: one shared monitor-local help dialog is reused for all windows and closes through the backdrop, its `x` button, or Escape.
+- Phase boundary: Resume timeline/content migration, Blog archive/tabs/content, GitHub API fetching, downloadable CV behaviour, and real Downloads/Bin contents were deliberately not added.
+- Preserved routes/content: `src/pages/resume.astro`, `src/pages/blog/*`, `src/content/*`, and `public/Resume-BURAK-YUKSEL.pdf` were not modified in Phase 3.
+- Verification: focused state reducer test `node --test src/scripts/os-window-manager.test.mjs` passed with 3 tests; `npm run build` passed and generated 5 pages. `package.json` still has no lint script.
+- Visual/UX correction on 2026-06-11: removed the desktop double-click requirement, replaced the OS top-right coloured dots with a menu/status bar (`Burak OS`, browser-local date/time, inert language/shutdown buttons), polished app/folder window chrome, kept folder windows centred/modal-like with no dragging, and redesigned the taskbar as a rounded dock with larger icon tiles, hover/focus labels, active/open state, and a clean vertical divider.
+- Visual/UX correction files changed: `src/components/os/OsShell.astro`, `src/components/os/DesktopIcon.astro`, `src/components/os/Taskbar.astro`, `src/components/os/OsWindow.astro`, `src/scripts/os-window-manager.js`, `src/scripts/os-window-manager.test.mjs`, `src/styles/os.css`, and `BRAIN.md`.
+- Visual/UX correction preserved boundary: no Resume timeline/content migration, Blog tabs/content, GitHub API fetching, downloadable CV behaviour, real Downloads content, real Bin content, folder dragging, cookies, localStorage, location permission, tracking, or backend behaviour was added.
+- Visual/UX correction verification: focused state/status test `node --test src/scripts/os-window-manager.test.mjs` passed with 5 tests; `npm run build` passed and generated 5 pages. `package.json` still has no lint script.
+
 ## Running Log
+- 2026-06-11: Phase 3 visual/UX correction completed. Desktop icons now open with one click; OS top bar now shows `Burak OS`, browser-local date/time, inert language/shutdown controls; app/folder windows and taskbar/dock were polished for desktop/tablet/mobile; dragging remains deferred. No Phase 4+ content or behavior added. `node --test src/scripts/os-window-manager.test.mjs` passed with 5 tests. `npm run build` passed. No lint script exists.
+- 2026-06-11: Phase 3 window/app system completed. Added reusable OS window/help components, taskbar and desktop launcher wiring, fullscreen placeholder app shells, independent centred placeholder folder windows, active/open taskbar state, main-app-only taskbar shrink, and shared help dialog behavior. No Phase 4+ behavior or real app/folder content added. `node --test src/scripts/os-window-manager.test.mjs` passed. `npm run build` passed. No lint script exists.
 - 2026-06-11: Phase 2 loading/viewport correction completed. Loading screen is now the first visible state for about 2.5 seconds with clearer sequential dots; OS shell fills the browser area more aggressively using viewport height and symmetric 24px/12px page padding; taskbar remains inside the OS viewport. `npm run build` passed. No lint script exists. No Phase 3+ behavior added.
 - 2026-06-11: Phase 2 correction completed. Removed physical monitor stand/base, converted shell to a thin OS viewport filling roughly 90% of the browser area on desktop/laptop, tightened mobile sizing/padding to prevent horizontal overflow, and kept all icons/taskbar items as inert placeholders. `npm run build` passed. No lint script exists.
 - 2026-06-11: Phase 2 OS desktop/responsive shell completed. Added loading screen, desktop icon placeholders, visual taskbar, responsive monitor layout, and light/dark theme CSS. No Phase 3+ behavior added. `npm run build` passed. No lint script exists. Resume/blog/content files and protected resume PDF remained untouched.
