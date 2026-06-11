@@ -269,13 +269,43 @@ Help button:
 - Verification: `npm run build` passed after Phase 1 and generated 5 pages.
 - Lint note: `package.json` has no lint script; no lint command was run or invented.
 
+### Phase 2: OS desktop and responsive shell
+
+- Status: implemented on 2026-06-11 on branch `feature/portfolio_revamp`.
+- Files changed:
+  - `src/components/os/OsShell.astro`
+  - `src/components/os/LoadingScreen.astro`
+  - `src/components/os/DesktopIcon.astro`
+  - `src/components/os/Taskbar.astro`
+  - `src/styles/os.css`
+  - `BRAIN.md`
+- Structure decision: Phase 2 visual shell pieces are split into reusable Astro components so Phase 3 can attach app/window behavior to stable `data-os-target` IDs.
+- Current homepage behavior: CSS-timed `Burak OS Loading...` screen, responsive monitor desktop, top-left visual desktop icons, bottom-centre visual taskbar, and system light/dark theme support.
+- Theme decision: dark remains the default CSS path and keeps the `#5f6368` base; light mode is supplied with `prefers-color-scheme: light`.
+- Placeholder decision: desktop icons and taskbar items are visual only. Taskbar items are disabled buttons; no app opening, window management, folders, help dialogs, GitHub fetching, resume/blog migration, or download behavior exists yet.
+- Preserved routes/content: `src/pages/resume.astro`, `src/pages/blog/*`, `src/content/*`, and `public/Resume-BURAK-YUKSEL.pdf` were not modified in Phase 2.
+- Verification: `npm run build` passed after Phase 2 and generated 5 pages.
+- Lint note: `package.json` has no lint script; no lint command was run or invented.
+- Remaining work: Phase 3 should add the window/app system, active taskbar state, folder windows, and help dialogs using the placeholder component structure.
+- Correction on 2026-06-11: removed the physical monitor stand/base and power-light treatment. `MonitorFrame.astro` now renders only the OS viewport wrapper, while `os.css` sizes the shell as an approximately 90vw x 90vh screen surface on desktop/laptop and uses symmetric mobile-safe padding to avoid horizontal overflow.
+- Correction files changed: `src/components/os/MonitorFrame.astro`, `src/styles/os.css`, and `BRAIN.md`.
+- Correction preserved behavior: loading screen, desktop icons, taskbar, and light/dark theme remain; no Phase 3+ behavior was added.
+- Correction verification: `npm run build` passed and generated 5 pages. `package.json` still has no lint script.
+- Loading/viewport correction on 2026-06-11: `OsShell.astro` now starts the OS screen in `data-boot-state="booting"` and uses a minimal component-local script to reveal the desktop after 2500ms. `os.css` keeps the loading layer as the first visible state, improves sequential dot animation, and removes fixed monitor/aspect-ratio sizing by making the OS viewport fill the padded browser area: 24px page padding on desktop/laptop and 12px on tablet/mobile.
+- Loading/viewport correction files changed: `src/components/os/OsShell.astro`, `src/styles/os.css`, and `BRAIN.md`.
+- Loading/viewport correction preserved behavior: desktop icons and taskbar remain inert visual placeholders; no app windows, click/open behavior, folders, help dialogs, GitHub fetching, Resume.exe, Blog.exe, Downloads, or Bin functionality was added.
+- Loading/viewport correction verification: `npm run build` passed and generated 5 pages. `package.json` still has no lint script.
+
 ## Running Log
+- 2026-06-11: Phase 2 loading/viewport correction completed. Loading screen is now the first visible state for about 2.5 seconds with clearer sequential dots; OS shell fills the browser area more aggressively using viewport height and symmetric 24px/12px page padding; taskbar remains inside the OS viewport. `npm run build` passed. No lint script exists. No Phase 3+ behavior added.
+- 2026-06-11: Phase 2 correction completed. Removed physical monitor stand/base, converted shell to a thin OS viewport filling roughly 90% of the browser area on desktop/laptop, tightened mobile sizing/padding to prevent horizontal overflow, and kept all icons/taskbar items as inert placeholders. `npm run build` passed. No lint script exists.
+- 2026-06-11: Phase 2 OS desktop/responsive shell completed. Added loading screen, desktop icon placeholders, visual taskbar, responsive monitor layout, and light/dark theme CSS. No Phase 3+ behavior added. `npm run build` passed. No lint script exists. Resume/blog/content files and protected resume PDF remained untouched.
 - 2026-06-11: Phase 1 archive/foundation completed. Current implementation archived at `archive/2026-06-11-pre-os-revamp/`; homepage now renders the static `Burak OS` monitor shell; later app behavior remains queued for Phases 2-8. `npm run build` passed. No lint script exists.
 - 2026-06-11: Created operational brain for website revamp. Repo inspected as Astro static personal site on `feature/mobile_optimisation`; `npm run build` previously verified successfully with 5 generated pages. Existing dirty tracked file: `public/Resume-BURAK-YUKSEL.pdf`.
 
 ## Next Work Queue
 
-These phases come from `Revamp Master Plan / Source of Truth`. Execute in order. Do not attempt the full revamp in one pass.
+These phases come from `Revamp Master Plan / Source of Truth` - Review this section again for the phases if more context is needed. Execute in order. Do not attempt the full revamp in one pass.
 
 ### Phase 1: Archive and foundation
 

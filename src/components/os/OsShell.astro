@@ -1,26 +1,75 @@
 ---
+import DesktopIcon from './DesktopIcon.astro';
+import LoadingScreen from './LoadingScreen.astro';
 import MonitorFrame from './MonitorFrame.astro';
+import Taskbar from './Taskbar.astro';
 import '../../styles/os.css';
+
+const desktopItems = [
+  { id: 'resume', label: 'Resume.exe', icon: 'resume' },
+  { id: 'blog', label: 'Blog.exe', icon: 'blog' },
+  { id: 'github', label: 'GitHub', icon: 'github' },
+  { id: 'bin', label: 'Bin', icon: 'bin' },
+] as const;
+
+const taskbarItems = [
+  { id: 'resume', label: 'Resume', icon: 'resume' },
+  { id: 'blog', label: 'Blog', icon: 'blog' },
+  { id: 'github', label: 'GitHub', icon: 'github' },
+  { id: 'downloads', label: 'Downloads', icon: 'downloads' },
+  { id: 'bin', label: 'Bin', icon: 'bin' },
+] as const;
 ---
 
 <main class="os-shell" aria-labelledby="os-title">
   <MonitorFrame label="Burak OS shell">
-    <div class="os-screen">
-      <header class="os-topbar" aria-label="Burak OS status">
-        <div class="os-system-name">Burak OS</div>
-        <div class="os-status-cluster" aria-hidden="true">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-      </header>
+    <div class="os-screen" data-os-screen data-boot-state="booting">
+      <LoadingScreen />
 
-      <section class="os-desktop" aria-label="Burak OS desktop">
-        <div class="os-brand-lockup">
-          <div class="os-brand-mark" aria-hidden="true">BY</div>
-          <h1 id="os-title">Burak OS</h1>
-        </div>
-      </section>
+      <div class="os-desktop-layer">
+        <header class="os-topbar" aria-label="Burak OS status">
+          <div class="os-system-name">Burak OS</div>
+          <div class="os-status-cluster" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </header>
+
+        <section class="os-desktop" aria-label="Burak OS desktop">
+          <div class="os-desktop-icons" aria-label="Desktop app placeholders">
+            {desktopItems.map((item) => (
+              <DesktopIcon id={item.id} label={item.label} icon={item.icon} />
+            ))}
+          </div>
+
+          <div class="os-brand-lockup">
+            <div class="os-brand-mark" aria-hidden="true">BY</div>
+            <h1 id="os-title">Burak OS</h1>
+          </div>
+
+          <Taskbar items={taskbarItems} />
+        </section>
+      </div>
     </div>
   </MonitorFrame>
 </main>
+
+<script>
+  if (typeof window !== 'undefined') {
+    const revealDesktop = () => {
+      const screen = document.querySelector('[data-os-screen]');
+      if (!screen) return;
+
+      window.setTimeout(() => {
+        screen.setAttribute('data-boot-state', 'ready');
+      }, 2500);
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', revealDesktop, { once: true });
+    } else {
+      revealDesktop();
+    }
+  }
+</script>
