@@ -223,6 +223,16 @@ export const initOsWindowManager = (screen) => {
     statusTime.setAttribute('datetime', now.toISOString());
   };
 
+  const updatePointerMode = (event) => {
+    if (!event.pointerType) return;
+
+    screen.dataset.osPointer = event.pointerType === 'touch' ? 'touch' : 'hover';
+  };
+
+  screen.addEventListener('pointerdown', updatePointerMode);
+  screen.addEventListener('pointerover', updatePointerMode);
+  screen.addEventListener('pointermove', updatePointerMode);
+
   screen.addEventListener('click', (event) => {
     const target = event.target;
     if (!(target instanceof Element)) return;

@@ -890,7 +890,7 @@
   transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
 }
 
-.taskbar-item:hover .taskbar-icon,
+.os-screen:not([data-os-pointer='touch']) .taskbar-item:hover .taskbar-icon,
 .taskbar-item:focus-visible .taskbar-icon {
   border-color: var(--os-screen-line-strong);
   background:
@@ -954,7 +954,7 @@
   flex: 0 0 auto;
 }
 
-.taskbar-item:hover .taskbar-label,
+.os-screen:not([data-os-pointer='touch']) .taskbar-item:hover .taskbar-label,
 .taskbar-item:focus-visible .taskbar-label,
 .taskbar-item[data-os-open] .taskbar-label,
 .taskbar-item[data-os-active] .taskbar-label {

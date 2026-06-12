@@ -87,6 +87,7 @@ test('formats browser-local status time without seconds', () => {
 test('taskbar uses custom labels instead of native tooltip or dot indicators', () => {
   const taskbarSource = readFileSync(new URL('../components/os/Taskbar.astro', import.meta.url), 'utf8');
   const osCss = readFileSync(new URL('../styles/os.css', import.meta.url), 'utf8');
+  const windowManagerSource = readFileSync(new URL('./os-window-manager.js', import.meta.url), 'utf8');
 
   assert.match(taskbarSource, /class="taskbar-label"/);
   assert.doesNotMatch(taskbarSource, /\s+title=/);
@@ -96,8 +97,12 @@ test('taskbar uses custom labels instead of native tooltip or dot indicators', (
   assert.match(osCss, /--taskbar-icon-lift:\s*-10px;/);
   assert.match(osCss, /--taskbar-icon-scale:\s*1\.12;/);
   assert.match(osCss, /transform:\s*translate\(-50%,\s*-50%\)\s*translateY\(var\(--taskbar-icon-lift\)\)\s*scale\(var\(--taskbar-icon-scale\)\);/);
-  assert.match(osCss, /\.taskbar-item:hover\s+\.taskbar-icon,\s*\n\.taskbar-item:focus-visible\s+\.taskbar-icon\s*\{[\s\S]*translateY\(var\(--taskbar-icon-lift\)\)\s*scale\(var\(--taskbar-icon-scale\)\)/);
-  assert.match(osCss, /\.taskbar-item:hover\s+\.taskbar-label,\s*\n\.taskbar-item:focus-visible\s+\.taskbar-label,\s*\n\.taskbar-item\[data-os-open\]\s+\.taskbar-label,\s*\n\.taskbar-item\[data-os-active\]\s+\.taskbar-label\s*\{[\s\S]*opacity:\s*1;/);
+  assert.match(osCss, /\.os-screen:not\(\[data-os-pointer='touch'\]\)\s+\.taskbar-item:hover\s+\.taskbar-icon,\s*\n\.taskbar-item:focus-visible\s+\.taskbar-icon\s*\{[\s\S]*translateY\(var\(--taskbar-icon-lift\)\)\s*scale\(var\(--taskbar-icon-scale\)\)/);
+  assert.match(osCss, /\.os-screen:not\(\[data-os-pointer='touch'\]\)\s+\.taskbar-item:hover\s+\.taskbar-label,\s*\n\.taskbar-item:focus-visible\s+\.taskbar-label,\s*\n\.taskbar-item\[data-os-open\]\s+\.taskbar-label,\s*\n\.taskbar-item\[data-os-active\]\s+\.taskbar-label\s*\{[\s\S]*opacity:\s*1;/);
+  assert.match(windowManagerSource, /dataset\.osPointer/);
+  assert.match(windowManagerSource, /pointerType === 'touch'/);
+  assert.match(windowManagerSource, /pointerdown/);
+  assert.match(windowManagerSource, /pointerover/);
   assert.doesNotMatch(osCss, /@media\s*\(any-hover:\s*hover\)/);
   assert.doesNotMatch(osCss, /@media\s*\(hover:\s*hover\)\s*and\s*\(pointer:\s*fine\)/);
   assert.doesNotMatch(osCss, /overflow-y:\s*hidden;/);
