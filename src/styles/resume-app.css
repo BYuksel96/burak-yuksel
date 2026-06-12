@@ -1,0 +1,623 @@
+.resume-app {
+  --resume-pad: clamp(0.75rem, 1.6vw, 1rem);
+  --resume-gap: clamp(0.65rem, 1.3vw, 0.95rem);
+  --resume-panel: color-mix(in srgb, var(--os-screen-surface-strong) 76%, transparent);
+  --resume-panel-soft: color-mix(in srgb, var(--os-screen-surface) 68%, transparent);
+  --resume-line: color-mix(in srgb, var(--os-screen-line-strong) 78%, transparent);
+  --resume-line-soft: color-mix(in srgb, var(--os-screen-line) 78%, transparent);
+  --resume-highlight: color-mix(in srgb, var(--os-cyan) 16%, transparent);
+  --resume-green: color-mix(in srgb, var(--os-green) 88%, var(--os-text));
+  --resume-outer-pad: 1.25rem;
+  --resume-outer-bottom: 6.1rem;
+  width: calc(100% + (var(--resume-outer-pad) * 2));
+  height: calc(100% + var(--resume-outer-pad) + var(--resume-outer-bottom));
+  min-width: 0;
+  min-height: 0;
+  margin: calc(var(--resume-outer-pad) * -1) calc(var(--resume-outer-pad) * -1) calc(var(--resume-outer-bottom) * -1);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--os-cyan) 10%, transparent), transparent 34%),
+    linear-gradient(315deg, color-mix(in srgb, var(--os-green) 8%, transparent), transparent 36%),
+    color-mix(in srgb, var(--os-screen-surface-strong) 92%, var(--os-screen-bg));
+}
+
+.resume-app *,
+.resume-app *::before,
+.resume-app *::after {
+  box-sizing: border-box;
+}
+
+.resume-app [hidden] {
+  display: none !important;
+}
+
+.resume-app__header {
+  min-height: 4.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--resume-gap);
+  padding: 0.82rem var(--resume-pad);
+  border-bottom: 1px solid var(--resume-line-soft);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent),
+    color-mix(in srgb, var(--os-monitor-shell) 22%, transparent);
+}
+
+.resume-app__heading {
+  min-width: 0;
+  display: grid;
+  gap: 0.15rem;
+}
+
+.resume-app__eyebrow,
+.resume-app__heading h3,
+.resume-app__selected,
+.resume-app__panel-title,
+.resume-app__panel-count,
+.resume-app__file-title,
+.resume-app__file-date,
+.resume-app__record-title p,
+.resume-app__record-title h4,
+.resume-app__record-title span,
+.resume-app__record-meta,
+.resume-app__detail-paragraph,
+.resume-app__detail-section,
+.resume-app__detail-list {
+  margin: 0;
+}
+
+.resume-app__eyebrow {
+  color: var(--resume-green);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.resume-app__heading h3 {
+  color: var(--os-text);
+  font-size: clamp(1.05rem, 2vw, 1.45rem);
+  font-weight: 850;
+  line-height: 1.1;
+}
+
+.resume-app__actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.resume-app__selected {
+  max-width: min(22rem, 34vw);
+  color: var(--os-muted);
+  font-size: 0.74rem;
+  font-weight: 750;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.resume-app__selected strong {
+  color: var(--os-text);
+  font-weight: 850;
+}
+
+.resume-app__linkedin {
+  min-height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.64rem;
+  border: 1px solid var(--resume-line);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.035)),
+    var(--resume-panel-soft);
+  color: var(--os-text);
+  font-size: 0.76rem;
+  font-weight: 850;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.resume-app__linkedin span {
+  width: 1rem;
+  height: 1rem;
+  display: grid;
+  place-items: center;
+  border-radius: 4px;
+  background: var(--os-cyan);
+  color: var(--os-screen-bg);
+  font-size: 0.66rem;
+  font-weight: 900;
+}
+
+.resume-app__linkedin:hover,
+.resume-app__linkedin:focus-visible {
+  border-color: var(--os-cyan);
+  opacity: 1;
+}
+
+.resume-app__workspace {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(16rem, 0.82fr) minmax(24rem, 1.18fr);
+  gap: var(--resume-gap);
+  padding: var(--resume-pad);
+  overflow: hidden;
+}
+
+.resume-app__sidebar,
+.resume-app__inspector {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+  border: 1px solid var(--resume-line-soft);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07), transparent 6rem),
+    var(--resume-panel);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+.resume-app__panel-head {
+  min-height: 2.55rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  padding: 0.62rem 0.72rem;
+  border-bottom: 1px solid var(--resume-line-soft);
+}
+
+.resume-app__panel-title {
+  color: var(--os-text);
+  font-size: 0.75rem;
+  font-weight: 850;
+}
+
+.resume-app__panel-count {
+  color: var(--os-muted);
+  font-size: 0.66rem;
+  font-weight: 760;
+  white-space: nowrap;
+}
+
+.resume-app__file-list,
+.resume-app__record-stack {
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--resume-line) transparent;
+}
+
+.resume-app__file-list {
+  display: grid;
+  align-content: start;
+  gap: 0.38rem;
+  padding: 0.58rem;
+}
+
+.resume-app__file-wrap {
+  min-width: 0;
+}
+
+.resume-app__file {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--os-text);
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.resume-app__file {
+  min-height: 3.55rem;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.58rem;
+  padding: 0.56rem;
+  border-radius: 8px;
+}
+
+.resume-app__file:hover,
+.resume-app__file:focus-visible,
+.resume-app__file[data-resume-active] {
+  border-color: var(--resume-line);
+  background:
+    linear-gradient(90deg, var(--resume-highlight), transparent 78%),
+    rgba(255, 255, 255, 0.045);
+}
+
+.resume-app__file[data-resume-active] {
+  border-color: color-mix(in srgb, var(--os-cyan) 70%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--os-cyan) 28%, transparent);
+}
+
+.resume-app__file:focus-visible,
+.resume-app__linkedin:focus-visible {
+  outline: 2px solid var(--os-cyan);
+  outline-offset: 2px;
+}
+
+.resume-app__file-icon {
+  width: 2.1rem;
+  height: 2.1rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--resume-line-soft);
+  border-radius: 7px;
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--os-cyan) 12%, transparent), rgba(255, 255, 255, 0.04)),
+    rgba(255, 255, 255, 0.035);
+  color: var(--os-muted);
+}
+
+.resume-app__file[data-resume-active] .resume-app__file-icon {
+  border-color: color-mix(in srgb, var(--os-cyan) 70%, transparent);
+  color: var(--os-cyan);
+}
+
+.resume-app__file-icon svg {
+  width: 1.22rem;
+  height: 1.22rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.resume-app__file-copy {
+  min-width: 0;
+  display: grid;
+  gap: 0.18rem;
+}
+
+.resume-app__file-title {
+  color: var(--os-text);
+  font-size: 0.78rem;
+  font-weight: 820;
+  line-height: 1.15;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.resume-app__file-date {
+  color: var(--os-muted);
+  font-size: 0.66rem;
+  font-weight: 720;
+  line-height: 1.1;
+}
+
+.resume-app__status {
+  justify-self: end;
+  display: inline-grid;
+  place-items: center;
+  min-height: 1.25rem;
+  padding: 0.16rem 0.4rem;
+  border: 1px solid color-mix(in srgb, var(--os-green) 40%, transparent);
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--os-green) 10%, transparent);
+  color: var(--resume-green);
+  font-size: 0.58rem;
+  font-weight: 850;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.resume-app__record-image img,
+.resume-app__mobile-preview-head img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.resume-app__record-stack {
+  display: grid;
+  overflow: hidden;
+  background: transparent;
+}
+
+.resume-app__record,
+.resume-app__mobile-preview {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.resume-app__record {
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  background: transparent;
+}
+
+.resume-app__record-head {
+  display: grid;
+  grid-template-columns: minmax(4.2rem, 5.2rem) minmax(0, 1fr);
+  align-items: center;
+  gap: 0.78rem;
+  padding: 0.94rem;
+  border-bottom: 1px solid var(--resume-line-soft);
+  background: transparent;
+}
+
+.resume-app__record-image {
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid var(--resume-line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0.7rem 1.4rem rgba(0, 0, 0, 0.18);
+}
+
+.resume-app__record-title {
+  min-width: 0;
+  display: grid;
+  gap: 0.24rem;
+}
+
+.resume-app__record-title p {
+  color: var(--resume-green);
+  font-size: 0.65rem;
+  font-weight: 850;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.resume-app__record-title h4 {
+  color: var(--os-text);
+  font-size: clamp(1rem, 1.7vw, 1.34rem);
+  font-weight: 880;
+  line-height: 1.08;
+}
+
+.resume-app__record-title span {
+  color: var(--os-muted);
+  font-size: 0.76rem;
+  font-weight: 760;
+  line-height: 1.2;
+}
+
+.resume-app__record-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.6rem 0.94rem;
+  border-bottom: 1px solid var(--resume-line-soft);
+  color: var(--os-muted);
+  font-size: 0.68rem;
+  font-weight: 780;
+}
+
+.resume-app__record-meta span:first-child {
+  color: var(--os-cyan);
+}
+
+.resume-app__detail-scroll {
+  min-height: 0;
+  overflow: auto;
+  padding: 0.94rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--resume-line) transparent;
+}
+
+.resume-app__detail-paragraph {
+  color: color-mix(in srgb, var(--os-text) 86%, var(--os-muted));
+  font-size: 0.82rem;
+  font-weight: 520;
+  line-height: 1.58;
+}
+
+.resume-app__detail-paragraph + .resume-app__detail-paragraph,
+.resume-app__detail-list + .resume-app__detail-paragraph,
+.resume-app__detail-paragraph + .resume-app__detail-section {
+  margin-top: 0.72rem;
+}
+
+.resume-app__detail-section {
+  margin-top: 0.9rem;
+  color: var(--os-text);
+  font-size: 0.82rem;
+  font-weight: 880;
+  line-height: 1.25;
+}
+
+.resume-app__detail-section:first-child {
+  margin-top: 0;
+}
+
+.resume-app__detail-list {
+  display: grid;
+  gap: 0.4rem;
+  margin-top: 0.48rem;
+  padding-left: 0;
+  list-style: none;
+}
+
+.resume-app__detail-list li {
+  position: relative;
+  padding-left: 1rem;
+  color: color-mix(in srgb, var(--os-text) 84%, var(--os-muted));
+  font-size: 0.79rem;
+  line-height: 1.48;
+}
+
+.resume-app__detail-list li::before {
+  content: '';
+  position: absolute;
+  top: 0.58em;
+  left: 0;
+  width: 0.36rem;
+  height: 0.36rem;
+  border-radius: 50%;
+  background: var(--resume-green);
+}
+
+.resume-app__mobile-preview {
+  display: none;
+}
+
+.resume-app__file-list::-webkit-scrollbar,
+.resume-app__record-stack::-webkit-scrollbar,
+.resume-app__detail-scroll::-webkit-scrollbar {
+  width: 0.52rem;
+}
+
+.resume-app__file-list::-webkit-scrollbar-thumb,
+.resume-app__record-stack::-webkit-scrollbar-thumb,
+.resume-app__detail-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: var(--resume-line);
+}
+
+@media (max-width: 980px) {
+  .resume-app__workspace {
+    grid-template-columns: minmax(13rem, 0.78fr) minmax(0, 1.22fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .resume-app {
+    --resume-outer-pad: 1rem;
+    --resume-outer-bottom: 5.7rem;
+  }
+
+  .resume-app__header {
+    min-height: 0;
+    align-items: stretch;
+    flex-direction: column;
+    padding: 0.72rem;
+  }
+
+  .resume-app__actions {
+    justify-content: space-between;
+  }
+
+  .resume-app__selected {
+    max-width: 100%;
+    font-size: 0.68rem;
+  }
+
+  .resume-app__workspace {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0.72rem;
+  }
+
+  .resume-app__inspector {
+    display: none;
+  }
+
+  .resume-app__sidebar {
+    min-height: 0;
+  }
+
+  .resume-app__file-list {
+    gap: 0.48rem;
+    padding: 0.5rem;
+  }
+
+  .resume-app__file {
+    min-height: 3.35rem;
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .resume-app__status {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .resume-app__mobile-preview[data-resume-active] {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    max-height: min(52vh, 26rem);
+    margin-top: 0.42rem;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--os-cyan) 38%, transparent);
+    border-radius: 8px;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 5rem),
+      rgba(255, 255, 255, 0.04);
+  }
+
+  .resume-app__mobile-preview-head {
+    display: grid;
+    grid-template-columns: 3.3rem minmax(0, 1fr);
+    align-items: center;
+    gap: 0.64rem;
+    padding: 0.64rem;
+    border-bottom: 1px solid var(--resume-line-soft);
+  }
+
+  .resume-app__mobile-preview-head img {
+    aspect-ratio: 1;
+    overflow: hidden;
+    border: 1px solid var(--resume-line-soft);
+    border-radius: 8px;
+  }
+
+  .resume-app__mobile-preview-head h4,
+  .resume-app__mobile-preview-head p {
+    margin: 0;
+  }
+
+  .resume-app__mobile-preview-head h4 {
+    color: var(--os-text);
+    font-size: 0.94rem;
+    font-weight: 850;
+    line-height: 1.12;
+  }
+
+  .resume-app__mobile-preview-head p {
+    color: var(--os-muted);
+    font-size: 0.72rem;
+    font-weight: 760;
+  }
+
+  .resume-app__detail-paragraph,
+  .resume-app__detail-list li {
+    font-size: 0.77rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .resume-app__heading h3 {
+    font-size: 1rem;
+  }
+
+  .resume-app__actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.48rem;
+  }
+
+  .resume-app__linkedin {
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .resume-app *,
+  .resume-app *::before,
+  .resume-app *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

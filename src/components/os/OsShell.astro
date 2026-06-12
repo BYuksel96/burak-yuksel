@@ -4,6 +4,7 @@ import HelpDialog from './HelpDialog.astro';
 import LoadingScreen from './LoadingScreen.astro';
 import MonitorFrame from './MonitorFrame.astro';
 import OsWindow from './OsWindow.astro';
+import ResumeApp from './ResumeApp.astro';
 import Taskbar from './Taskbar.astro';
 import '../../styles/os.css';
 
@@ -29,7 +30,7 @@ const windows = [
     kind: 'main',
     label: 'Application shell',
     message: 'Phase 4 content pending.',
-    helpText: 'Resume.exe is a placeholder app shell for Phase 3 window behaviour.',
+    helpText: "Resume.exe is an interactive timeline of Burak's professional history, experience, and achievements.",
   },
   {
     id: 'blog',
@@ -71,6 +72,13 @@ const windows = [
     <div class="os-screen" data-os-screen data-boot-state="booting">
       <LoadingScreen />
 
+      <div class="os-orientation-lock" role="status" aria-live="polite">
+        <div class="os-orientation-lock-card">
+          <p class="os-orientation-lock-title">Portrait mode required</p>
+          <p class="os-orientation-lock-copy">Rotate your device to portrait to continue using Burak OS.</p>
+        </div>
+      </div>
+
       <div class="os-desktop-layer">
         <header class="os-topbar" aria-label="Burak OS status">
           <div class="os-system-name">Burak OS</div>
@@ -103,11 +111,15 @@ const windows = [
           <div class="os-window-layer" data-os-window-layer>
             {windows.map((window) => (
               <OsWindow id={window.id} title={window.title} kind={window.kind} helpText={window.helpText}>
-                <div class="os-placeholder-panel">
-                  <p class="os-placeholder-label">{window.label}</p>
-                  <p class="os-placeholder-title">{window.title}</p>
-                  <p class="os-placeholder-message">{window.message}</p>
-                </div>
+                {window.id === 'resume' ? (
+                  <ResumeApp />
+                ) : (
+                  <div class="os-placeholder-panel">
+                    <p class="os-placeholder-label">{window.label}</p>
+                    <p class="os-placeholder-title">{window.title}</p>
+                    <p class="os-placeholder-message">{window.message}</p>
+                  </div>
+                )}
               </OsWindow>
             ))}
           </div>

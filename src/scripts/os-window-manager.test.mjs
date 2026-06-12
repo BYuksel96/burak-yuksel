@@ -107,3 +107,25 @@ test('taskbar uses custom labels instead of native tooltip or dot indicators', (
   assert.doesNotMatch(osCss, /@media\s*\(hover:\s*hover\)\s*and\s*\(pointer:\s*fine\)/);
   assert.doesNotMatch(osCss, /overflow-y:\s*hidden;/);
 });
+
+test('mobile compact taskbar remains readable while a main app is open', () => {
+  const osCss = readFileSync(new URL('../styles/os.css', import.meta.url), 'utf8');
+
+  assert.match(osCss, /@media\s*\(max-width:\s*760px\)\s*\{[\s\S]*\.os-screen\[data-taskbar-mode='compact'\]\s+\.os-taskbar\s*\{[\s\S]*scale\(0\.92\);/);
+  assert.match(osCss, /@media\s*\(max-width:\s*760px\)\s*\{[\s\S]*\.os-screen\[data-taskbar-mode='compact'\]\s+\.taskbar-icon\s*\{[\s\S]*width:\s*2\.65rem;[\s\S]*height:\s*2\.65rem;/);
+  assert.match(osCss, /@media\s*\(max-width:\s*760px\)\s*\{[\s\S]*\.os-screen\[data-taskbar-mode='compact'\]\s+\.taskbar-label\s*\{[\s\S]*font-size:\s*0\.54rem;/);
+  assert.match(osCss, /@media\s*\(max-width:\s*460px\)\s*\{[\s\S]*\.os-screen\[data-taskbar-mode='compact'\]\s+\.taskbar-icon\s*\{[\s\S]*width:\s*2\.55rem;[\s\S]*height:\s*2\.55rem;/);
+  assert.match(osCss, /@media\s*\(max-width:\s*460px\)\s*\{[\s\S]*\.os-screen\[data-taskbar-mode='compact'\]\s+\.taskbar-label\s*\{[\s\S]*font-size:\s*0\.56rem;/);
+  assert.match(osCss, /@media\s*\(max-width:\s*380px\)\s*\{[\s\S]*\.os-screen\[data-taskbar-mode='compact'\]\s+\.taskbar-label\s*\{[\s\S]*font-size:\s*0\.52rem;/);
+});
+
+test('phone-sized landscape viewports show portrait lock without affecting tablets', () => {
+  const osShellSource = readFileSync(new URL('../components/os/OsShell.astro', import.meta.url), 'utf8');
+  const osCss = readFileSync(new URL('../styles/os.css', import.meta.url), 'utf8');
+
+  assert.match(osShellSource, /class="os-orientation-lock"/);
+  assert.match(osShellSource, /Rotate your device to portrait/);
+  assert.match(osCss, /\.os-orientation-lock\s*\{[\s\S]*display:\s*none;/);
+  assert.match(osCss, /@media\s*\(max-width:\s*980px\)\s*and\s*\(max-height:\s*560px\)\s*and\s*\(orientation:\s*landscape\)\s*\{/);
+  assert.match(osCss, /@media\s*\(max-width:\s*980px\)\s*and\s*\(max-height:\s*560px\)\s*and\s*\(orientation:\s*landscape\)\s*\{[\s\S]*\.os-orientation-lock\s*\{[\s\S]*display:\s*grid;/);
+});
