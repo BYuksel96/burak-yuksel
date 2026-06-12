@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -81,4 +82,23 @@ test('formats browser-local status time without seconds', () => {
 
   assert.equal(formatOsDateTime(date, 'en-GB'), 'Thu 11 Jun 22:14');
   assert.equal(formatOsDateTime(date, 'en-US'), 'Thu Jun 11 22:14');
+});
+
+test('taskbar uses custom labels instead of native tooltip or dot indicators', () => {
+  const taskbarSource = readFileSync(new URL('../components/os/Taskbar.astro', import.meta.url), 'utf8');
+  const osCss = readFileSync(new URL('../styles/os.css', import.meta.url), 'utf8');
+
+  assert.match(taskbarSource, /class="taskbar-label"/);
+  assert.doesNotMatch(taskbarSource, /\s+title=/);
+  assert.doesNotMatch(osCss, /\.taskbar-item\[data-os-open\]\s+\.taskbar-icon::after/);
+  assert.match(osCss, /\.os-taskbar\s*\{[\s\S]*overflow:\s*visible;/);
+  assert.match(osCss, /\.taskbar-items\s*\{[\s\S]*overflow:\s*visible;/);
+  assert.match(osCss, /--taskbar-icon-lift:\s*-10px;/);
+  assert.match(osCss, /--taskbar-icon-scale:\s*1\.12;/);
+  assert.match(osCss, /transform:\s*translate\(-50%,\s*-50%\)\s*translateY\(var\(--taskbar-icon-lift\)\)\s*scale\(var\(--taskbar-icon-scale\)\);/);
+  assert.match(osCss, /\.taskbar-item:hover\s+\.taskbar-icon,\s*\n\.taskbar-item:focus-visible\s+\.taskbar-icon\s*\{[\s\S]*translateY\(var\(--taskbar-icon-lift\)\)\s*scale\(var\(--taskbar-icon-scale\)\)/);
+  assert.match(osCss, /\.taskbar-item:hover\s+\.taskbar-label,\s*\n\.taskbar-item:focus-visible\s+\.taskbar-label,\s*\n\.taskbar-item\[data-os-open\]\s+\.taskbar-label,\s*\n\.taskbar-item\[data-os-active\]\s+\.taskbar-label\s*\{[\s\S]*opacity:\s*1;/);
+  assert.doesNotMatch(osCss, /@media\s*\(any-hover:\s*hover\)/);
+  assert.doesNotMatch(osCss, /@media\s*\(hover:\s*hover\)\s*and\s*\(pointer:\s*fine\)/);
+  assert.doesNotMatch(osCss, /overflow-y:\s*hidden;/);
 });

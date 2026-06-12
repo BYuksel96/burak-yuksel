@@ -321,7 +321,7 @@
   display: grid;
   place-items: center;
   overflow: hidden;
-  padding: 1.5rem 1.5rem 6.8rem;
+  padding: 1.5rem 1.5rem 6.9rem;
 }
 
 .os-desktop::before {
@@ -516,7 +516,7 @@
 .os-window--main {
   top: clamp(0.72rem, 1.4vw, 1.05rem);
   right: clamp(0.72rem, 1.4vw, 1.05rem);
-  bottom: clamp(5.4rem, 9vh, 6.1rem);
+  bottom: clamp(5.35rem, 8.8vh, 6.1rem);
   left: clamp(0.72rem, 1.4vw, 1.05rem);
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent 34%),
@@ -802,6 +802,7 @@
   z-index: 7;
   width: max-content;
   max-width: calc(100% - 2rem);
+  overflow: visible;
   transform: translateX(-50%);
   padding: 0.52rem;
   border: 1px solid var(--os-screen-line-strong);
@@ -837,13 +838,14 @@
 }
 
 .taskbar-item {
+  --taskbar-icon-lift: -10px;
+  --taskbar-icon-scale: 1.12;
   position: relative;
-  width: 4.1rem;
-  height: 4.7rem;
-  display: grid;
-  justify-items: center;
-  align-content: center;
-  padding: 0.34rem 0.22rem;
+  width: 4.05rem;
+  height: 4.08rem;
+  display: block;
+  padding: 0;
+  overflow: visible;
   border: 1px solid transparent;
   border-radius: 0;
   background: transparent;
@@ -865,11 +867,13 @@
 }
 
 .taskbar-item:active {
-  transform: translateY(0) scale(0.98);
+  transform: none;
 }
 
 .taskbar-icon {
-  position: relative;
+  position: absolute;
+  top: 50%;
+  left: 50%;
   width: 3.1rem;
   height: 3.1rem;
   display: grid;
@@ -881,32 +885,30 @@
     linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.03)),
     rgba(255, 255, 255, 0.06);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  transition: border-color 0.16s ease, background 0.16s ease, transform 0.16s ease;
+  transform-origin: center;
+  transform: translate(-50%, -50%);
+  transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
 }
 
-.taskbar-item[data-os-open] .taskbar-icon::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  bottom: 0.28rem;
-  width: 0.34rem;
-  height: 0.34rem;
-  border-radius: 50%;
-  background: var(--os-cyan);
-  box-shadow: 0 0 0.64rem color-mix(in srgb, var(--os-cyan) 72%, transparent);
-  transform: translateX(-50%);
-  z-index: 1;
-}
-
-.taskbar-item:is(:hover, :focus-visible) .taskbar-icon {
+.taskbar-item:hover .taskbar-icon,
+.taskbar-item:focus-visible .taskbar-icon {
   border-color: var(--os-screen-line-strong);
   background:
     linear-gradient(145deg, rgba(255, 255, 255, 0.17), rgba(255, 255, 255, 0.04)),
     rgba(255, 255, 255, 0.08);
+  transform: translate(-50%, -50%) translateY(var(--taskbar-icon-lift)) scale(var(--taskbar-icon-scale));
 }
 
-.taskbar-item[data-os-open] .taskbar-icon {
+.taskbar-item[data-os-open] .taskbar-icon,
+.taskbar-item[data-os-active] .taskbar-icon {
   border-color: var(--os-screen-line-strong);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--os-cyan) 10%, transparent), rgba(255, 255, 255, 0.045)),
+    rgba(255, 255, 255, 0.07);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0.42rem 0.9rem rgba(0, 0, 0, 0.16);
+  transform: translate(-50%, -50%) translateY(var(--taskbar-icon-lift)) scale(var(--taskbar-icon-scale));
 }
 
 .taskbar-item[data-os-active] .taskbar-icon {
@@ -918,10 +920,11 @@
 
 .taskbar-label {
   position: absolute;
+  top: calc(50% + 1.36rem);
   left: 50%;
-  top: 4.06rem;
   width: max-content;
-  max-width: 9rem;
+  max-width: 5.8rem;
+  min-height: 0;
   padding: 0;
   border: 0;
   border-radius: 0;
@@ -933,9 +936,11 @@
   line-height: 1;
   text-align: center;
   opacity: 0;
+  overflow: hidden;
   pointer-events: none;
-  transform: translate(-50%, 0.16rem);
-  transition: opacity 0.14s ease, transform 0.14s ease;
+  text-overflow: ellipsis;
+  transform: translate(-50%, 0.12rem);
+  transition: color 0.18s ease, opacity 0.18s ease, transform 0.18s ease;
   white-space: nowrap;
 }
 
@@ -949,15 +954,13 @@
   flex: 0 0 auto;
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .taskbar-item:is(:hover, :focus-visible) .taskbar-icon {
-    transform: translateY(-0.12rem) scale(1.05);
-  }
-
-  .taskbar-item:is(:hover, :focus-visible) .taskbar-label {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
+.taskbar-item:hover .taskbar-label,
+.taskbar-item:focus-visible .taskbar-label,
+.taskbar-item[data-os-open] .taskbar-label,
+.taskbar-item[data-os-active] .taskbar-label {
+  opacity: 1;
+  color: var(--os-text);
+  transform: translate(-50%, 0);
 }
 
 @keyframes osHelpBackdropIn {
@@ -1059,7 +1062,7 @@
   }
 
   .os-desktop {
-    padding: 0.75rem 0.75rem 6rem;
+    padding: 0.75rem 0.75rem 5.65rem;
   }
 
   .os-desktop-icons {
@@ -1098,13 +1101,13 @@
     top: 50%;
     width: min(calc(100% - 1rem), 24rem);
     height: min(64%, 22rem);
-    max-height: calc(100% - 5.2rem);
+    max-height: calc(100% - 5.45rem);
   }
 
   .os-window--main {
     top: 0.48rem;
     right: 0.48rem;
-    bottom: 4.65rem;
+    bottom: 4.85rem;
     left: 0.48rem;
   }
 
@@ -1141,15 +1144,15 @@
   .taskbar-items {
     justify-content: center;
     gap: 0.36rem;
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow: visible;
   }
 
   .taskbar-item {
-    width: 3.7rem;
-    height: 3.55rem;
-    align-content: center;
-    padding: 0.28rem;
+    --taskbar-icon-lift: -0.24rem;
+    --taskbar-icon-scale: 1.05;
+    width: 3.45rem;
+    height: 3.45rem;
+    padding: 0;
     border-radius: 12px;
   }
 
@@ -1159,19 +1162,16 @@
     border-radius: 10px;
   }
 
-  .taskbar-item[data-os-open] .taskbar-icon::after {
-    bottom: 0.2rem;
-    width: 0.28rem;
-    height: 0.28rem;
-  }
-
   .taskbar-separator {
     height: 2.5rem;
     margin: 0 0.08rem;
   }
 
   .taskbar-label {
-    display: none;
+    top: calc(50% + 1.08rem);
+    width: 100%;
+    max-width: 100%;
+    font-size: 0.48rem;
   }
 
   .os-screen[data-taskbar-mode='compact'] .os-taskbar {
@@ -1197,9 +1197,10 @@
   }
 
   .taskbar-item {
-    width: 3.16rem;
-    height: 3.08rem;
-    padding: 0.22rem;
+    --taskbar-icon-lift: -0.2rem;
+    width: 3rem;
+    height: 3.24rem;
+    padding: 0;
   }
 
   .taskbar-icon {
@@ -1208,7 +1209,8 @@
   }
 
   .taskbar-label {
-    display: none;
+    top: calc(50% + 0.98rem);
+    font-size: 0.46rem;
   }
 
   .taskbar-separator {
@@ -1243,13 +1245,20 @@
   }
 
   .taskbar-item {
-    width: 2.82rem;
-    height: 2.86rem;
+    --taskbar-icon-lift: -0.16rem;
+    width: 2.68rem;
+    height: 3.08rem;
+    padding: 0;
   }
 
   .taskbar-icon {
     width: 2rem;
     height: 2rem;
+  }
+
+  .taskbar-label {
+    top: calc(50% + 0.9rem);
+    font-size: 0.42rem;
   }
 }
 
@@ -1297,7 +1306,9 @@
   }
 
   .os-taskbar,
-  .taskbar-item {
+  .taskbar-item,
+  .taskbar-icon,
+  .taskbar-label {
     transition: none;
   }
 }
