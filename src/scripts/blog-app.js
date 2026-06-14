@@ -108,35 +108,61 @@ export const estimateReadMinutes = (text = '', wordsPerMinute = 140) => {
   return Math.max(1, Math.ceil(words / wordsPerMinute));
 };
 
+export const normalizeBlogTag = (tag = '') => {
+  const label = String(tag).trim();
+  const key = label
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+  return { key, label };
+};
+
 const uniquePostIds = (ids = []) => ids.filter((id, index) => id && ids.indexOf(id) === index);
+
+const normalizeTagViews = (tagViews = {}, openPostIds = []) =>
+  Object.fromEntries(Object.entries(tagViews).filter(([id]) => openPostIds.includes(id)));
+
+const removeTagView = (tagViews = {}, id = '') => {
+  const nextTagViews = { ...tagViews };
+  delete nextTagViews[id];
+  return nextTagViews;
+};
 
 export const createInitialBlogTabState = () => ({
   activeTabId: ARCHIVE_TAB_ID,
   openPostIds: [],
+  tagViews: {},
 });
 
 export const reduceBlogTabState = (state = createInitialBlogTabState(), action = null) => {
-  if (!action) return { ...state, openPostIds: uniquePostIds(state.openPostIds) };
+  if (!action) {
+    const openPostIds = uniquePostIds(state.openPostIds);
+    return { ...state, openPostIds, tagViews: normalizeTagViews(state.tagViews, openPostIds) };
+  }
 
   const openPostIds = uniquePostIds(state.openPostIds);
+  const tagViews = normalizeTagViews(state.tagViews, openPostIds);
 
   if (action.type === 'open-post' && action.id) {
+    const nextOpenPostIds = uniquePostIds([...openPostIds, action.id]);
     return {
       activeTabId: action.id,
-      openPostIds: uniquePostIds([...openPostIds, action.id]),
+      openPostIds: nextOpenPostIds,
+      tagViews: normalizeTagViews(removeTagView(tagViews, action.id), nextOpenPostIds),
     };
   }
 
   if (action.type === 'activate-tab') {
     if (action.id === ARCHIVE_TAB_ID || openPostIds.includes(action.id)) {
-      return { activeTabId: action.id, openPostIds };
+      return { activeTabId: action.id, openPostIds, tagViews };
     }
-    return { ...state, openPostIds };
+    return { ...state, openPostIds, tagViews };
   }
 
   if (action.type === 'close-tab') {
     if (!action.id || action.id === ARCHIVE_TAB_ID || !openPostIds.includes(action.id)) {
-      return { ...state, openPostIds };
+      return { ...state, openPostIds, tagViews };
     }
 
     const closingIndex = openPostIds.indexOf(action.id);
@@ -149,17 +175,42 @@ export const reduceBlogTabState = (state = createInitialBlogTabState(), action =
     return {
       activeTabId: nextActive,
       openPostIds: nextOpenPostIds,
+      tagViews: normalizeTagViews(removeTagView(tagViews, action.id), nextOpenPostIds),
     };
   }
 
   if (action.type === 'back-to-archive') {
+    const nextOpenPostIds = action.id ? openPostIds.filter((id) => id !== action.id) : openPostIds;
     return {
       activeTabId: ARCHIVE_TAB_ID,
-      openPostIds: action.id ? openPostIds.filter((id) => id !== action.id) : openPostIds,
+      openPostIds: nextOpenPostIds,
+      tagViews: normalizeTagViews(action.id ? removeTagView(tagViews, action.id) : tagViews, nextOpenPostIds),
     };
   }
 
-  return { ...state, openPostIds };
+  if (action.type === 'show-tag' && action.id && openPostIds.includes(action.id)) {
+    const normalizedTag = normalizeBlogTag(action.tag);
+    if (!normalizedTag.key) return { ...state, openPostIds, tagViews };
+
+    return {
+      activeTabId: action.id,
+      openPostIds,
+      tagViews: {
+        ...tagViews,
+        [action.id]: normalizedTag,
+      },
+    };
+  }
+
+  if (action.type === 'clear-tag' && action.id) {
+    return {
+      activeTabId: action.id,
+      openPostIds,
+      tagViews: removeTagView(tagViews, action.id),
+    };
+  }
+
+  return { ...state, openPostIds, tagViews };
 };
 
 const getTabId = (element) => element?.getAttribute('data-blog-tab-id') ?? '';
@@ -204,11 +255,10 @@ export const initBlogApp = (root) => {
   const getTabs = () => Array.from(root.querySelectorAll(SELECTOR_TAB));
   const getTabById = (id) => getTabs().find((tab) => getTabId(tab) === id);
   const getPanelById = (id) => root.querySelector(`[data-blog-panel][data-blog-tab-id="${CSS.escape(id)}"]`);
-  const getPostPanel = (id) => root.querySelector(`[data-blog-post-panel][data-blog-post-id="${CSS.escape(id)}"]`);
 
-  const setSharePanelOpen = (panel, isOpen) => {
-    const shareButton = panel?.querySelector('[data-blog-share]');
-    const shareMenu = panel?.querySelector('[data-blog-share-menu]');
+  const setShareWrapOpen = (shareWrap, isOpen) => {
+    const shareButton = shareWrap?.querySelector('[data-blog-share]');
+    const shareMenu = shareWrap?.querySelector('[data-blog-share-menu]');
     if (!shareButton || !shareMenu) return;
 
     shareButton.setAttribute('aria-expanded', String(isOpen));
@@ -217,7 +267,7 @@ export const initBlogApp = (root) => {
   };
 
   const closeAllShareMenus = () => {
-    root.querySelectorAll('[data-blog-post-panel]').forEach((panel) => setSharePanelOpen(panel, false));
+    root.querySelectorAll('[data-blog-share-wrap]').forEach((shareWrap) => setShareWrapOpen(shareWrap, false));
   };
 
   const showCopyToast = () => {
@@ -263,6 +313,43 @@ export const initBlogApp = (root) => {
       const isActive = activeId === id;
       panel.hidden = !isActive;
       panel.toggleAttribute('data-blog-active', isActive);
+    });
+
+    root.querySelectorAll('[data-blog-post-panel]').forEach((panel) => {
+      const id = getPostId(panel);
+      const tagView = state.tagViews[id] ?? null;
+      const postView = panel.querySelector('[data-blog-post-view]');
+      const tagResults = panel.querySelector('[data-blog-tag-results]');
+
+      if (postView instanceof HTMLElement) {
+        postView.hidden = Boolean(tagView);
+      }
+
+      if (tagResults instanceof HTMLElement) {
+        tagResults.hidden = !tagView;
+        tagResults.toggleAttribute('data-blog-tag-active', Boolean(tagView));
+      }
+
+      if (!tagView || !(tagResults instanceof HTMLElement)) return;
+
+      const title = tagResults.querySelector('[data-blog-tag-title]');
+      const count = tagResults.querySelector('[data-blog-tag-count]');
+      let visibleCount = 0;
+
+      tagResults.querySelectorAll('[data-blog-tag-result-row]').forEach((row) => {
+        const keys = (row.getAttribute('data-blog-tag-keys') ?? '').split('|');
+        const isMatch = keys.includes(tagView.key);
+        row.hidden = !isMatch;
+        if (isMatch) visibleCount += 1;
+      });
+
+      if (title) {
+        title.textContent = `Posts tagged "${tagView.label}"`;
+      }
+
+      if (count) {
+        count.textContent = `${visibleCount} matching ${visibleCount === 1 ? 'post' : 'posts'}`;
+      }
     });
 
     if (address) {
@@ -333,13 +420,30 @@ export const initBlogApp = (root) => {
       return;
     }
 
+    const tagButton = target.closest('[data-blog-open-tag]');
+    if (tagButton && root.contains(tagButton)) {
+      event.preventDefault();
+      dispatch({ type: 'show-tag', id: getPostId(tagButton), tag: tagButton.getAttribute('data-blog-tag') }, { focus: false });
+      return;
+    }
+
+    const clearTagButton = target.closest('[data-blog-clear-tag]');
+    if (clearTagButton && root.contains(clearTagButton)) {
+      event.preventDefault();
+      dispatch({ type: 'clear-tag', id: getPostId(clearTagButton) }, { focus: false });
+      return;
+    }
+
     const shareButton = target.closest('[data-blog-share]');
     if (shareButton && root.contains(shareButton)) {
-      const panel = shareButton.closest('[data-blog-post-panel]');
-      const shareMenu = panel?.querySelector('[data-blog-share-menu]');
+      const shareWrap = shareButton.closest('[data-blog-share-wrap]');
+      const shareMenu = shareWrap?.querySelector('[data-blog-share-menu]');
       const isOpen = !shareMenu?.hidden;
       closeAllShareMenus();
-      setSharePanelOpen(panel, !isOpen);
+      setShareWrapOpen(shareWrap, !isOpen);
+      if (isOpen === false && shareMenu instanceof HTMLElement) {
+        shareMenu.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      }
       return;
     }
 

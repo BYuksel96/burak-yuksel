@@ -119,6 +119,15 @@ test('mobile compact taskbar remains readable while a main app is open', () => {
   assert.match(osCss, /@media\s*\(max-width:\s*380px\)\s*\{[\s\S]*\.os-screen\[data-taskbar-mode='compact'\]\s+\.taskbar-label\s*\{[\s\S]*font-size:\s*0\.52rem;/);
 });
 
+test('mobile taskbar sits lower and keeps labels clear of icons', () => {
+  const osCss = readFileSync(new URL('../styles/os.css', import.meta.url), 'utf8');
+
+  assert.match(osCss, /@media\s*\(max-width:\s*760px\)\s*\{[\s\S]*\.os-taskbar\s*\{[\s\S]*bottom:\s*0\.36rem;/);
+  assert.match(osCss, /@media\s*\(max-width:\s*760px\)\s*\{[\s\S]*\.taskbar-label\s*\{[\s\S]*top:\s*calc\(50% \+ 1\.16rem\);/);
+  assert.match(osCss, /@media\s*\(max-width:\s*760px\)\s*\{[\s\S]*\.os-screen\[data-taskbar-mode='compact'\]\s+\.os-taskbar\s*\{[\s\S]*bottom:\s*0\.4rem;/);
+  assert.match(osCss, /@media\s*\(max-width:\s*760px\)\s*\{[\s\S]*\.os-screen\[data-taskbar-mode='compact'\]\s+\.taskbar-label\s*\{[\s\S]*top:\s*calc\(50% \+ 1\.24rem\);/);
+});
+
 test('phone-sized landscape viewports show portrait lock without affecting tablets', () => {
   const osShellSource = readFileSync(new URL('../components/os/OsShell.astro', import.meta.url), 'utf8');
   const osCss = readFileSync(new URL('../styles/os.css', import.meta.url), 'utf8');
@@ -137,4 +146,30 @@ test('Blog.exe window renders the BlogApp and explains internal tabs in help cop
   assert.match(osShellSource, /window\.id === 'blog'[\s\S]*<BlogApp \/>/);
   assert.match(osShellSource, /Archive entries open posts in internal tabs/);
   assert.doesNotMatch(osShellSource, /Phase 5 content pending/);
+});
+
+test('shared OS controls use visible glyphs and keep minimise disabled', () => {
+  const osWindowSource = readFileSync(new URL('../components/os/OsWindow.astro', import.meta.url), 'utf8');
+  const helpDialogSource = readFileSync(new URL('../components/os/HelpDialog.astro', import.meta.url), 'utf8');
+  const osCss = readFileSync(new URL('../styles/os.css', import.meta.url), 'utf8');
+
+  assert.match(osWindowSource, /<span aria-hidden="true">X<\/span>/);
+  assert.match(helpDialogSource, /<span aria-hidden="true">X<\/span>/);
+  assert.match(osWindowSource, /os-window-control--minimise[\s\S]*disabled/);
+  assert.match(osWindowSource, /<span aria-hidden="true">-<\/span>/);
+  assert.match(osWindowSource, /<span aria-hidden="true">\?<\/span>/);
+  assert.match(osCss, /\.os-window-control--minimise\s*\{[\s\S]*var\(--os-muted\)[\s\S]*opacity:\s*0\.[0-9]+;/);
+});
+
+test('Blog.exe uses its own chrome as the window topbar', () => {
+  const osWindowSource = readFileSync(new URL('../components/os/OsWindow.astro', import.meta.url), 'utf8');
+  const blogAppSource = readFileSync(new URL('../components/os/BlogApp.astro', import.meta.url), 'utf8');
+  const osCss = readFileSync(new URL('../styles/os.css', import.meta.url), 'utf8');
+
+  assert.match(osWindowSource, /id !== 'blog'/);
+  assert.match(osWindowSource, /os-window--\$\{id\}/);
+  assert.match(osCss, /\.os-window--blog\s+\.os-window-body\s*\{[\s\S]*padding:\s*0;/);
+  assert.match(osCss, /@media\s*\(max-width:\s*760px\)\s*\{[\s\S]*\.os-window--blog\s+\.os-window-body\s*\{[\s\S]*padding:\s*0;/);
+  assert.match(osCss, /@media\s*\(max-width:\s*760px\)\s*\{[\s\S]*\.os-window--blog\s*\{[\s\S]*border-radius:\s*0;/);
+  assert.match(blogAppSource, /header class="blog-app__chrome"[\s\S]*data-blog-window-chrome/);
 });

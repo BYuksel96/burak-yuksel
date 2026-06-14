@@ -629,6 +629,8 @@
   height: 100%;
   display: grid;
   place-items: center;
+  font-weight: 900;
+  letter-spacing: 0;
   line-height: 1;
   transform: none;
 }
@@ -660,18 +662,18 @@
 }
 
 .os-window-control--minimise {
-  border-color: color-mix(in srgb, var(--os-amber) 32%, var(--os-muted));
+  border-color: color-mix(in srgb, var(--os-muted) 54%, rgba(0, 0, 0, 0.36));
   background:
-    radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.44) 0 0.1rem, transparent 0.11rem),
+    radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.34) 0 0.1rem, transparent 0.11rem),
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--os-amber) 42%, var(--os-muted)) 0%,
-      color-mix(in srgb, var(--os-amber) 28%, #5a5550) 52%,
-      color-mix(in srgb, var(--os-amber) 18%, #2c3032) 100%
+      color-mix(in srgb, var(--os-muted) 56%, white) 0%,
+      color-mix(in srgb, var(--os-muted) 48%, #4d5255) 52%,
+      color-mix(in srgb, var(--os-muted) 36%, #24282a) 100%
     );
-  color: color-mix(in srgb, #101315 66%, var(--os-muted));
+  color: color-mix(in srgb, #101315 58%, var(--os-muted));
   cursor: not-allowed;
-  opacity: 0.68;
+  opacity: 0.62;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.22),
     inset 0 -1px 0 rgba(0, 0, 0, 0.3);
@@ -728,6 +730,11 @@
 
 .os-window--main .os-window-body {
   padding-bottom: 6.1rem;
+}
+
+.os-window--blog .os-window-body {
+  padding: 0;
+  overflow: hidden;
 }
 
 .os-placeholder-panel {
@@ -1158,6 +1165,10 @@
     left: 0.48rem;
   }
 
+  .os-window--blog {
+    border-radius: 0;
+  }
+
   .os-window-topbar {
     min-height: 2.65rem;
     padding: 0 0.62rem;
@@ -1169,6 +1180,10 @@
 
   .os-window--main .os-window-body {
     padding-bottom: 5.7rem;
+  }
+
+  .os-window--blog .os-window-body {
+    padding: 0;
   }
 
   .os-placeholder-panel {
@@ -1183,7 +1198,7 @@
   .os-taskbar {
     width: max-content;
     max-width: min(28rem, calc(100% - 2rem));
-    bottom: 0.55rem;
+    bottom: 0.36rem;
     padding: 0.42rem;
     border-radius: 16px;
   }
@@ -1215,7 +1230,7 @@
   }
 
   .taskbar-label {
-    top: calc(50% + 1.08rem);
+    top: calc(50% + 1.16rem);
     width: 100%;
     max-width: 100%;
     font-size: 0.48rem;
@@ -1223,7 +1238,7 @@
 
   .os-screen[data-taskbar-mode='compact'] .os-taskbar {
     max-width: min(29rem, calc(100% - 1rem));
-    bottom: 0.62rem;
+    bottom: 0.4rem;
     padding: 0.5rem;
     transform: translateX(-50%) scale(0.92);
   }
@@ -1245,7 +1260,7 @@
   }
 
   .os-screen[data-taskbar-mode='compact'] .taskbar-label {
-    top: calc(50% + 1.14rem);
+    top: calc(50% + 1.24rem);
     font-size: 0.54rem;
   }
 }
@@ -1280,7 +1295,7 @@
   }
 
   .taskbar-label {
-    top: calc(50% + 0.98rem);
+    top: calc(50% + 1.05rem);
     font-size: 0.46rem;
   }
 
@@ -1311,7 +1326,7 @@
   }
 
   .os-screen[data-taskbar-mode='compact'] .taskbar-label {
-    top: calc(50% + 1.12rem);
+    top: calc(50% + 1.2rem);
     font-size: 0.56rem;
   }
 
@@ -1358,7 +1373,7 @@
   }
 
   .taskbar-label {
-    top: calc(50% + 0.9rem);
+    top: calc(50% + 0.96rem);
     font-size: 0.42rem;
   }
 
@@ -1377,7 +1392,7 @@
   }
 
   .os-screen[data-taskbar-mode='compact'] .taskbar-label {
-    top: calc(50% + 1.04rem);
+    top: calc(50% + 1.12rem);
     font-size: 0.52rem;
   }
 }
