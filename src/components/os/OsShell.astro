@@ -1,5 +1,6 @@
 ---
 import DesktopIcon from './DesktopIcon.astro';
+import BlogApp from './BlogApp.astro';
 import HelpDialog from './HelpDialog.astro';
 import LoadingScreen from './LoadingScreen.astro';
 import MonitorFrame from './MonitorFrame.astro';
@@ -37,8 +38,9 @@ const windows = [
     title: 'Blog.exe',
     kind: 'main',
     label: 'Application shell',
-    message: 'Phase 5 content pending.',
-    helpText: 'Blog.exe is a placeholder app shell for Phase 3 window behaviour.',
+    message: 'Blog archive loaded.',
+    helpText:
+      "Blog.exe contains Burak's blog archive. Archive entries open posts in internal tabs; the archive tab stays open on the left so you can return without losing open posts.",
   },
   {
     id: 'github',
@@ -113,6 +115,8 @@ const windows = [
               <OsWindow id={window.id} title={window.title} kind={window.kind} helpText={window.helpText}>
                 {window.id === 'resume' ? (
                   <ResumeApp />
+                ) : window.id === 'blog' ? (
+                  <BlogApp />
                 ) : (
                   <div class="os-placeholder-panel">
                     <p class="os-placeholder-label">{window.label}</p>

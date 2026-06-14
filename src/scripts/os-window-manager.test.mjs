@@ -129,3 +129,12 @@ test('phone-sized landscape viewports show portrait lock without affecting table
   assert.match(osCss, /@media\s*\(max-width:\s*980px\)\s*and\s*\(max-height:\s*560px\)\s*and\s*\(orientation:\s*landscape\)\s*\{/);
   assert.match(osCss, /@media\s*\(max-width:\s*980px\)\s*and\s*\(max-height:\s*560px\)\s*and\s*\(orientation:\s*landscape\)\s*\{[\s\S]*\.os-orientation-lock\s*\{[\s\S]*display:\s*grid;/);
 });
+
+test('Blog.exe window renders the BlogApp and explains internal tabs in help copy', () => {
+  const osShellSource = readFileSync(new URL('../components/os/OsShell.astro', import.meta.url), 'utf8');
+
+  assert.match(osShellSource, /import BlogApp from '\.\/BlogApp\.astro';/);
+  assert.match(osShellSource, /window\.id === 'blog'[\s\S]*<BlogApp \/>/);
+  assert.match(osShellSource, /Archive entries open posts in internal tabs/);
+  assert.doesNotMatch(osShellSource, /Phase 5 content pending/);
+});

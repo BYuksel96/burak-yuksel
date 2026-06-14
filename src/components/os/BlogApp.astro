@@ -1,0 +1,257 @@
+---
+import { getCollection } from 'astro:content';
+import {
+  ARCHIVE_TAB_ID,
+  buildBlogPath,
+  estimateReadMinutes,
+  formatBlogDate,
+  groupBlogPostsByYearMonth,
+  sortBlogPostsLatestFirst,
+} from '../../scripts/blog-app.js';
+import '../../styles/blog-app.css';
+
+const base = import.meta.env.BASE_URL || '/';
+const entries = sortBlogPostsLatestFirst(await getCollection('blog'));
+const renderedEntries = await Promise.all(
+  entries.map(async (entry) => ({
+    entry,
+    rendered: await entry.render(),
+  })),
+);
+
+const posts = renderedEntries.map(({ entry, rendered }, index) => {
+  const routeSlug = entry.data.canonicalSlug || entry.slug;
+  const uid = entry.slug.replace(/[^a-zA-Z0-9_-]+/g, '-');
+  const readMinutes = estimateReadMinutes(entry.body || '');
+
+  return {
+    uid,
+    index,
+    title: entry.data.title,
+    description: entry.data.description,
+    pubDate: entry.data.pubDate,
+    tags: entry.data.tags,
+    canonicalPath: buildBlogPath(base, routeSlug),
+    rowDate: formatBlogDate(entry.data.pubDate, 'row'),
+    fullDate: formatBlogDate(entry.data.pubDate, 'long'),
+    readMinutes,
+    Content: rendered.Content,
+  };
+});
+
+const groups = groupBlogPostsByYearMonth(posts);
+const archivePanelId = 'blog-panel-archive';
+const archiveTabId = 'blog-tab-archive';
+---
+
+<section class="blog-app" data-blog-app aria-label="Blog.exe internal browser">
+  <header class="blog-app__chrome" aria-label="Blog browser controls">
+    <div class="blog-app__chrome-actions" aria-hidden="true">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <div class="blog-app__address" aria-label="Current Blog.exe location">
+      <span data-blog-address>burak-os://blog/archive</span>
+    </div>
+    <div class="blog-app__count" aria-label={`${posts.length} blog posts`}>
+      {posts.length} posts
+    </div>
+  </header>
+
+  <div class="blog-app__tab-strip" aria-label="Blog.exe open tabs">
+    <div class="blog-app__tabs" role="tablist" aria-label="Blog tabs" data-blog-tabs>
+      <div class="blog-app__tab-wrap" data-blog-tab-wrap>
+        <button
+          class="blog-app__tab blog-app__tab--archive"
+          type="button"
+          role="tab"
+          id={archiveTabId}
+          aria-selected="true"
+          aria-controls={archivePanelId}
+          tabindex="0"
+          data-blog-tab
+          data-blog-tab-id={ARCHIVE_TAB_ID}
+        >
+          <span class="blog-app__tab-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="M5 5h14v14H5z" />
+              <path d="M8 9h8M8 12h8M8 15h5" />
+            </svg>
+          </span>
+          <span class="blog-app__tab-title">Archive</span>
+        </button>
+      </div>
+
+      {posts.map((post) => (
+        <div class="blog-app__tab-wrap blog-app__tab-wrap--post" data-blog-tab-wrap hidden>
+          <button
+            class="blog-app__tab"
+            type="button"
+            role="tab"
+            id={`blog-tab-${post.uid}`}
+            aria-selected="false"
+            aria-controls={`blog-panel-${post.uid}`}
+            tabindex="-1"
+            data-blog-tab
+            data-blog-tab-id={post.uid}
+          >
+            <span class="blog-app__tab-title">{post.title}</span>
+          </button>
+          <button
+            class="blog-app__tab-close"
+            type="button"
+            data-blog-close-tab
+            data-blog-post-id={post.uid}
+            aria-label={`Close "${post.title}" tab`}
+          >
+            <span aria-hidden="true">x</span>
+          </button>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <div class="blog-app__panels">
+    <section
+      class="blog-app__panel blog-app__panel--archive"
+      role="tabpanel"
+      id={archivePanelId}
+      aria-labelledby={archiveTabId}
+      data-blog-panel
+      data-blog-tab-id={ARCHIVE_TAB_ID}
+    >
+      <div class="blog-app__archive">
+        <header class="blog-app__archive-head">
+          <div>
+            <p class="blog-app__eyebrow">Post Archive</p>
+            <h3>Writing log</h3>
+          </div>
+          <span>{posts.length} indexed</span>
+        </header>
+
+        <div class="blog-app__archive-list" aria-label="Blog archive grouped by year and month">
+          {groups.map((yearGroup) => (
+            <section class="blog-app__year-group" aria-labelledby={`blog-year-${yearGroup.year}`}>
+              <h4 id={`blog-year-${yearGroup.year}`} class="blog-app__year">
+                {yearGroup.year}
+              </h4>
+
+              <div class="blog-app__months">
+                {yearGroup.months.map((monthGroup) => (
+                  <section class="blog-app__month-group" aria-label={`${monthGroup.monthLabel} ${yearGroup.year}`}>
+                    <h5 class="blog-app__month">{monthGroup.monthLabel}</h5>
+                    <div class="blog-app__entries">
+                      {monthGroup.posts.map((post) => (
+                        <a
+                          class="blog-app__entry"
+                          href={post.canonicalPath}
+                          data-blog-open-post
+                          data-blog-post-id={post.uid}
+                        >
+                          <span class="blog-app__entry-main">
+                            <span class="blog-app__entry-title">{post.title}</span>
+                            <span class="blog-app__entry-description">{post.description}</span>
+                          </span>
+                          <span class="blog-app__entry-meta">
+                            <span>{post.rowDate}</span>
+                            <span>{post.readMinutes} min</span>
+                          </span>
+                        </a>
+                      ))}
+                    </div>
+                  </section>
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    {posts.map((post) => {
+      const Content = post.Content;
+
+      return (
+        <article
+          class="blog-app__panel blog-app__panel--post"
+          role="tabpanel"
+          id={`blog-panel-${post.uid}`}
+          aria-labelledby={`blog-tab-${post.uid}`}
+          data-blog-panel
+          data-blog-post-panel
+          data-blog-tab-id={post.uid}
+          data-blog-post-id={post.uid}
+          data-blog-canonical-path={post.canonicalPath}
+          hidden
+        >
+          <header class="blog-app__post-head">
+            <div class="blog-app__post-meta">
+              <span>{post.fullDate}</span>
+              <span>{post.readMinutes} min read</span>
+            </div>
+
+            <div class="blog-app__post-actions">
+              <button class="blog-app__back" type="button" data-blog-back data-blog-post-id={post.uid}>
+                Back to Blog
+              </button>
+
+              <div class="blog-app__share-wrap">
+                <button
+                  class="blog-app__share"
+                  type="button"
+                  data-blog-share
+                  aria-expanded="false"
+                  aria-controls={`blog-share-${post.uid}`}
+                >
+                  Share
+                </button>
+                <div
+                  class="blog-app__share-menu"
+                  id={`blog-share-${post.uid}`}
+                  data-blog-share-menu
+                  aria-hidden="true"
+                  hidden
+                >
+                  <button type="button" data-blog-share-action="copy">Copy Link</button>
+                  <button type="button" data-blog-share-action="linkedin">
+                    <span aria-hidden="true">in</span>
+                    Share on LinkedIn
+                  </button>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          <div class="blog-app__article-scroll">
+            <div class="blog-app__article">
+              <header class="blog-app__article-head">
+                <p>{post.tags.join(' / ')}</p>
+                <h3>{post.title}</h3>
+                <p>{post.description}</p>
+              </header>
+
+              <Content />
+            </div>
+          </div>
+        </article>
+      );
+    })}
+  </div>
+
+  <div class="blog-app__copy-toast" data-blog-copy-toast role="status" aria-live="polite">Link Copied</div>
+</section>
+
+<script>
+  import { initBlogApps } from '../../scripts/blog-app.js';
+
+  if (typeof window !== 'undefined') {
+    const setupBlogApp = () => initBlogApps(document);
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupBlogApp, { once: true });
+    } else {
+      setupBlogApp();
+    }
+  }
+</script>
