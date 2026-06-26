@@ -148,6 +148,24 @@ test('Blog.exe window renders the BlogApp and explains internal tabs in help cop
   assert.doesNotMatch(osShellSource, /Phase 5 content pending/);
 });
 
+test('GitHub window renders GitHubApp and explains latest public repositories in help copy', () => {
+  const osShellSource = readFileSync(new URL('../components/os/OsShell.astro', import.meta.url), 'utf8');
+
+  assert.match(osShellSource, /import GitHubApp from '\.\/GitHubApp\.astro';/);
+  assert.match(osShellSource, /window\.id === 'github'[\s\S]*<GitHubApp \/>/);
+  assert.match(osShellSource, /latest public GitHub repositories/);
+  assert.doesNotMatch(osShellSource, /Phase 6 content pending/);
+});
+
+test('GitHub.exe lets GitHubApp fill the whole OS window body', () => {
+  const osCss = readFileSync(new URL('../styles/os.css', import.meta.url), 'utf8');
+  const githubCss = readFileSync(new URL('../styles/github-app.css', import.meta.url), 'utf8');
+
+  assert.match(osCss, /\.os-window--github\s+\.os-window-body\s*\{[\s\S]*padding:\s*0;[\s\S]*overflow:\s*hidden;[\s\S]*place-items:\s*stretch;/);
+  assert.match(osCss, /@media\s*\(max-width:\s*760px\)\s*\{[\s\S]*\.os-window--github\s+\.os-window-body\s*\{[\s\S]*padding:\s*0;[\s\S]*overflow:\s*hidden;[\s\S]*place-items:\s*stretch;/);
+  assert.match(githubCss, /\.github-app\s*\{[\s\S]*width:\s*100%;[\s\S]*height:\s*100%;/);
+});
+
 test('shared OS controls use visible glyphs and keep minimise disabled', () => {
   const osWindowSource = readFileSync(new URL('../components/os/OsWindow.astro', import.meta.url), 'utf8');
   const helpDialogSource = readFileSync(new URL('../components/os/HelpDialog.astro', import.meta.url), 'utf8');

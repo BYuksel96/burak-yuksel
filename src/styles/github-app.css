@@ -1,0 +1,552 @@
+.github-app {
+  --github-pad: clamp(0.72rem, 1.5vw, 1rem);
+  --github-gap: clamp(0.62rem, 1.2vw, 0.9rem);
+  --github-panel: color-mix(in srgb, var(--os-screen-surface-strong) 78%, transparent);
+  --github-panel-soft: color-mix(in srgb, var(--os-screen-surface) 72%, transparent);
+  --github-line: color-mix(in srgb, var(--os-screen-line-strong) 76%, transparent);
+  --github-line-soft: color-mix(in srgb, var(--os-screen-line) 78%, transparent);
+  --github-green: color-mix(in srgb, var(--os-green) 88%, var(--os-text));
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--os-cyan) 10%, transparent), transparent 34%),
+    linear-gradient(315deg, color-mix(in srgb, var(--os-green) 8%, transparent), transparent 38%),
+    color-mix(in srgb, var(--os-screen-surface-strong) 94%, var(--os-screen-bg));
+}
+
+.github-app *,
+.github-app *::before,
+.github-app *::after {
+  box-sizing: border-box;
+}
+
+.github-app [hidden] {
+  display: none !important;
+}
+
+.github-app__header {
+  min-height: 4.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--github-gap);
+  padding: 0.82rem var(--github-pad);
+  border-bottom: 1px solid var(--github-line-soft);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent),
+    color-mix(in srgb, var(--os-monitor-shell) 24%, transparent);
+}
+
+.github-app__heading {
+  min-width: 0;
+  display: grid;
+  gap: 0.15rem;
+}
+
+.github-app__eyebrow,
+.github-app__heading h3,
+.github-app__status-card,
+.github-app__profile p,
+.github-app__panel-title,
+.github-app__panel-count,
+.github-app__state h4,
+.github-app__state p,
+.github-app__repo-card h4,
+.github-app__repo-card p,
+.github-app__meta-list,
+.github-app__meta-list dt,
+.github-app__meta-list dd {
+  margin: 0;
+}
+
+.github-app__eyebrow {
+  color: var(--github-green);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.github-app__heading h3 {
+  color: var(--os-text);
+  font-size: clamp(1.05rem, 2vw, 1.45rem);
+  font-weight: 850;
+  line-height: 1.1;
+}
+
+.github-app__status-card {
+  min-width: min(17rem, 42vw);
+  min-height: 2.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.44rem 0.66rem;
+  border: 1px solid var(--github-line);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.025)),
+    var(--github-panel-soft);
+  color: var(--os-muted);
+  font-size: 0.72rem;
+  font-weight: 780;
+  line-height: 1.2;
+  text-align: right;
+}
+
+.github-app__status-card span:not(.github-app__status-dot) {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.github-app__status-card strong {
+  flex: 0 0 auto;
+  color: var(--os-text);
+  font-size: 0.68rem;
+  font-weight: 860;
+}
+
+.github-app__status-dot {
+  flex: 0 0 auto;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--os-muted);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--os-muted) 12%, transparent);
+}
+
+.github-app[data-github-status='loading'] .github-app__status-dot {
+  background: var(--os-amber);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--os-amber) 16%, transparent);
+}
+
+.github-app[data-github-status='success'] .github-app__status-dot {
+  background: var(--os-green);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--os-green) 16%, transparent);
+}
+
+.github-app[data-github-status='error'] .github-app__status-dot {
+  background: var(--os-red);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--os-red) 16%, transparent);
+}
+
+.github-app__workspace {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(14rem, 0.42fr) minmax(24rem, 1fr);
+  gap: var(--github-gap);
+  padding: var(--github-pad);
+  overflow: hidden;
+}
+
+.github-app__sidebar,
+.github-app__repo-panel {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+  border: 1px solid var(--github-line-soft);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07), transparent 6rem),
+    var(--github-panel);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+.github-app__panel-head {
+  min-height: 2.55rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  padding: 0.62rem 0.72rem;
+  border-bottom: 1px solid var(--github-line-soft);
+}
+
+.github-app__panel-title {
+  color: var(--os-text);
+  font-size: 0.75rem;
+  font-weight: 850;
+}
+
+.github-app__panel-count {
+  color: var(--os-muted);
+  font-size: 0.66rem;
+  font-weight: 760;
+  white-space: nowrap;
+}
+
+.github-app__profile {
+  align-self: start;
+  display: grid;
+  gap: 0.9rem;
+  padding: 0.78rem;
+}
+
+.github-app__profile-mark {
+  width: 4.25rem;
+  height: 4.25rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--github-line);
+  border-radius: 8px;
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--os-cyan) 20%, transparent), rgba(255, 255, 255, 0.04)),
+    var(--github-panel-soft);
+  color: var(--os-text);
+  box-shadow: 0 0.75rem 1.4rem var(--os-shadow);
+}
+
+.github-app__profile-mark svg {
+  width: 58%;
+  height: 58%;
+  fill: currentColor;
+}
+
+.github-app__profile-label {
+  display: block;
+  color: var(--github-green);
+  font-size: 0.66rem;
+  font-weight: 820;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.github-app__profile strong {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--os-text);
+  font-size: 1.1rem;
+  font-weight: 850;
+  line-height: 1.1;
+}
+
+.github-app__profile p {
+  margin-top: 0.45rem;
+  color: var(--os-muted);
+  font-size: 0.76rem;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.github-app__meta-list {
+  align-self: end;
+  display: grid;
+  gap: 0.42rem;
+  padding: 0.78rem;
+  border-top: 1px solid var(--github-line-soft);
+}
+
+.github-app__meta-list div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+  min-width: 0;
+  color: var(--os-muted);
+  font-size: 0.7rem;
+  font-weight: 760;
+}
+
+.github-app__meta-list dd {
+  color: var(--os-text);
+  font-weight: 850;
+}
+
+.github-app__state,
+.github-app__success {
+  min-height: 0;
+}
+
+.github-app__state {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.6rem;
+  padding: 1rem;
+  text-align: center;
+}
+
+.github-app__state h4 {
+  color: var(--os-text);
+  font-size: 1rem;
+  font-weight: 850;
+}
+
+.github-app__state p {
+  max-width: 24rem;
+  color: var(--os-muted);
+  font-size: 0.78rem;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.github-app__loader {
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 3px solid color-mix(in srgb, var(--os-cyan) 18%, transparent);
+  border-top-color: var(--os-cyan);
+  border-radius: 50%;
+  animation: github-loader-spin 0.9s linear infinite;
+}
+
+.github-app__retry,
+.github-app__repo-link {
+  min-height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.42rem;
+  padding: 0.42rem 0.68rem;
+  border: 1px solid var(--github-line);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.035)),
+    var(--github-panel-soft);
+  color: var(--os-text);
+  font: inherit;
+  font-size: 0.74rem;
+  font-weight: 850;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.github-app__retry:hover,
+.github-app__retry:focus-visible,
+.github-app__repo-link:hover,
+.github-app__repo-link:focus-visible {
+  border-color: var(--os-cyan);
+  outline: none;
+}
+
+.github-app__success {
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--github-line) transparent;
+}
+
+.github-app__success::-webkit-scrollbar {
+  width: 0.52rem;
+}
+
+.github-app__success::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: var(--github-line);
+}
+
+.github-app__repo-grid {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: 0.72rem;
+  padding: 0.72rem;
+}
+
+.github-app__repo-card {
+  min-width: 0;
+  min-height: 13.2rem;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  gap: 0.8rem;
+  padding: 0.84rem;
+  border: 1px solid var(--github-line-soft);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.075), transparent 7rem),
+    var(--github-panel-soft);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.github-app__repo-main {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: 0.42rem;
+}
+
+.github-app__repo-card h4 {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--os-text);
+  font-size: 0.98rem;
+  font-weight: 850;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.github-app__repo-card p {
+  color: var(--os-muted);
+  font-size: 0.76rem;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.github-app__repo-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.42rem 0.58rem;
+  color: var(--os-muted);
+  font-size: 0.68rem;
+  font-weight: 760;
+  line-height: 1.2;
+}
+
+.github-app__repo-meta span {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.github-app__repo-meta svg {
+  width: 0.82rem;
+  height: 0.82rem;
+  fill: none;
+  stroke: var(--os-amber);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.github-app__language-dot {
+  width: 0.54rem;
+  height: 0.54rem;
+  border-radius: 50%;
+  background: var(--os-cyan);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--os-cyan) 13%, transparent);
+}
+
+.github-app__repo-link {
+  justify-self: start;
+  color: var(--github-green);
+}
+
+@keyframes github-loader-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .github-app__loader {
+    animation: none;
+  }
+}
+
+@media (max-width: 980px) {
+  .github-app__workspace {
+    grid-template-columns: minmax(13rem, 0.34fr) minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .github-app {
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .github-app__header {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.62rem;
+    padding: 0.72rem var(--github-pad);
+  }
+
+  .github-app__status-card {
+    width: 100%;
+    min-width: 0;
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  .github-app__workspace {
+    grid-template-columns: 1fr;
+    grid-auto-rows: max-content;
+    align-content: start;
+    gap: 0.58rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--github-line) transparent;
+  }
+
+  .github-app__sidebar {
+    min-height: auto;
+    grid-template-rows: auto;
+    overflow: visible;
+  }
+
+  .github-app__profile {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 0.62rem;
+    padding: 0.62rem;
+  }
+
+  .github-app__meta-list {
+    align-self: stretch;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.42rem;
+    padding: 0.62rem;
+  }
+
+  .github-app__meta-list div {
+    display: grid;
+    align-items: start;
+    justify-content: start;
+    gap: 0.16rem;
+    padding: 0.48rem;
+    border: 1px solid var(--github-line-soft);
+    border-radius: 7px;
+    background: color-mix(in srgb, var(--github-panel-soft) 82%, transparent);
+  }
+
+  .github-app__meta-list dd {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .github-app__repo-panel {
+    min-height: min(22rem, 70vh);
+  }
+
+  .github-app__repo-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .github-app__repo-card {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 420px) {
+  .github-app__profile {
+    grid-template-columns: 1fr;
+  }
+
+  .github-app__profile-mark {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+
+  .github-app__meta-list {
+    grid-template-columns: 1fr;
+  }
+
+  .github-app__repo-grid {
+    padding: 0.58rem;
+  }
+}

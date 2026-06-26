@@ -1,6 +1,7 @@
 ---
 import DesktopIcon from './DesktopIcon.astro';
 import BlogApp from './BlogApp.astro';
+import GitHubApp from './GitHubApp.astro';
 import HelpDialog from './HelpDialog.astro';
 import LoadingScreen from './LoadingScreen.astro';
 import MonitorFrame from './MonitorFrame.astro';
@@ -47,8 +48,9 @@ const windows = [
     title: 'GitHub',
     kind: 'main',
     label: 'Application shell',
-    message: 'Phase 6 content pending.',
-    helpText: 'GitHub is a placeholder app shell for Phase 3 window behaviour.',
+    message: 'GitHub repositories loaded.',
+    helpText:
+      "GitHub displays Burak's latest public GitHub repositories. Repository links open GitHub in a new browser tab.",
   },
   {
     id: 'downloads',
@@ -117,6 +119,8 @@ const windows = [
                   <ResumeApp />
                 ) : window.id === 'blog' ? (
                   <BlogApp />
+                ) : window.id === 'github' ? (
+                  <GitHubApp />
                 ) : (
                   <div class="os-placeholder-panel">
                     <p class="os-placeholder-label">{window.label}</p>

@@ -737,6 +737,12 @@
   overflow: hidden;
 }
 
+.os-window--github .os-window-body {
+  padding: 0;
+  overflow: hidden;
+  place-items: stretch;
+}
+
 .os-placeholder-panel {
   width: min(24rem, 100%);
   min-height: 12rem;
@@ -1184,6 +1190,12 @@
 
   .os-window--blog .os-window-body {
     padding: 0;
+  }
+
+  .os-window--github .os-window-body {
+    padding: 0;
+    overflow: hidden;
+    place-items: stretch;
   }
 
   .os-placeholder-panel {

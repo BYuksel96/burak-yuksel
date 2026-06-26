@@ -1,11 +1,13 @@
 # BRAIN.md
 
 ## Purpose
+
 This is the operational memory for the personal website revamp. Read this file first before working in the repo, then inspect only the files relevant to the task.
 
 Keep it compact and update it when there is a meaningful decision, implementation milestone, verification result, blocker, or handoff note. Prefer facts and links to source files over long narrative.
 
 ## Current Snapshot
+
 - Project: Burak Yuksel personal/professional website.
 - Stack: Astro 5 static site, Markdown blog content, JSON resume timeline, CSS, page-local browser JavaScript.
 - Hosting: GitHub Pages with custom domain `burakyuksel.dev`.
@@ -14,6 +16,7 @@ Keep it compact and update it when there is a meaningful decision, implementatio
 - Latest verified build at brain creation: `npm run build` succeeds and generates 5 static pages.
 
 ## Project Shape
+
 - `src/pages/index.astro`: landing hub with animated name intro and circular links to Resume, Blog, and GitHub.
 - `src/pages/resume.astro`: resume/CV timeline page backed by `src/content/timeline.json`, with GSAP timeline animation, modal details, floating desktop links, and mobile nav.
 - `src/pages/blog/index.astro`: blog list grouped by year, renders Markdown content into modal previews, supports copy/LinkedIn sharing.
@@ -27,6 +30,7 @@ Keep it compact and update it when there is a meaningful decision, implementatio
 - `.github/workflows/deploy.yaml`: builds and deploys GitHub Pages from pushes to `main`, plus manual dispatch.
 
 ## Current UX
+
 - Home is a minimal animated hub rather than a conventional portfolio homepage.
 - Resume is the richest page: animated vertical timeline, circular image cards, modal expansion, fixed footer, and responsive/mobile nav.
 - Blog index works as both an archive and reader: clicking a post opens a modal while each post also has a static route.
@@ -35,6 +39,7 @@ Keep it compact and update it when there is a meaningful decision, implementatio
 - Visual style is currently monochrome grey, circular/flip interactions, glowing cards, and page-level animations.
 
 ## Tech & Commands
+
 - Package manager: npm with `package-lock.json`.
 - Main scripts:
   - `npm run dev`: start Astro dev server.
@@ -47,6 +52,7 @@ Keep it compact and update it when there is a meaningful decision, implementatio
 - `dist/` exists locally but is not tracked by git.
 
 ## Known Decisions
+
 - Keep the site fully static: no backend, database, auth, or runtime server.
 - Blog content lives in Markdown under `src/content/blog` and is validated by Astro content collections.
 - Resume timeline content lives in `src/content/timeline.json`.
@@ -59,188 +65,189 @@ Source: User revamp brief provided on 2026-06-11. The `Next Work Queue` phases b
 
 ### End State
 
-* Convert the website into a one-page responsive “Burak OS” portfolio web app.
-* Preserve the existing core content and destinations:
+- Convert the website into a one-page responsive “Burak OS” portfolio web app.
+- Preserve the existing core content and destinations:
+  - Resume timeline
+  - Blog archive and posts
+  - GitHub profile/repositories
+  - LinkedIn link
+  - Downloadable CV
 
-  * Resume timeline
-  * Blog archive and posts
-  * GitHub profile/repositories
-  * LinkedIn link
-  * Downloadable CV
-* Keep the site static: no backend, database, auth, or runtime server.
-* Everything should open inside the created OS/monitor interface except external links, which open in the real browser.
+- Keep the site static: no backend, database, auth, or runtime server.
+- Everything should open inside the created OS/monitor interface except external links, which open in the real browser.
 
 ### Visual Concept
 
-* The website should load directly into a monitor/OS-style interface.
-* Style direction: clean, smart, minimal Linux-inspired OS.
-* Must be responsive across desktop, laptop, tablet, mobile, and smaller screens.
-* Support light/dark mode using user system preference.
-* If no user preference is detected, default to dark mode.
-* Dark theme base/background should retain the current grey tone: `#5f6368`.
+- The website should load directly into a monitor/OS-style interface.
+- Style direction: clean, smart, minimal Linux-inspired OS.
+- Must be responsive across desktop, laptop, tablet, mobile, and smaller screens.
+- Support light/dark mode using user system preference.
+- If no user preference is detected, default to dark mode.
+- Dark theme base/background should retain the current grey tone: `#5f6368`.
 
 ### Initial Load
 
-* On page load, show the monitor/OS screen.
-* Centre text: `Burak OS Loading...`
-* Animate the dots sequentially like a loading screen.
-* After around 2–3 seconds, reveal the main OS desktop.
+- On page load, show the monitor/OS screen.
+- Centre text: `Burak OS Loading...`
+- Animate the dots sequentially like a loading screen.
+- After around 2–3 seconds, reveal the main OS desktop.
 
 ### OS Desktop
 
-* Desktop icons should appear near the top-left, responsive as screen size changes:
+- Desktop icons should appear near the top-left, responsive as screen size changes:
+  - `Resume.exe`
+  - `Blog.exe`
+  - `GitHub`
+  - `Bin`
 
-  * `Resume.exe`
-  * `Blog.exe`
-  * `GitHub`
-  * `Bin`
-* A rounded taskbar should sit bottom-centre with a small gap between it and the bottom of the monitor.
-* Taskbar order:
+- A rounded taskbar should sit bottom-centre with a small gap between it and the bottom of the monitor.
+- Taskbar order:
+  - Resume app
+  - Blog app
+  - GitHub app
+  - separator `|`
+  - Downloads folder
+  - Bin
 
-  * Resume app
-  * Blog app
-  * GitHub app
-  * separator `|`
-  * Downloads folder
-  * Bin
-* GitHub icon should use the standard GitHub logo.
-* Other icons can be custom-designed but should match the OS style.
+- GitHub icon should use the standard GitHub logo.
+- Other icons can be custom-designed but should match the OS style.
 
 ### Icon Interaction
 
-* Taskbar icons open with one click.
-* Desktop icons open with one click.
-* Main apps open inside the monitor/OS, not through normal page navigation.
-* External links such as LinkedIn and GitHub repo links open in a new real browser tab.
+- Taskbar icons open with one click.
+- Desktop icons open with one click.
+- Main apps open inside the monitor/OS, not through normal page navigation.
+- External links such as LinkedIn and GitHub repo links open in a new real browser tab.
 
 ### Main App Window Behaviour
 
 Applies to:
 
-* `Resume.exe`
-* `Blog.exe`
-* `GitHub`
+- `Resume.exe`
+- `Blog.exe`
+- `GitHub`
 
 Behaviour:
 
-* Open as fullscreen apps inside the OS/monitor.
-* Keep the taskbar visible, but shrink it by around 50% while a main app is open.
-* Highlight the active app in the taskbar.
-* Opening another main app closes the current main app and opens the selected one.
-* Closing the active app returns the user to the OS desktop.
-* If no main app is open, taskbar returns to original size.
+- Open as fullscreen apps inside the OS/monitor.
+- Keep the taskbar visible, but shrink it by around 50% while a main app is open.
+- Highlight the active app in the taskbar.
+- Opening another main app closes the current main app and opens the selected one.
+- Closing the active app returns the user to the OS desktop.
+- If no main app is open, taskbar returns to original size.
 
 ### App Top Bar
 
 Each app/folder should have a top bar with:
 
-* Close button in the top-left.
-* Disabled/greyed-out minimise button.
-* `?` help button.
-* App/folder title centred in the top bar.
-* A divider/bar below the title area.
+- Close button in the top-left.
+- Disabled/greyed-out minimise button.
+- `?` help button.
+- App/folder title centred in the top bar.
+- A divider/bar below the title area.
 
 Close button:
 
-* Highlights red on hover.
-* On touch/mobile devices, show red by default because hover is not available.
+- Highlights red on hover.
+- On touch/mobile devices, show red by default because hover is not available.
 
 Help button:
 
-* Opens a small centred dialog.
-* Dialog slightly fades/dims the rest of the monitor.
-* Dialog closes by clicking outside it or pressing its small `x` button.
+- Opens a small centred dialog.
+- Dialog slightly fades/dims the rest of the monitor.
+- Dialog closes by clicking outside it or pressing its small `x` button.
 
 ### Resume.exe
 
-* Preserve current resume/timeline content from `src/content/timeline.json`.
-* Redesign the resume timeline to feel more polished, interactive, clean, and OS-themed.
-* Keep the timeline concept but improve the look, feel, and usability.
-* Include a LinkedIn link somewhere appropriate.
-* LinkedIn should open in a new real browser tab.
-* Help dialog should explain that Resume.exe is an interactive timeline of Burak’s professional history, experience, and achievements.
+- Preserve current resume/timeline content from `src/content/timeline.json`.
+- Redesign the resume timeline to feel more polished, interactive, clean, and OS-themed.
+- Keep the timeline concept but improve the look, feel, and usability.
+- Include a LinkedIn link somewhere appropriate.
+- LinkedIn should open in a new real browser tab.
+- Help dialog should explain that Resume.exe is an interactive timeline of Burak’s professional history, experience, and achievements.
 
 ### Blog.exe
 
-* Keep the current blog content structure and general layout:
+- Keep the current blog content structure and general layout:
+  - grouped by year
+  - months nested under years
+  - latest posts first
 
-  * grouped by year
-  * months nested under years
-  * latest posts first
-* Present Blog.exe as an internal browser-style app.
-* First tab is the main blog archive/list.
-* Clicking a blog post opens it in a new internal browser tab.
-* The original blog list tab remains open on the left.
-* New blog post tab has an `x` close button on the right side of the tab.
-* Inside the post content area, keep:
+- Present Blog.exe as an internal browser-style app.
+- First tab is the main blog archive/list.
+- Clicking a blog post opens it in a new internal browser tab.
+- The original blog list tab remains open on the left.
+- New blog post tab has an `x` close button on the right side of the tab.
+- Inside the post content area, keep:
+  - `BACK TO BLOG`
+  - `SHARE`
 
-  * `BACK TO BLOG`
-  * `SHARE`
-* `BACK TO BLOG` closes the current post tab and returns to the main blog list tab.
-* `SHARE` should continue to work as before.
-* Help dialog should explain that Blog.exe contains Burak’s blog posts and opens posts as tabs inside the app.
+- `BACK TO BLOG` closes the current post tab and returns to the main blog list tab.
+- `SHARE` should continue to work as before.
+- Help dialog should explain that Blog.exe contains Burak’s blog posts and opens posts as tabs inside the app.
 
 ### GitHub App
 
-* Do not use an iframe for `github.com`.
-* Fetch public repositories without GitHub login or token.
-* Use:
+- Do not use an iframe for `github.com`.
+- Fetch public repositories without GitHub login or token.
+- Use:
   `https://api.github.com/users/beyuksel96/repos?sort=updated&per_page=6`
-* Do not expose API keys or tokens in frontend code.
-* Include loading and error states.
-* Show each repo with:
+- Do not expose API keys or tokens in frontend code.
+- Include loading and error states.
+- Show each repo with:
+  - repo name
+  - description
+  - primary language
+  - stars
+  - last updated date
+  - button/link to open the repo on GitHub in a new real browser tab
 
-  * repo name
-  * description
-  * primary language
-  * stars
-  * last updated date
-  * button/link to open the repo on GitHub in a new real browser tab
-* Help dialog should explain that the app displays Burak’s latest public GitHub repositories.
+- Help dialog should explain that the app displays Burak’s latest public GitHub repositories.
 
 ### Bin
 
-* Opens as a folder window, not fullscreen.
-* Loads centre/centre inside the OS/monitor.
-* Should be approximately half the available height between the top of the OS screen and the taskbar.
-* Can be moveable if reasonable to implement; otherwise static is acceptable.
-* Taskbar does not shrink when Bin is opened.
-* Empty for now, but structure should allow future easter eggs to be added.
-* Include the same top-bar controls and help dialog.
-* Help dialog should explain that Bin is currently empty but may contain easter eggs later.
+- Opens as a folder window, not fullscreen.
+- Loads centre/centre inside the OS/monitor.
+- Should be approximately half the available height between the top of the OS screen and the taskbar.
+- Can be moveable if reasonable to implement; otherwise static is acceptable.
+- Taskbar does not shrink when Bin is opened.
+- Empty for now, but structure should allow future easter eggs to be added.
+- Include the same top-bar controls and help dialog.
+- Help dialog should explain that Bin is currently empty but may contain easter eggs later.
 
 ### Downloads
 
-* Opens as a folder window, same behaviour as Bin.
-* Taskbar does not shrink when Downloads is opened.
-* Contains downloadable resume/CV file, e.g. `resume.pdf`.
-* Clicking the file downloads it to the user’s device.
-* Include helper text such as: `Click on file to download`.
-* Help dialog should explain that Downloads contains files the user can download, currently the resume/CV.
+- Opens as a folder window, same behaviour as Bin.
+- Taskbar does not shrink when Downloads is opened.
+- Contains downloadable resume/CV file, e.g. `resume.pdf`.
+- Clicking the file downloads it to the user’s device.
+- Include helper text such as: `Click on file to download`.
+- Help dialog should explain that Downloads contains files the user can download, currently the resume/CV.
 
 ### Implementation Guardrails
 
-* Preserve existing content where possible.
-* Prefer reusable components for:
+- Preserve existing content where possible.
+- Prefer reusable components for:
+  - OS shell
+  - monitor frame
+  - loading screen
+  - desktop icons
+  - taskbar
+  - app windows
+  - folder windows
+  - help dialogs
+  - resume timeline
+  - blog browser/tabs
+  - GitHub repo cards
 
-  * OS shell
-  * monitor frame
-  * loading screen
-  * desktop icons
-  * taskbar
-  * app windows
-  * folder windows
-  * help dialogs
-  * resume timeline
-  * blog browser/tabs
-  * GitHub repo cards
-* Avoid large duplicated page-local scripts where practical.
-* Be careful with current dirty file: `public/Resume-BURAK-YUKSEL.pdf`.
-* Run `npm run build` before marking a phase complete.
-* No lint script currently exists unless one is added during the revamp.
-* Update this `BRAIN.md` after each meaningful milestone, blocker, verification result, or handoff note.
+- Avoid large duplicated page-local scripts where practical.
+- Be careful with current dirty file: `public/Resume-BURAK-YUKSEL.pdf`.
+- Run `npm run build` before marking a phase complete.
+- No lint script currently exists unless one is added during the revamp.
+- Update this `BRAIN.md` after each meaningful milestone, blocker, verification result, or handoff note.
 
 ## Risks / Cleanup Candidates
+
 - README appears stale in places: it mentions `src/components` and GSAP as stack/dependency context, but no `src/components` directory exists and GSAP is CDN-loaded.
 - Some text output/content shows mojibake/encoding artifacts in README and timeline strings; preserve intent carefully if editing copy.
 - Inline navigation, share UI, icons, and modal logic are repeated across resume/blog pages and could benefit from component extraction during the revamp.
@@ -419,7 +426,30 @@ Help button:
 - Eighth correction verification: added a focused BlogApp markup guard for both Copy Link actions and verified the red/green cycle. `node --test src/scripts/blog-app.test.mjs` passed with 24 tests and `npm run build` passed with 5 pages generated. `package.json` still has no lint script. No new dependency, Phase 6+ behavior, legacy route cleanup, or `public/Resume-BURAK-YUKSEL.pdf` change was added.
 - Handoff notes: Phase 6 should start GitHub app only. Keep existing blog routes available until Phase 8 route cleanup decisions are explicitly made.
 
+### Phase 6: GitHub app
+
+- Status: implemented on 2026-06-26 on branch `feature/portfolio_revamp`.
+- Files changed:
+  - `src/components/os/OsShell.astro`
+  - `src/components/os/GitHubApp.astro`
+  - `src/scripts/github-app.js`
+  - `src/scripts/github-app.test.mjs`
+  - `src/scripts/os-window-manager.test.mjs`
+  - `src/styles/github-app.css`
+  - `BRAIN.md`
+- Endpoint correction: the original master-plan endpoint used `beyuksel96`, which returned GitHub API `404 Not Found` during live verification. Existing site links use `BYuksel96`, and `https://api.github.com/users/BYuksel96/repos?sort=updated&per_page=6` returned public repository data, so Phase 6 uses the working `BYuksel96` endpoint.
+- Architecture decision: GitHub remains an exclusive fullscreen main app controlled by the existing OS window manager. `GitHubApp.astro` replaces only the GitHub placeholder content, while `src/scripts/github-app.js` owns public API fetching, repo normalization, loading/error/empty/success rendering, and retry behavior.
+- Fetch/state decision: the app fetches on first GitHub window open by observing the existing OS window open state. It does not fetch on page load, does not use tokens/auth headers, does not iframe GitHub, and does not persist data in localStorage or sessionStorage.
+- UI decision: GitHub.exe uses an OS repo explorer layout with a connection/sidebar panel and responsive repository cards showing repo name, description fallback, language fallback, star count, default-branch commit count, last updated date, and an external GitHub link opening in a real browser tab.
+- Commit-count decision: after the repo list loads, the browser makes one unauthenticated commits request per repo using the repo `full_name` and `default_branch`, with `per_page=1`. The app reads GitHub's `Link` header `rel="last"` page number as the default-branch commit count. If a commit-count request fails or is rate-limited, that repo still renders with `Commits unavailable`.
+- Phase boundary: no Downloads/Bin work, download behavior, route cleanup, language/shutdown behavior, folder dragging, backend behavior, new dependency, or `public/Resume-BURAK-YUKSEL.pdf` change was added.
+- Verification: focused red/green tests were added for GitHub helpers, commit-count pagination parsing, commit-count fallback, state transitions, markup, responsive CSS, and OS shell wiring. `node --test src/scripts/github-app.test.mjs` passed with 8 tests, `node --test src/scripts/os-window-manager.test.mjs` passed with 14 tests, `node --test src/scripts/blog-app.test.mjs` passed with 24 tests, `node --test src/scripts/resume-app.test.mjs` passed with 5 tests, and `npm run build` passed with 5 pages generated. Localhost returned HTTP 200 and generated output contained the GitHub app with commit-count rendering. Live GitHub commit endpoint verification for `BYuksel96/PureOrigins` returned HTTP 200 with `rel="last"` page 36. Browser plugin, Playwright, Puppeteer, and local Chromium were unavailable, so screenshot/DOM rendered QA was not run.
+- Handoff notes: Phase 7 should start Downloads and Bin only. Keep GitHub endpoint as `BYuksel96` unless the public profile changes.
+
 ## Running Log
+
+- 2026-06-26: Phase 6 GitHub app commit-count enhancement completed. GitHub.exe repo cards now show default-branch commit counts by reading the commits API pagination `Link` header, with per-repo fallback to `Commits unavailable` if GitHub blocks a count request. `node --test src/scripts/github-app.test.mjs` passed with 8 tests, OS/Blog/Resume focused tests passed, `npm run build` passed, localhost returned HTTP 200, generated output contained `data-github-repo-commits`, and live `BYuksel96/PureOrigins` commit endpoint returned `rel="last"` page 36. No Phase 7+ work, new dependency, route cleanup, or PDF change was added.
+- 2026-06-26: Phase 6 GitHub app completed. Added GitHub.exe repo explorer with first-open public API fetch, loading/error/empty/success states, retry, responsive repo cards, external repo links, and updated help copy. Corrected the master-plan GitHub API username from non-working `beyuksel96` to existing site profile `BYuksel96` after live API verification. `node --test src/scripts/github-app.test.mjs`, `node --test src/scripts/os-window-manager.test.mjs`, `node --test src/scripts/blog-app.test.mjs`, `node --test src/scripts/resume-app.test.mjs`, and `npm run build` passed. Localhost and generated-output checks passed; screenshot/DOM rendered QA was blocked because Browser plugin, Playwright, Puppeteer, and local Chromium were unavailable. No Phase 7+ work, new dependency, route cleanup, or PDF change was added.
 - 2026-06-15: Phase 5 Blog.exe Copy Link icon polish completed. Added an aria-hidden chain icon to both Copy Link share-menu actions and split share-menu icon styling into copy/linkedin modifiers. The focused BlogApp test failed before the markup change, then `node --test src/scripts/blog-app.test.mjs` passed with 24 tests and `npm run build` passed. No lint script exists; no Phase 6+ work, new dependency, legacy route cleanup, or `public/Resume-BURAK-YUKSEL.pdf` change was added.
 - 2026-06-14: Phase 5 Blog.exe top Share menu alignment correction completed. In the 421px-760px band, the header Share menu now positions from the full action group so its left edge lines up with Back to Posts instead of clipping off the article's left side. `node --test src/scripts/blog-app.test.mjs` passed with 23 tests, `node --test src/scripts/os-window-manager.test.mjs` passed with 13 tests, `node --test src/scripts/resume-app.test.mjs` passed with 5 tests, and `npm run build` passed. Edge headless CDP rendered QA measured 630px, 422px, 757px, and 420px top Share placement, route smoke checks, PDF unchanged status, and horizontal overflow. No lint script exists; no Phase 6+ work, Playwright dependency, legacy route cleanup, or `public/Resume-BURAK-YUKSEL.pdf` change was added.
 - 2026-06-14: Phase 5 Blog.exe mid-width header-actions correction completed. Fixed the 421px-760px responsive band where the article header made Back to Posts and Share stretch to opposite sides; the action group now shrink-wraps on mid-width mobile/tablet while <=420px keeps the full-width adjacent button layout. `node --test src/scripts/blog-app.test.mjs` passed with 23 tests, `node --test src/scripts/os-window-manager.test.mjs` passed with 13 tests, `node --test src/scripts/resume-app.test.mjs` passed with 5 tests, and `npm run build` passed. Edge headless CDP rendered QA measured 420px, 422px, 757px, and 761px controls, route smoke checks, and horizontal overflow. No lint script exists; no Phase 6+ work, Playwright dependency, legacy route cleanup, or `public/Resume-BURAK-YUKSEL.pdf` change was added.
@@ -455,89 +485,89 @@ These phases come from `Revamp Master Plan / Source of Truth` - Review this sect
 
 ### Phase 1: Archive and foundation
 
-* Archive/backup the current site implementation so the previous design can be restored later.
-* Inspect current repo structure and identify files that will be reused.
-* Create the initial one-page OS shell skeleton.
-* Decide component/file structure for the revamp.
-* Update `BRAIN.md` with archive location, structure decisions, and verification notes.
-* Run `npm run build`.
+- Archive/backup the current site implementation so the previous design can be restored later.
+- Inspect current repo structure and identify files that will be reused.
+- Create the initial one-page OS shell skeleton.
+- Decide component/file structure for the revamp.
+- Update `BRAIN.md` with archive location, structure decisions, and verification notes.
+- Run `npm run build`.
 
 ### Phase 2: OS desktop and responsive shell
 
-* Build loading screen with `Burak OS Loading...` animated dots.
-* Build monitor/OS desktop layout.
-* Add desktop icons.
-* Add bottom-centre rounded taskbar.
-* Add light/dark theme handling, defaulting to dark if no preference.
-* Make shell responsive across desktop, tablet, mobile, and small screens.
-* Update `BRAIN.md`.
-* Run `npm run build`.
+- Build loading screen with `Burak OS Loading...` animated dots.
+- Build monitor/OS desktop layout.
+- Add desktop icons.
+- Add bottom-centre rounded taskbar.
+- Add light/dark theme handling, defaulting to dark if no preference.
+- Make shell responsive across desktop, tablet, mobile, and small screens.
+- Update `BRAIN.md`.
+- Run `npm run build`.
 
 ### Phase 3: Window/app system
 
-* Implement fullscreen app window behaviour for Resume, Blog, and GitHub.
-* Implement folder window behaviour for Downloads and Bin.
-* Add top-bar controls: close, disabled minimise, and help.
-* Add help dialog pattern with backdrop close and x close.
-* Add active taskbar highlighting.
-* Add taskbar shrink behaviour only for main apps.
-* Ensure opening one main app closes another.
-* Update `BRAIN.md`.
-* Run `npm run build`.
+- Implement fullscreen app window behaviour for Resume, Blog, and GitHub.
+- Implement folder window behaviour for Downloads and Bin.
+- Add top-bar controls: close, disabled minimise, and help.
+- Add help dialog pattern with backdrop close and x close.
+- Add active taskbar highlighting.
+- Add taskbar shrink behaviour only for main apps.
+- Ensure opening one main app closes another.
+- Update `BRAIN.md`.
+- Run `npm run build`.
 
 ### Phase 4: Resume.exe
 
-* Move existing resume timeline content into the new OS app experience.
-* Redesign timeline UI/UX.
-* Preserve existing timeline data and meaning.
-* Add LinkedIn link opening in a new browser tab.
-* Add Resume.exe help dialog copy.
-* Update `BRAIN.md`.
-* Run `npm run build`.
+- Move existing resume timeline content into the new OS app experience.
+- Redesign timeline UI/UX.
+- Preserve existing timeline data and meaning.
+- Add LinkedIn link opening in a new browser tab.
+- Add Resume.exe help dialog copy.
+- Update `BRAIN.md`.
+- Run `npm run build`.
 
 ### Phase 5: Blog.exe
 
-* Move existing blog archive/list into browser-style app.
-* Preserve year/month/latest-first grouping.
-* Implement internal blog tabs.
-* Opening a post creates a new internal tab.
-* Add close tab behaviour.
-* Keep `BACK TO BLOG` and `SHARE` behaviours.
-* Add Blog.exe help dialog copy.
-* Update `BRAIN.md`.
-* Run `npm run build`.
+- Move existing blog archive/list into browser-style app.
+- Preserve year/month/latest-first grouping.
+- Implement internal blog tabs.
+- Opening a post creates a new internal tab.
+- Add close tab behaviour.
+- Keep `BACK TO BLOG` and `SHARE` behaviours.
+- Add Blog.exe help dialog copy.
+- Update `BRAIN.md`.
+- Run `npm run build`.
 
 ### Phase 6: GitHub app
 
-* Fetch public repos from GitHub API without auth/token.
-* Add loading and error states.
-* Display repo cards with name, description, language, stars, updated date, and external GitHub link.
-* Add GitHub app help dialog copy.
-* Update `BRAIN.md`.
-* Run `npm run build`.
+- Fetch public repos from GitHub API without auth/token.
+- Add loading and error states.
+- Display repo cards with name, description, language, stars, updated date, and external GitHub link.
+- Add GitHub app help dialog copy.
+- Update `BRAIN.md`.
+- Run `npm run build`.
 
 ### Phase 7: Downloads and Bin
 
-* Implement Bin folder window, empty for now but ready for future easter eggs.
-* Implement Downloads folder window.
-* Add downloadable resume/CV file.
-* Add helper text telling users to click the file to download.
-* Add folder help dialogs.
-* Confirm taskbar does not shrink for folders.
-* Update `BRAIN.md`.
-* Run `npm run build`.
+- Implement Bin folder window, empty for now but ready for future easter eggs.
+- Implement Downloads folder window.
+- Add downloadable resume/CV file.
+- Add helper text telling users to click the file to download.
+- Add folder help dialogs.
+- Confirm taskbar does not shrink for folders.
+- Update `BRAIN.md`.
+- Run `npm run build`.
 
 ### Phase 8: Polish, accessibility, and final verification
 
-* Improve responsive behaviour and mobile/touch UX.
-* Check keyboard/focus/accessibility basics.
-* Check reduced-motion handling where practical.
-* Remove dead code from old page flows where safe.
-* Verify external links open correctly.
-* Verify downloadable CV works.
-* Verify static build output.
-* Update README if needed.
-* Update `BRAIN.md` with final handoff notes.
-* Run final `npm run build`.
+- Improve responsive behaviour and mobile/touch UX.
+- Check keyboard/focus/accessibility basics.
+- Check reduced-motion handling where practical.
+- Remove dead code from old page flows where safe.
+- Verify external links open correctly.
+- Verify downloadable CV works.
+- Verify static build output.
+- Update README if needed.
+- Update `BRAIN.md` with final handoff notes.
+- Run final `npm run build`.
 
 NOTE: Codex must not attempt the full revamp in one pass. It should work in phases, update this file after each phase, and run build/lint checks before marking a phase complete. If no lint script exists, record that clearly rather than inventing one.
