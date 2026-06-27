@@ -1,0 +1,93 @@
+---
+import '../../styles/maze-game.css';
+---
+
+<section class="maze-game" data-maze-game aria-label="Maze.exe 8-bit maze game">
+  <div class="maze-game__hud" aria-label="Maze game status">
+    <div>
+      <span>Level</span>
+      <strong data-maze-level>1</strong>
+    </div>
+    <div>
+      <span>Score</span>
+      <strong data-maze-score>0</strong>
+    </div>
+    <div>
+      <span>High</span>
+      <strong data-maze-high-score>0</strong>
+    </div>
+  </div>
+
+  <div class="maze-game__stage">
+    <canvas class="maze-game__canvas" data-maze-canvas aria-label="Maze playfield"></canvas>
+
+    <div class="maze-game__overlay maze-game__overlay--start" data-maze-start-screen>
+      <p class="maze-game__eyebrow">Recycle Bin file recovered</p>
+      <h3>Maze.exe</h3>
+      <p>Find the exterior exit, collect optional score blocks, and survive the later levels.</p>
+      <button class="maze-game__button maze-game__button--primary" type="button" data-maze-play>Play</button>
+    </div>
+
+    <div class="maze-game__overlay maze-game__overlay--countdown" data-maze-countdown aria-hidden="true" hidden>
+      <span data-maze-countdown-value>3</span>
+    </div>
+
+    <div class="maze-game__overlay maze-game__overlay--paused" data-maze-paused aria-hidden="true" hidden>
+      <h3>Paused</h3>
+      <p>Maze.exe is waiting for the active window to return.</p>
+    </div>
+
+    <div class="maze-game__overlay maze-game__overlay--game-over" data-maze-game-over aria-hidden="true" hidden>
+      <p class="maze-game__eyebrow">Run ended</p>
+      <h3>Game Over</h3>
+      <dl class="maze-game__summary">
+        <div>
+          <dt>Final score</dt>
+          <dd data-maze-final-score>0</dd>
+        </div>
+        <div>
+          <dt>Highest level</dt>
+          <dd data-maze-highest-level>1</dd>
+        </div>
+        <div>
+          <dt>High score</dt>
+          <dd data-maze-game-over-high-score>0</dd>
+        </div>
+      </dl>
+      <p class="maze-game__new-high" data-maze-new-high-score aria-live="polite"></p>
+      <div class="maze-game__actions">
+        <button class="maze-game__button maze-game__button--primary" type="button" data-maze-restart>Play again</button>
+        <button class="maze-game__button" type="button" data-os-game-exit>Exit to Bin</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="maze-game__controls" aria-label="Maze touch controls">
+    <button type="button" data-maze-direction="north" aria-label="Move up">
+      <span aria-hidden="true">^</span>
+    </button>
+    <button type="button" data-maze-direction="west" aria-label="Move left">
+      <span aria-hidden="true">&lt;</span>
+    </button>
+    <button type="button" data-maze-direction="south" aria-label="Move down">
+      <span aria-hidden="true">v</span>
+    </button>
+    <button type="button" data-maze-direction="east" aria-label="Move right">
+      <span aria-hidden="true">&gt;</span>
+    </button>
+  </div>
+</section>
+
+<script>
+  import { initMazeGames } from '../../scripts/maze-game.js';
+
+  if (typeof window !== 'undefined') {
+    const setupMazeGame = () => initMazeGames(document);
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupMazeGame, { once: true });
+    } else {
+      setupMazeGame();
+    }
+  }
+</script>

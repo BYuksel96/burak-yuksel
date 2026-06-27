@@ -1,9 +1,13 @@
 ---
 import DesktopIcon from './DesktopIcon.astro';
+import BinFolder from './BinFolder.astro';
 import BlogApp from './BlogApp.astro';
+import DownloadConfirmDialog from './DownloadConfirmDialog.astro';
+import DownloadsFolder from './DownloadsFolder.astro';
 import GitHubApp from './GitHubApp.astro';
 import HelpDialog from './HelpDialog.astro';
 import LoadingScreen from './LoadingScreen.astro';
+import MazeGame from './MazeGame.astro';
 import MonitorFrame from './MonitorFrame.astro';
 import OsWindow from './OsWindow.astro';
 import ResumeApp from './ResumeApp.astro';
@@ -57,16 +61,25 @@ const windows = [
     title: 'Downloads',
     kind: 'folder',
     label: 'Folder shell',
-    message: 'Empty for Phase 3.',
-    helpText: 'Downloads is an empty placeholder folder shell for Phase 3.',
+    message: 'Resume file ready.',
+    helpText: "Downloads contains downloadable files. It currently includes Burak's resume/CV.",
   },
   {
     id: 'bin',
     title: 'Bin',
     kind: 'folder',
     label: 'Folder shell',
-    message: 'Empty for Phase 3.',
-    helpText: 'Bin is an empty placeholder folder shell for Phase 3.',
+    message: 'Easter egg files ready.',
+    helpText: 'Bin contains hidden Burak OS easter eggs. Maze.exe runs entirely in the browser and can save a local high score.',
+  },
+  {
+    id: 'maze',
+    title: 'Maze.exe',
+    kind: 'game',
+    label: 'Game shell',
+    message: 'Maze game loaded.',
+    helpText:
+      'Maze.exe is a black-and-white 8-bit maze game. Use Arrow keys or WASD on desktop, or the on-screen direction pad on touch devices.',
   },
 ] as const;
 ---
@@ -121,6 +134,12 @@ const windows = [
                   <BlogApp />
                 ) : window.id === 'github' ? (
                   <GitHubApp />
+                ) : window.id === 'downloads' ? (
+                  <DownloadsFolder />
+                ) : window.id === 'bin' ? (
+                  <BinFolder />
+                ) : window.id === 'maze' ? (
+                  <MazeGame />
                 ) : (
                   <div class="os-placeholder-panel">
                     <p class="os-placeholder-label">{window.label}</p>
@@ -135,6 +154,7 @@ const windows = [
           <Taskbar items={taskbarItems} />
 
           <HelpDialog />
+          <DownloadConfirmDialog />
         </section>
       </div>
     </div>

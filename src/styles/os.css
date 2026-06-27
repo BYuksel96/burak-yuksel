@@ -556,7 +556,8 @@
 }
 
 .os-window[hidden],
-.os-help-layer[hidden] {
+.os-help-layer[hidden],
+.os-download-confirm-layer[hidden] {
   display: none;
 }
 
@@ -570,8 +571,17 @@
     linear-gradient(180deg, color-mix(in srgb, var(--os-screen-surface-strong) 92%, transparent), var(--os-screen-surface-strong));
 }
 
+.os-window--game {
+  top: clamp(0.72rem, 1.4vw, 1.05rem);
+  right: clamp(0.72rem, 1.4vw, 1.05rem);
+  bottom: clamp(5.35rem, 8.8vh, 6.1rem);
+  left: clamp(0.72rem, 1.4vw, 1.05rem);
+  z-index: 24;
+  background: #050505;
+}
+
 .os-window--folder {
-  top: calc(50% - 1.8rem);
+  top: calc(50% - 2.7rem);
   left: 50%;
   width: min(31rem, calc(100% - 2rem));
   height: min(24rem, max(16rem, calc((100% - 6.8rem) * 0.52)));
@@ -590,6 +600,25 @@
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.025)),
     color-mix(in srgb, var(--os-monitor-shell) 42%, var(--os-screen-surface-strong));
+}
+
+.os-window--folder .os-window-topbar {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.os-window--folder[data-folder-dragging] .os-window-topbar {
+  cursor: grabbing;
+}
+
+.os-window--folder .os-window-controls,
+.os-window--folder .os-window-control {
+  cursor: pointer;
+}
+
+.os-window--folder .os-window-control--minimise {
+  cursor: not-allowed;
 }
 
 .os-window-controls {
@@ -743,6 +772,12 @@
   place-items: stretch;
 }
 
+.os-window--game .os-window-body {
+  padding: 0;
+  overflow: hidden;
+  place-items: stretch;
+}
+
 .os-placeholder-panel {
   width: min(24rem, 100%);
   min-height: 12rem;
@@ -786,6 +821,150 @@
   font-weight: 650;
 }
 
+.os-folder {
+  width: 100%;
+  min-height: 100%;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  align-content: start;
+  gap: 1rem;
+}
+
+.os-folder-helper {
+  margin: 0;
+  justify-self: start;
+  color: var(--os-muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.os-folder-file-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(6.5rem, 7.25rem));
+  align-content: start;
+  gap: 0.85rem;
+}
+
+.os-folder-file {
+  min-width: 0;
+  min-height: 7.8rem;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 0.54rem;
+  padding: 0.72rem 0.58rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--os-text);
+  font: inherit;
+  cursor: default;
+  text-align: center;
+}
+
+.os-folder-file:is(:hover, :focus-visible),
+.os-folder-file[data-os-selected] {
+  border-color: var(--os-screen-line-strong);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent),
+    color-mix(in srgb, var(--os-cyan) 12%, transparent);
+  outline: none;
+}
+
+.os-folder-file-icon {
+  width: 3.95rem;
+  height: 4.45rem;
+  display: grid;
+  place-items: center;
+  filter: drop-shadow(0 0.55rem 0.9rem rgba(0, 0, 0, 0.18));
+}
+
+.os-folder-file-icon svg,
+.os-folder-empty-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.os-folder-file-paper {
+  fill: color-mix(in srgb, var(--os-screen-surface-strong) 74%, var(--os-text));
+  stroke: var(--os-screen-line-strong);
+}
+
+.os-folder-file-fold {
+  fill: color-mix(in srgb, var(--os-cyan) 18%, transparent);
+  stroke: var(--os-cyan);
+}
+
+.os-folder-file-badge {
+  fill: color-mix(in srgb, var(--os-red) 82%, #581313);
+  stroke: color-mix(in srgb, var(--os-red) 72%, white);
+}
+
+.os-folder-file-mark {
+  stroke: var(--os-muted);
+}
+
+.os-folder-file-name {
+  max-width: 100%;
+  color: var(--os-text);
+  font-size: 0.72rem;
+  font-weight: 760;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.os-folder-empty {
+  min-height: 100%;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.58rem;
+  padding: 1rem;
+  border: 1px dashed var(--os-screen-line-strong);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.075), transparent 54%),
+    rgba(255, 255, 255, 0.035);
+  text-align: center;
+}
+
+.os-folder-empty-icon {
+  width: 3.5rem;
+  height: 3.5rem;
+  display: grid;
+  place-items: center;
+  color: var(--os-muted);
+  opacity: 0.8;
+}
+
+.os-folder-empty-title,
+.os-folder-empty-copy {
+  margin: 0;
+}
+
+.os-folder-empty-title {
+  color: var(--os-text);
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.os-folder-empty-copy {
+  max-width: 18rem;
+  color: var(--os-muted);
+  font-size: 0.84rem;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
 .os-help-layer {
   position: absolute;
   inset: 0;
@@ -825,6 +1004,94 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   transform-origin: var(--help-origin-x, 50%) var(--help-origin-y, 50%);
   animation: osHelpPanelOpen 0.18s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.os-download-confirm-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.os-download-confirm-backdrop {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: rgba(0, 0, 0, 0.5);
+  cursor: default;
+  animation: osHelpBackdropIn 0.16s ease both;
+}
+
+.os-download-confirm-panel {
+  position: relative;
+  z-index: 1;
+  width: min(23rem, 100%);
+  display: grid;
+  gap: 1rem;
+  padding: 1.1rem;
+  border: 1px solid var(--os-screen-line-strong);
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent 4rem),
+    var(--os-screen-surface-strong);
+  box-shadow:
+    0 1.4rem 3.4rem var(--os-shadow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  text-align: center;
+  animation: osHelpPanelOpen 0.18s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.os-download-confirm-panel h2 {
+  margin: 0;
+  color: var(--os-text);
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.os-download-confirm-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.7rem;
+}
+
+.os-download-confirm-button {
+  min-width: 5.2rem;
+  min-height: 2.25rem;
+  padding: 0 1rem;
+  border: 1px solid var(--os-screen-line-strong);
+  border-radius: 8px;
+  color: var(--os-text);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 0.45rem 1rem rgba(0, 0, 0, 0.18);
+}
+
+.os-download-confirm-button--yes {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--os-green) 42%, white), color-mix(in srgb, var(--os-green) 58%, #063a1c));
+  color: #101315;
+}
+
+.os-download-confirm-button--no {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent),
+    color-mix(in srgb, var(--os-screen-surface) 84%, var(--os-monitor-shell));
+}
+
+.os-download-confirm-button:is(:hover, :focus-visible) {
+  outline: 2px solid color-mix(in srgb, var(--os-cyan) 68%, transparent);
+  outline-offset: 2px;
 }
 
 .os-help-header {
@@ -1158,13 +1425,20 @@
   }
 
   .os-window--folder {
-    top: 50%;
-    width: min(calc(100% - 1rem), 24rem);
+    top: calc(50% - 1rem);
+    width: min(calc(100% - 2.4rem), 24rem);
     height: min(64%, 22rem);
     max-height: calc(100% - 5.45rem);
   }
 
   .os-window--main {
+    top: 0.48rem;
+    right: 0.48rem;
+    bottom: 4.85rem;
+    left: 0.48rem;
+  }
+
+  .os-window--game {
     top: 0.48rem;
     right: 0.48rem;
     bottom: 4.85rem;
@@ -1193,6 +1467,12 @@
   }
 
   .os-window--github .os-window-body {
+    padding: 0;
+    overflow: hidden;
+    place-items: stretch;
+  }
+
+  .os-window--game .os-window-body {
     padding: 0;
     overflow: hidden;
     place-items: stretch;

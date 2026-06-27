@@ -206,14 +206,72 @@ Help button:
 
 ### Bin
 
-- Opens as a folder window, not fullscreen.
-- Loads centre/centre inside the OS/monitor.
-- Should be approximately half the available height between the top of the OS screen and the taskbar.
-- Can be moveable if reasonable to implement; otherwise static is acceptable.
-- Taskbar does not shrink when Bin is opened.
-- Empty for now, but structure should allow future easter eggs to be added.
-- Include the same top-bar controls and help dialog.
-- Help dialog should explain that Bin is currently empty but may contain easter eggs later.
+#### Window behaviour
+
+- Opens as an independent folder window rather than a fullscreen main app.
+- Opens centred horizontally and vertically within the usable Burak OS desktop area.
+- Its position and dimensions must account for the top OS bar and taskbar.
+- Should be approximately half of the usable height between the top OS bar and the taskbar.
+- Must remain fully visible within the OS viewport on desktop, tablet and mobile.
+- Uses the same folder-window structure and visual language as Downloads.
+- Includes:
+  - close control
+  - disabled minimise control
+  - help control
+  - centred window title
+
+- Clicking its active taskbar item again closes the Bin window.
+- Opening or closing Bin must not close the active fullscreen main app.
+- Opening Bin must not cause the taskbar to shrink.
+- Folder dragging remains deferred and must not be added as part of the initial Bin or Easter-egg implementation.
+
+#### Initial state
+
+- Bin remains empty until its dedicated Easter-egg phases are implemented.
+- The empty state should feel intentional rather than unfinished.
+- Initial help copy should explain that Bin is currently empty but may contain Easter eggs later.
+- The internal structure should allow future file-style launchers to be added without redesigning the folder window.
+
+#### Future Easter-egg content
+
+Bin will later contain two launchable game files:
+
+1. A black-and-white 8-bit maze game.
+2. An Agile Coach/Scrum Master definitions quiz game.
+
+These games should appear as file-style items inside the Bin folder rather than being permanently visible elsewhere on the desktop.
+
+Selecting a game file should launch that game inside the Burak OS interface. The precise game-window behaviour and lifecycle will be defined during the dedicated game-planning phases.
+
+The Bin implementation should be divided into:
+
+- Phase 7: Bin folder structure and game-file launcher foundation.
+- Phase 7A: Maze game.
+- Phase 7B: Agile/Scrum quiz game.
+- Phase 7C: Combined integration and polish only if required after both games are complete.
+
+Do not implement the two games as part of the initial Bin folder task.
+
+#### Future help behaviour
+
+Before the games are implemented, the help dialog should explain that Bin is currently empty and may contain Easter eggs later.
+
+After the games are implemented, update the help dialog to explain:
+
+- Bin contains hidden Burak OS Easter eggs.
+- Game files can be opened from inside the folder.
+- Each game runs entirely within the browser.
+- Progress or high scores may be stored locally where applicable.
+
+#### Technical constraints
+
+- Keep the website fully static.
+- Do not introduce a backend, database, authentication or runtime server.
+- Do not introduce a game framework without a compelling and approved reason.
+- Use Astro, scoped CSS and vanilla browser JavaScript.
+- Keep Bin and game-specific styling and scripts appropriately namespaced.
+- Do not modify `public/Resume-BURAK-YUKSEL.pdf`.
+- Do not implement unrelated Phase 8 cleanup or broader OS refactoring.
 
 ### Downloads
 
@@ -448,8 +506,62 @@ Help button:
 - Verification: focused red/green tests were added for GitHub helpers, commit-count pagination parsing, commit-count fallback, state transitions, markup, responsive CSS, mobile sidebar readability, full-window body fit, and OS shell wiring. `node --test src/scripts/github-app.test.mjs src/scripts/os-window-manager.test.mjs src/scripts/blog-app.test.mjs src/scripts/resume-app.test.mjs` passed with 53 tests and 0 failures, and `env ASTRO_TELEMETRY_DISABLED=1 npm run build` passed with 5 pages generated. Localhost returned HTTP 200 and generated output contained the GitHub app, commit-count rendering, full-window GitHub body rules, and compact mobile sidebar rules. Live GitHub commit endpoint verification for `BYuksel96/PureOrigins` previously returned HTTP 200 with `rel="last"` page 36. Browser plugin, Playwright, Puppeteer, and local Chromium were unavailable, so screenshot/DOM rendered QA was not run.
 - Handoff notes: Phase 7 should start Downloads and Bin only. Keep GitHub endpoint as `BYuksel96` unless the public profile changes.
 
+### Phase 7: Downloads and Bin
+
+- Status: implemented on 2026-06-27 on branch `feature/portfolio_revamp`.
+- Files changed:
+  - `src/components/os/OsShell.astro`
+  - `src/components/os/OsWindow.astro`
+  - `src/components/os/DownloadsFolder.astro`
+  - `src/components/os/BinFolder.astro`
+  - `src/components/os/DownloadConfirmDialog.astro`
+  - `src/scripts/os-window-manager.js`
+  - `src/scripts/os-window-manager.test.mjs`
+  - `src/styles/os.css`
+  - `BRAIN.md`
+- Content decision: Downloads now shows helper text and one file item labeled `Resume-BURAK-YUKSEL.pdf`; Bin renders an empty-state folder ready for later easter eggs. Folder help copy now describes the real Downloads/Bin behavior instead of Phase 3 placeholders.
+- Download decision: mouse/desktop users open the download confirmation with a double-click; touch users open it with a single tap. The monitor-local confirmation asks `Continue download Burak's Resume?` with `Yes` and `No`; `Yes` downloads the existing `/Resume-BURAK-YUKSEL.pdf` path and `No`, backdrop click, or Escape cancels.
+- PDF decision: `public/Resume-BURAK-YUKSEL.pdf` was deliberately not modified in Phase 7; the UI links to the existing public asset path only.
+- Folder behavior decision: Downloads and Bin remain independent folder windows, do not compact the taskbar by themselves, move to the front when opened or pressed, and can be dragged by their top bars with mouse or touch. Drag state is session-only and resets when the folder closes or the page reloads.
+- Responsive decision: folder positions are bounded within the OS desktop layer above the taskbar. The responsive folder width/offset was adjusted after rendered QA so phone-sized drag has visible movement while staying clear of the dock.
+- Phase boundary: no Phase 8 theme toggle, Bin games/easter eggs, route cleanup, backend behavior, new dependency, or resume PDF asset update was added.
+- Verification: focused red/green tests covered folder z-order, drag clamping, close/reset behavior, Downloads/Bin markup, confirmation dialog markup, desktop double-click versus touch tap activation, and responsive folder CSS guards. `node --test src/scripts/os-window-manager.test.mjs src/scripts/blog-app.test.mjs src/scripts/resume-app.test.mjs src/scripts/github-app.test.mjs` passed with 60 tests and 0 failures, and `env ASTRO_TELEMETRY_DISABLED=1 npm run build` passed with 5 pages generated. Headless Chrome CDP rendered QA passed for the previous narrow responsive failure band, then for 1280x800 desktop and 390x844 phone viewports, checking folder opening, taskbar non-compaction, default dock clearance, desktop double-click confirmation, phone tap confirmation, top-bar dragging, z-order, and taskbar bounds. Browser plugin, Playwright, and Puppeteer were unavailable, but local Chrome was available for CDP QA.
+- Handoff notes: Phase 8 should start polish/accessibility/final verification only. The Phase 8 notes below now include future top-bar light/dark toggle work and Bin easter-egg games, but those were not implemented in Phase 7.
+
+### Phase 7A: Maze game
+
+- Status: implemented on 2026-06-27 on branch `feature/portfolio_revamp`.
+- Files changed:
+  - `src/components/os/OsShell.astro`
+  - `src/components/os/OsWindow.astro`
+  - `src/components/os/BinFolder.astro`
+  - `src/components/os/MazeGame.astro`
+  - `src/scripts/os-window-manager.js`
+  - `src/scripts/os-window-manager.test.mjs`
+  - `src/scripts/maze-game.js`
+  - `src/scripts/maze-game.test.mjs`
+  - `src/scripts/maze-generation.js`
+  - `src/scripts/maze-input.js`
+  - `src/scripts/maze-pathfinding.js`
+  - `src/scripts/maze-renderer.js`
+  - `src/scripts/maze-rng.js`
+  - `src/scripts/maze-state.js`
+  - `src/scripts/maze-storage.js`
+  - `src/styles/os.css`
+  - `src/styles/maze-game.css`
+  - `BRAIN.md`
+- Architecture decision: Maze.exe is a Bin-only game file launcher that opens a fullscreen `kind="game"` OS window. It is not present on the desktop or taskbar. Opening Maze.exe compacts the taskbar like a fullscreen app while keeping Bin open underneath; closing Maze.exe stops the run, resets Maze state to idle, and returns the taskbar to default sizing.
+- Game logic decision: Maze generation is dependency-free canvas gameplay backed by pure modules for seeded RNG, maze generation, pathfinding/enemy decisions, scoring/difficulty state, storage, input, and rendering. Level 1 uses a 3x3 central spawn room, four rings, an exterior boundary, and one exterior exit. Later levels add one ring per level and cap at 49x49. Each level is generated from scratch and remains solvable with dead ends, braided loops, reachable collectibles, and reachable exits.
+- Difficulty decision: scoring uses +25 collectibles, `100 + level * 20` level completion, and an optional +100 full-sweep bonus. Dynamic internal gateways begin at Level 6 and use optional braided edges so closing them cannot invalidate the maze; gateways warn before toggling and do not close on the player or monsters. Monsters begin at Level 11, become more memory/route-biased at Level 16, and two monsters appear at Level 21 with capped speed and decision intervals.
+- Lifecycle/storage decision: gameplay supports keyboard Arrow/WASD controls, touch D-pad controls, countdown before each level, HUD level/score/high score, collision game-over, and local high-score persistence with safe in-memory fallback when storage is unavailable. Closing the game stops active gameplay; page hiding pauses active gameplay.
+- Phase boundary: Phase 7B Agile/Scrum quiz, quiz data/question bank, Phase 7C combined integration, Phase 8 cleanup/theme work, GitHub changes, unrelated Downloads changes, folder dragging changes, language/shutdown behavior, route cleanup, new dependencies, Playwright, backend behavior, and `public/Resume-BURAK-YUKSEL.pdf` changes were not added.
+- Verification: red/green Maze tests were added first and verified failing before implementation. `node --test src/scripts/maze-game.test.mjs src/scripts/os-window-manager.test.mjs src/scripts/blog-app.test.mjs src/scripts/resume-app.test.mjs src/scripts/github-app.test.mjs` passed with 69 tests and 0 failures. `git diff --check` passed. `env ASTRO_TELEMETRY_DISABLED=1 npm run build` passed and generated 5 pages. Local Astro dev server returned 200 after escalation for localhost binding. Headless Chrome CDP rendered QA passed at 1280x800 desktop and 390x844 mobile, checking Bin-only Maze.exe launch, countdown, playing state, HUD, nonblank canvas pixels, keyboard/touch controls visible, Maze window above Bin, no mobile horizontal overflow, no console errors, only `Maze.exe` as a Bin game file, close cleanup to idle, Bin remaining open, and taskbar returning to default.
+- Handoff notes: Phase 7B should start Agile/Scrum quiz only. Phase 7C remains deferred and should only happen if combined integration/polish is required after both games are complete.
+
 ## Running Log
 
+- 2026-06-27: Phase 7A Maze game completed. Added Bin-only `Maze.exe`, a fullscreen Burak OS game window, canvas-rendered monochrome 8-bit maze gameplay, seeded solvable maze generation, reachable collectibles, scoring, local high-score fallback, countdown flow, dynamic gateway safety rules from Level 6, monster difficulty thresholds from Level 11/16/21, keyboard and touch controls, close/page-hide lifecycle cleanup, and focused tests. `node --test src/scripts/maze-game.test.mjs src/scripts/os-window-manager.test.mjs src/scripts/blog-app.test.mjs src/scripts/resume-app.test.mjs src/scripts/github-app.test.mjs` passed with 69 tests, `git diff --check` passed, `env ASTRO_TELEMETRY_DISABLED=1 npm run build` passed, and headless Chrome CDP rendered QA passed on desktop and mobile. Phase 7B quiz, Phase 7C integration, Phase 8 work, new dependencies, route cleanup, folder dragging changes, Downloads changes, GitHub changes, and PDF changes were not started.
+- 2026-06-27: Phase 7 Downloads and Bin completed. Added real Downloads/Bin folder contents, OS-local resume download confirmation with desktop double-click and touch single-tap activation, bounded top-bar dragging with front-on-press z-order, and responsive folder adjustments to keep folders clear of the taskbar. `public/Resume-BURAK-YUKSEL.pdf` was left unchanged and linked at the existing public path. `node --test src/scripts/os-window-manager.test.mjs src/scripts/blog-app.test.mjs src/scripts/resume-app.test.mjs src/scripts/github-app.test.mjs` passed with 60 tests, `env ASTRO_TELEMETRY_DISABLED=1 npm run build` passed, and headless Chrome CDP rendered QA passed at narrow responsive, 1280x800 desktop, and 390x844 phone viewports. No Phase 8 theme/game work, new dependency, route cleanup, backend behavior, or PDF asset change was added.
 - 2026-06-26: Phase 6 final responsive completion recorded. GitHub.exe now fills the OS window body, and the mobile layout keeps the connection/sidebar content readable by stacking the workspace, preserving metadata as compact tiles, and allowing vertical scrolling instead of cropping. Fresh verification passed with 53 Node tests, `npm run build`, generated-output CSS checks, and localhost HTTP 200. No Phase 7+ work, new dependency, route cleanup, or PDF change was added.
 - 2026-06-26: Phase 6 GitHub app commit-count enhancement completed. GitHub.exe repo cards now show default-branch commit counts by reading the commits API pagination `Link` header, with per-repo fallback to `Commits unavailable` if GitHub blocks a count request. `node --test src/scripts/github-app.test.mjs` passed with 8 tests, OS/Blog/Resume focused tests passed, `npm run build` passed, localhost returned HTTP 200, generated output contained `data-github-repo-commits`, and live `BYuksel96/PureOrigins` commit endpoint returned `rel="last"` page 36. No Phase 7+ work, new dependency, route cleanup, or PDF change was added.
 - 2026-06-26: Phase 6 GitHub app completed. Added GitHub.exe repo explorer with first-open public API fetch, loading/error/empty/success states, retry, responsive repo cards, external repo links, and updated help copy. Corrected the master-plan GitHub API username from non-working `beyuksel96` to existing site profile `BYuksel96` after live API verification. `node --test src/scripts/github-app.test.mjs`, `node --test src/scripts/os-window-manager.test.mjs`, `node --test src/scripts/blog-app.test.mjs`, `node --test src/scripts/resume-app.test.mjs`, and `npm run build` passed. Localhost and generated-output checks passed; screenshot/DOM rendered QA was blocked because Browser plugin, Playwright, Puppeteer, and local Chromium were unavailable. No Phase 7+ work, new dependency, route cleanup, or PDF change was added.
@@ -551,12 +663,17 @@ These phases come from `Revamp Master Plan / Source of Truth` - Review this sect
 
 ### Phase 7: Downloads and Bin
 
-- Implement Bin folder window, empty for now but ready for future easter eggs.
-- Implement Downloads folder window.
+- Implement the complete design of Bin folder window and then implement it, empty for now but ready for future easter eggs.
+- Implement the complete design of the Downloads folder window and then implement it.
 - Add downloadable resume/CV file.
 - Add helper text telling users to click the file to download.
 - Add folder help dialogs.
 - Confirm taskbar does not shrink for folders.
+- Download and Bin folders can be dragged and moved across the screen (in mobile this will be achieved similarly by holding down the top bar and dragging across the screen).
+- Phase 7A: Maze game.
+- Phase 7B: Agile/Scrum quiz game.
+- Phase 7C: Combined integration and polish only if required after both games are complete.
+- Keep reviewing the Revamp Master Plan / Source of Truth to give you a deeper understanding of what needs to be done and review in-depth the inputted commentary in the terminal.
 - Update `BRAIN.md`.
 - Run `npm run build`.
 
@@ -572,5 +689,6 @@ These phases come from `Revamp Master Plan / Source of Truth` - Review this sect
 - Update README if needed.
 - Update `BRAIN.md` with final handoff notes.
 - Run final `npm run build`.
+- Add light and dark mode to the top bar next to EN, light will be sun icon, dark is moon, add some sort of animation to this icon when it is toggled.
 
 NOTE: Codex must not attempt the full revamp in one pass. It should work in phases, update this file after each phase, and run build/lint checks before marking a phase complete. If no lint script exists, record that clearly rather than inventing one.

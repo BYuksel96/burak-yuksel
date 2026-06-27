@@ -2,7 +2,7 @@
 interface Props {
   id: string;
   title: string;
-  kind: 'main' | 'folder';
+  kind: 'main' | 'folder' | 'game';
   helpText: string;
 }
 
@@ -24,7 +24,7 @@ const windowId = `os-window-${id}`;
   {
     id !== 'blog' && (
       <>
-        <div class="os-window-topbar">
+        <div class="os-window-topbar" data-os-folder-drag-handle={kind === 'folder' ? '' : undefined}>
           <div class="os-window-controls" aria-label={`${title} window controls`}>
             <button class="os-window-control os-window-control--close" type="button" data-os-window-close aria-label={`Close ${title}`} title={`Close ${title}`}>
               <span aria-hidden="true">X</span>
