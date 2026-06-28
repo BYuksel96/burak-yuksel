@@ -22,37 +22,44 @@ test('maze generation starts with four rings and caps at 49x49', async () => {
 });
 
 test('generated mazes are solvable, braided, and keep collectibles reachable', async () => {
-  const { generateMaze, getAccessibleCellKeys, getCellKey, hasMazeLoops, isBoundaryExit } = await import('./maze-generation.js');
+  const { generateMaze, getAccessibleCellKeys, getCellKey, getExteriorOpenings, hasMazeLoops, isBoundaryExit } = await import('./maze-generation.js');
   const { findPath } = await import('./maze-pathfinding.js');
 
   const maze = generateMaze({ level: 8, seed: 'phase-7a-solvable' });
   const exitPath = findPath(maze, maze.playerStart, maze.exit.cell);
   const accessible = getAccessibleCellKeys(maze, maze.playerStart);
+  const exteriorOpenings = getExteriorOpenings(maze);
 
   assert.ok(exitPath.length > 0);
   assert.equal(isBoundaryExit(maze, maze.exit), true);
+  assert.equal(exteriorOpenings.length, 1);
+  assert.deepEqual(exteriorOpenings[0], maze.exit);
   assert.equal(hasMazeLoops(maze), true);
   assert.ok(maze.deadEnds.length >= 6);
   assert.ok(maze.collectibles.length >= 6);
+  assert.equal(accessible.has(getCellKey(maze.exit.cell)), true);
 
   maze.collectibles.forEach((collectible) => {
     assert.equal(accessible.has(getCellKey(collectible)), true);
   });
 });
 
-test('dynamic gateways only use internal optional edges and stay safe when closed', async () => {
-  const { canToggleGateway, generateMaze, getCellKey, isGatewayInternal, setGatewayOpen } = await import('./maze-generation.js');
+test('dynamic gateways only use internal optional edges and stay safe when closed without touching the exit opening', async () => {
+  const { canToggleGateway, generateMaze, getCellKey, getExteriorOpenings, isGatewayInternal, setGatewayOpen } = await import('./maze-generation.js');
   const { findPath } = await import('./maze-pathfinding.js');
 
   const maze = generateMaze({ level: 6, seed: 'phase-7a-gateways' });
+  const initialOpenings = getExteriorOpenings(maze);
 
   assert.ok(maze.dynamicGateways.length > 0);
+  assert.equal(initialOpenings.length, 1);
 
   maze.dynamicGateways.forEach((gateway) => {
     assert.equal(isGatewayInternal(maze, gateway), true);
 
     const closedMaze = setGatewayOpen(maze, gateway.id, false);
     assert.ok(findPath(closedMaze, closedMaze.playerStart, closedMaze.exit.cell).length > 0);
+    assert.deepEqual(getExteriorOpenings(closedMaze), initialOpenings);
 
     assert.equal(
       canToggleGateway(closedMaze, gateway.id, {
@@ -70,6 +77,24 @@ test('dynamic gateways only use internal optional edges and stay safe when close
     );
     assert.equal(getCellKey(gateway.a).includes(','), true);
   });
+});
+
+test('level completion is tied to traversing the exterior exit opening', async () => {
+  const { generateMaze } = await import('./maze-generation.js');
+  const { isExitTraversal } = await import('./maze-game.js');
+
+  const maze = generateMaze({ level: 3, seed: 'phase-7a-exit-completion' });
+  const exitDirection = maze.exit.direction;
+  const wrongDirection = {
+    north: 'east',
+    east: 'south',
+    south: 'west',
+    west: 'north',
+  }[exitDirection];
+
+  assert.equal(isExitTraversal({ maze, player: maze.exit.cell, directionName: exitDirection }), true);
+  assert.equal(isExitTraversal({ maze, player: maze.exit.cell, directionName: wrongDirection }), false);
+  assert.equal(isExitTraversal({ maze, player: maze.playerStart, directionName: exitDirection }), false);
 });
 
 test('maze scoring and monster profiles follow the approved Phase 7A thresholds', async () => {
@@ -120,7 +145,7 @@ test('monster decisions are biased without giving early levels perfect global kn
 });
 
 test('high-score storage falls back safely when localStorage is unavailable', async () => {
-  const { createMazeHighScoreStore } = await import('./maze-storage.js');
+  const { MAZE_MUSIC_ENABLED_KEY, createMazeHighScoreStore, createMazeMusicPreferenceStore } = await import('./maze-storage.js');
 
   const memoryStore = createMazeHighScoreStore({
     storage: null,
@@ -143,6 +168,139 @@ test('high-score storage falls back safely when localStorage is unavailable', as
   });
   assert.equal(brokenStore.get(), 0);
   assert.equal(brokenStore.update(80), 80);
+
+  const musicMemoryStore = createMazeMusicPreferenceStore({
+    storage: null,
+    key: 'music-test',
+  });
+  assert.equal(MAZE_MUSIC_ENABLED_KEY, 'burakOs.mazeMusicEnabled.v1');
+  assert.equal(musicMemoryStore.get(), false);
+  assert.equal(musicMemoryStore.set(true), true);
+  assert.equal(musicMemoryStore.get(), true);
+
+  const values = new Map();
+  const persistedMusicStore = createMazeMusicPreferenceStore({
+    storage: {
+      getItem: (key) => values.get(key) ?? null,
+      setItem: (key, value) => values.set(key, value),
+    },
+    key: 'music-test',
+  });
+  assert.equal(persistedMusicStore.get(), false);
+  persistedMusicStore.set(true);
+  assert.equal(values.get('music-test'), 'true');
+  assert.equal(persistedMusicStore.get(), true);
+
+  const brokenMusicStore = createMazeMusicPreferenceStore({
+    storage: {
+      getItem() {
+        throw new Error('blocked');
+      },
+      setItem() {
+        throw new Error('blocked');
+      },
+    },
+    key: 'music-test',
+  });
+  assert.equal(brokenMusicStore.get(), false);
+  brokenMusicStore.set(true);
+  assert.equal(brokenMusicStore.get(), true);
+});
+
+test('maze music player is user-started, idempotent, and stoppable', async () => {
+  const { createMazeChiptunePlayer, formatMazeMusicToggleLabel, getMazeMusicLifecycleAction } = await import('./maze-audio.js');
+  const timers = new Map();
+  const clearedTimers = [];
+  const contexts = [];
+  let nextTimerId = 1;
+
+  class FakeGain {
+    constructor() {
+      this.gain = {
+        value: 0,
+        setValueAtTime() {},
+        linearRampToValueAtTime() {},
+        cancelScheduledValues() {},
+      };
+    }
+
+    connect() {}
+  }
+
+  class FakeOscillator {
+    constructor() {
+      this.frequency = {
+        setValueAtTime() {},
+      };
+      this.type = '';
+    }
+
+    connect() {}
+    start() {}
+    stop() {}
+  }
+
+  class FakeAudioContext {
+    constructor() {
+      this.currentTime = 0;
+      this.destination = {};
+      this.state = 'suspended';
+      contexts.push(this);
+    }
+
+    createGain() {
+      return new FakeGain();
+    }
+
+    createOscillator() {
+      return new FakeOscillator();
+    }
+
+    resume() {
+      this.state = 'running';
+      return Promise.resolve();
+    }
+  }
+
+  const player = createMazeChiptunePlayer({
+    AudioContext: FakeAudioContext,
+    setTimeout: (callback, delay) => {
+      const id = nextTimerId;
+      nextTimerId += 1;
+      timers.set(id, { callback, delay });
+      return id;
+    },
+    clearTimeout: (id) => {
+      clearedTimers.push(id);
+      timers.delete(id);
+    },
+  });
+
+  assert.equal(player.isPlaying(), false);
+  assert.equal(contexts.length, 0);
+  assert.equal(formatMazeMusicToggleLabel(false), 'MUSIC: OFF');
+  assert.equal(formatMazeMusicToggleLabel(true), 'MUSIC: ON');
+
+  await player.start();
+  assert.equal(contexts.length, 1);
+  assert.equal(player.isPlaying(), true);
+  assert.equal(timers.size, 1);
+
+  await player.start();
+  assert.equal(contexts.length, 1);
+  assert.equal(timers.size, 1);
+
+  player.stop();
+  assert.equal(player.isPlaying(), false);
+  assert.equal(clearedTimers.length, 1);
+
+  await player.start();
+  assert.equal(contexts.length, 1);
+  assert.equal(player.isPlaying(), true);
+
+  assert.equal(getMazeMusicLifecycleAction({ windowOpen: false, pageVisible: true }), 'stop');
+  assert.equal(getMazeMusicLifecycleAction({ windowOpen: true, pageVisible: false }), 'stop');
+  assert.equal(getMazeMusicLifecycleAction({ windowOpen: true, pageVisible: true }), 'none');
 });
 
 test('maze input helpers only capture movement keys while gameplay is active', async () => {
@@ -165,6 +323,34 @@ test('maze lifecycle stops on window close and pauses on page hide', async () =>
   assert.equal(getMazeLifecycleTransition({ status: 'playing', windowOpen: true, pageVisible: false }), 'pause');
   assert.equal(getMazeLifecycleTransition({ status: 'paused', windowOpen: true, pageVisible: true }), 'resume');
   assert.equal(getMazeLifecycleTransition({ status: 'idle', windowOpen: true, pageVisible: true }), 'none');
+});
+
+test('Maze start screen teaches the visible exit, controls, scoring, and level thresholds', () => {
+  const mazeSource = readSource('../components/os/MazeGame.astro');
+
+  assert.match(mazeSource, /HOW TO PLAY/);
+  assert.match(mazeSource, /opening in the outer wall/);
+  assert.match(mazeSource, /Arrow keys/);
+  assert.match(mazeSource, /WASD/);
+  assert.match(mazeSource, /touch D-pad/);
+  assert.match(mazeSource, /Collect items/);
+  assert.match(mazeSource, /new random maze/);
+  assert.match(mazeSource, /Level 6/);
+  assert.match(mazeSource, /Level 11/);
+  assert.match(mazeSource, /one touch ends the run/);
+  assert.match(mazeSource, /3, 2, 1 countdown/);
+  assert.match(mazeSource, /data-maze-music-toggle/);
+  assert.match(mazeSource, /aria-pressed="false"/);
+});
+
+test('maze renderer exposes a real exit indicator with reduced-motion support', () => {
+  const rendererSource = readSource('./maze-renderer.js');
+
+  assert.match(rendererSource, /drawExitIndicator/);
+  assert.match(rendererSource, /reducedMotion/);
+  assert.match(rendererSource, /getExitIndicatorAlpha/);
+  assert.match(rendererSource, /doorway/i);
+  assert.doesNotMatch(rendererSource, /shortest|solution route|minimap/i);
 });
 
 test('OS integration launches Maze.exe from Bin only and does not start quiz phases', () => {

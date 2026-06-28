@@ -243,6 +243,21 @@ test('Downloads and Bin windows render real folder content and updated help copy
   assert.doesNotMatch(osShellSource, /Bin is an empty placeholder/);
 });
 
+test('Maze.exe help copy is a concise reference for exit, controls, scoring, hazards, storage, and music', () => {
+  const osShellSource = readFileSync(new URL('../components/os/OsShell.astro', import.meta.url), 'utf8');
+
+  assert.match(osShellSource, /escape through the visible opening in the exterior wall/);
+  assert.match(osShellSource, /Arrow keys or WASD/);
+  assert.match(osShellSource, /touch D-pad/);
+  assert.match(osShellSource, /Collectibles award additional points/);
+  assert.match(osShellSource, /Dynamic gateways begin at Level 6/);
+  assert.match(osShellSource, /Monsters begin at Level 11/);
+  assert.match(osShellSource, /Monster contact immediately ends the run/);
+  assert.match(osShellSource, /High scores are stored locally/);
+  assert.match(osShellSource, /Exit to Bin ends the current run/);
+  assert.match(osShellSource, /Music can be enabled or disabled/);
+});
+
 test('download confirmation dialog uses OS-local Yes and No actions', () => {
   const dialogSource = readFileSync(new URL('../components/os/DownloadConfirmDialog.astro', import.meta.url), 'utf8');
   const osCss = readFileSync(new URL('../styles/os.css', import.meta.url), 'utf8');

@@ -24,8 +24,20 @@ import '../../styles/maze-game.css';
     <div class="maze-game__overlay maze-game__overlay--start" data-maze-start-screen>
       <p class="maze-game__eyebrow">Recycle Bin file recovered</p>
       <h3>Maze.exe</h3>
-      <p>Find the exterior exit, collect optional score blocks, and survive the later levels.</p>
-      <button class="maze-game__button maze-game__button--primary" type="button" data-maze-play>Play</button>
+      <section class="maze-game__how-to-play" aria-labelledby="maze-how-to-play-title">
+        <h4 id="maze-how-to-play-title">HOW TO PLAY</h4>
+        <p>Find the opening in the outer wall to escape each maze.</p>
+        <p>Move with Arrow keys, WASD, or the touch D-pad.</p>
+        <p>
+          Collect items for bonus points. A new random maze appears every level. From Level 6, gateways may open new routes.
+          From Level 11, watch out for monsters - one touch ends the run.
+        </p>
+        <p>Each level begins after a 3, 2, 1 countdown.</p>
+      </section>
+      <div class="maze-game__actions maze-game__actions--start">
+        <button class="maze-game__button maze-game__button--primary" type="button" data-maze-play>Play</button>
+        <button class="maze-game__button" type="button" data-maze-music-toggle aria-pressed="false">MUSIC: OFF</button>
+      </div>
     </div>
 
     <div class="maze-game__overlay maze-game__overlay--countdown" data-maze-countdown aria-hidden="true" hidden>
@@ -56,6 +68,7 @@ import '../../styles/maze-game.css';
       </dl>
       <p class="maze-game__new-high" data-maze-new-high-score aria-live="polite"></p>
       <div class="maze-game__actions">
+        <button class="maze-game__button" type="button" data-maze-music-toggle aria-pressed="false">MUSIC: OFF</button>
         <button class="maze-game__button maze-game__button--primary" type="button" data-maze-restart>Play again</button>
         <button class="maze-game__button" type="button" data-os-game-exit>Exit to Bin</button>
       </div>

@@ -187,12 +187,12 @@ const braidMaze = ({ maze, rng }) => {
 const chooseExit = ({ maze, rng }) => {
   const candidates = [];
 
-  for (let x = 0; x < maze.width; x += 1) {
+  for (let x = 1; x < maze.width - 1; x += 1) {
     candidates.push({ cell: { x, y: 0 }, direction: 'north' });
     candidates.push({ cell: { x, y: maze.height - 1 }, direction: 'south' });
   }
 
-  for (let y = 0; y < maze.height; y += 1) {
+  for (let y = 1; y < maze.height - 1; y += 1) {
     candidates.push({ cell: { x: 0, y }, direction: 'west' });
     candidates.push({ cell: { x: maze.width - 1, y }, direction: 'east' });
   }
@@ -201,6 +201,11 @@ const chooseExit = ({ maze, rng }) => {
     ...chooseRandom(candidates, rng),
     id: 'maze-exit',
   };
+};
+
+const openExteriorExit = (maze, exit) => {
+  const cell = getCell(maze, exit.cell);
+  if (cell) cell.open[exit.direction] = true;
 };
 
 const isInsideCenter = (cell, centerBounds) =>
@@ -289,6 +294,26 @@ export const isBoundaryExit = (maze, exit) => {
     (exit.direction === 'west' && x === 0) ||
     (exit.direction === 'east' && x === maze.width - 1)
   );
+};
+
+export const getExteriorOpenings = (maze) => {
+  const openings = [];
+
+  for (let x = 0; x < maze.width; x += 1) {
+    if (maze.cells[0]?.[x]?.open.north) openings.push({ id: 'maze-exit', cell: { x, y: 0 }, direction: 'north' });
+    if (maze.cells[maze.height - 1]?.[x]?.open.south) {
+      openings.push({ id: 'maze-exit', cell: { x, y: maze.height - 1 }, direction: 'south' });
+    }
+  }
+
+  for (let y = 0; y < maze.height; y += 1) {
+    if (maze.cells[y]?.[0]?.open.west) openings.push({ id: 'maze-exit', cell: { x: 0, y }, direction: 'west' });
+    if (maze.cells[y]?.[maze.width - 1]?.open.east) {
+      openings.push({ id: 'maze-exit', cell: { x: maze.width - 1, y }, direction: 'east' });
+    }
+  }
+
+  return openings;
 };
 
 export const isGatewayInternal = (maze, gateway) =>
@@ -404,6 +429,7 @@ export const generateMaze = ({ level = 1, seed = Date.now() } = {}) => {
 
   const braidedEdges = braidMaze({ maze, rng });
   maze.exit = chooseExit({ maze, rng });
+  openExteriorExit(maze, maze.exit);
   maze.deadEnds = getDeadEnds(maze);
   maze.collectibles = placeCollectibles({ maze, rng });
   maze.dynamicGateways = selectDynamicGateways({ maze, braidedEdges, level: config.level }).filter((gateway) => {

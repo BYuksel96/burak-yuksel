@@ -6,10 +6,11 @@ import {
   markGatewayWarning,
   setGatewayOpen,
 } from './maze-generation.js';
+import { createMazeChiptunePlayer, formatMazeMusicToggleLabel, getMazeMusicLifecycleAction } from './maze-audio.js';
 import { getDirectionFromKey, shouldCaptureMazeKey } from './maze-input.js';
 import { chooseMonsterMove, createMonsterMemory, getCell, isSameCell } from './maze-pathfinding.js';
 import { createSeededRandom } from './maze-rng.js';
-import { createMazeHighScoreStore } from './maze-storage.js';
+import { createMazeHighScoreStore, createMazeMusicPreferenceStore } from './maze-storage.js';
 import { calculateCollectibleScore, calculateLevelCompletionScore, getMonsterProfile } from './maze-state.js';
 import { drawMazeScene } from './maze-renderer.js';
 
@@ -48,6 +49,9 @@ export const getMazeLifecycleTransition = ({ status, windowOpen, pageVisible }) 
   if (windowOpen && pageVisible && status === 'paused') return 'resume';
   return 'none';
 };
+
+export const isExitTraversal = ({ maze, player, directionName }) =>
+  Boolean(maze?.exit?.cell && isSameCell(player, maze.exit.cell) && directionName === maze.exit.direction);
 
 const resizeCanvas = (canvas) => {
   const rect = canvas.getBoundingClientRect();
@@ -98,8 +102,17 @@ export const initMazeGame = (root, options = {}) => {
   const highScoreStore = createMazeHighScoreStore({
     storage: options.storage ?? (typeof window !== 'undefined' ? window.localStorage : null),
   });
+  const musicPreferenceStore = createMazeMusicPreferenceStore({
+    storage: options.storage ?? (typeof window !== 'undefined' ? window.localStorage : null),
+  });
+  const musicPlayer = createMazeChiptunePlayer({
+    AudioContext: options.AudioContext ?? (typeof window !== 'undefined' ? window.AudioContext || window.webkitAudioContext : undefined),
+  });
+  const reducedMotionQuery =
+    typeof window !== 'undefined' && typeof window.matchMedia === 'function' ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
   const rng = createSeededRandom(options.seed || Date.now());
   let state = createRuntimeState(highScoreStore.get());
+  let musicEnabled = musicPreferenceStore.get();
   let frameId = 0;
   let countdownTimer = 0;
   let monsterTimer = 0;
@@ -113,6 +126,10 @@ export const initMazeGame = (root, options = {}) => {
     setText(root, '[data-maze-score]', String(state.score));
     setText(root, '[data-maze-high-score]', String(state.highScore));
     setText(root, '[data-maze-countdown-value]', state.countdownText);
+    root.querySelectorAll('[data-maze-music-toggle]').forEach((button) => {
+      button.textContent = formatMazeMusicToggleLabel(musicEnabled);
+      button.setAttribute('aria-pressed', String(musicEnabled));
+    });
     setHidden(root.querySelector('[data-maze-start-screen]'), state.status !== 'idle');
     setHidden(root.querySelector('[data-maze-countdown]'), state.status !== 'countdown');
     setHidden(root.querySelector('[data-maze-game-over]'), state.status !== 'game-over');
@@ -133,6 +150,8 @@ export const initMazeGame = (root, options = {}) => {
         player: state.player,
         monsters: state.monsters,
         collectedKeys: state.collectedKeys,
+        timeMs: typeof performance !== 'undefined' ? performance.now() : Date.now(),
+        reducedMotion: Boolean(reducedMotionQuery?.matches),
       });
     }
   };
@@ -157,6 +176,7 @@ export const initMazeGame = (root, options = {}) => {
 
   const stopRun = () => {
     clearTimers();
+    musicPlayer.stop();
     state.status = 'idle';
     state.maze = null;
     state.player = null;
@@ -164,6 +184,26 @@ export const initMazeGame = (root, options = {}) => {
     state.collectedKeys = new Set();
     state.countdownText = '';
     render();
+  };
+
+  const setMusicEnabled = (enabled, { userGesture = false } = {}) => {
+    musicEnabled = musicPreferenceStore.set(enabled);
+    render();
+
+    if (!musicEnabled) {
+      musicPlayer.stop();
+      return;
+    }
+
+    if (userGesture) {
+      void musicPlayer.start();
+    }
+  };
+
+  const startMusicFromUserGesture = () => {
+    if (musicEnabled) {
+      void musicPlayer.start();
+    }
   };
 
   const endGame = () => {
@@ -334,7 +374,7 @@ export const initMazeGame = (root, options = {}) => {
   const tryMovePlayer = (direction) => {
     if (state.status !== 'playing' || !state.maze || !state.player) return;
 
-    if (isSameCell(state.player, state.maze.exit.cell) && direction.name === state.maze.exit.direction) {
+    if (isExitTraversal({ maze: state.maze, player: state.player, directionName: direction.name })) {
       completeLevel();
       return;
     }
@@ -357,10 +397,17 @@ export const initMazeGame = (root, options = {}) => {
 
   const pauseIfInactive = () => {
     const windowElement = root.closest('[data-os-window]');
+    const windowOpen = Boolean(windowElement && !windowElement.hidden && windowElement.getAttribute('data-window-state') === 'open');
+    const pageVisible = !document.hidden;
+
+    if (getMazeMusicLifecycleAction({ windowOpen, pageVisible }) === 'stop') {
+      musicPlayer.stop();
+    }
+
     const transition = getMazeLifecycleTransition({
       status: state.status,
-      windowOpen: Boolean(windowElement && !windowElement.hidden && windowElement.getAttribute('data-window-state') === 'open'),
-      pageVisible: !document.hidden,
+      windowOpen,
+      pageVisible,
     });
 
     if (transition === 'stop') {
@@ -397,9 +444,17 @@ export const initMazeGame = (root, options = {}) => {
     const target = event.target instanceof Element ? event.target : null;
     if (!target) return;
 
+    const musicToggle = target.closest('[data-maze-music-toggle]');
+    if (musicToggle) {
+      event.preventDefault();
+      setMusicEnabled(!musicEnabled, { userGesture: true });
+      return;
+    }
+
     if (target.closest('[data-maze-play]') || target.closest('[data-maze-restart]')) {
       event.preventDefault();
       startRun();
+      startMusicFromUserGesture();
       return;
     }
 
@@ -449,6 +504,7 @@ export const initMazeGame = (root, options = {}) => {
   window.addEventListener('resize', render);
   window.addEventListener('pagehide', () => {
     clearTimers();
+    musicPlayer.stop();
     window.cancelAnimationFrame(frameId);
   });
 

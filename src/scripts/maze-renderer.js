@@ -1,23 +1,72 @@
 import { DIRECTIONS, getCell, isSameCell } from './maze-pathfinding.js';
 
 const directionVectors = Object.fromEntries(DIRECTIONS.map((direction) => [direction.name, direction]));
+const VIEWPORT_MARGIN_TILES = 2;
 
-const getExitLine = (cell, direction, tile, offsetX, offsetY) => {
-  const x = offsetX + cell.x * tile;
-  const y = offsetY + cell.y * tile;
+export const getExitIndicatorAlpha = ({ timeMs = 0, reducedMotion = false } = {}) => {
+  if (reducedMotion) return 1;
 
-  if (direction === 'north') return [x + tile * 0.2, y, x + tile * 0.8, y];
-  if (direction === 'south') return [x + tile * 0.2, y + tile, x + tile * 0.8, y + tile];
-  if (direction === 'west') return [x, y + tile * 0.2, x, y + tile * 0.8];
-  return [x + tile, y + tile * 0.2, x + tile, y + tile * 0.8];
+  return Math.floor(timeMs / 460) % 2 === 0 ? 1 : 0.58;
+};
+
+const drawDoorwayMarker = (ctx, { x, y, tile, direction }) => {
+  const left = x + tile * 0.24;
+  const right = x + tile * 0.76;
+  const top = y + tile * 0.24;
+  const bottom = y + tile * 0.76;
+  const depth = tile * 0.58;
+
+  ctx.beginPath();
+
+  if (direction === 'north') {
+    ctx.moveTo(left, y - tile * 0.08);
+    ctx.lineTo(left, y - depth);
+    ctx.lineTo(right, y - depth);
+    ctx.lineTo(right, y - tile * 0.08);
+  } else if (direction === 'south') {
+    ctx.moveTo(left, y + tile + tile * 0.08);
+    ctx.lineTo(left, y + tile + depth);
+    ctx.lineTo(right, y + tile + depth);
+    ctx.lineTo(right, y + tile + tile * 0.08);
+  } else if (direction === 'west') {
+    ctx.moveTo(x - tile * 0.08, top);
+    ctx.lineTo(x - depth, top);
+    ctx.lineTo(x - depth, bottom);
+    ctx.lineTo(x - tile * 0.08, bottom);
+  } else {
+    ctx.moveTo(x + tile + tile * 0.08, top);
+    ctx.lineTo(x + tile + depth, top);
+    ctx.lineTo(x + tile + depth, bottom);
+    ctx.lineTo(x + tile + tile * 0.08, bottom);
+  }
+
+  ctx.stroke();
+};
+
+export const drawExitIndicator = (ctx, { exit, tile, lineWidth, timeMs = 0, reducedMotion = false }) => {
+  if (!exit?.cell) return;
+
+  const x = exit.cell.x * tile;
+  const y = exit.cell.y * tile;
+  const alpha = getExitIndicatorAlpha({ timeMs, reducedMotion });
+
+  ctx.save();
+  ctx.globalAlpha *= alpha;
+  ctx.strokeStyle = '#f7f7f7';
+  ctx.lineWidth = Math.max(2, lineWidth);
+  ctx.lineCap = 'square';
+  ctx.lineJoin = 'miter';
+  drawDoorwayMarker(ctx, { x, y, tile, direction: exit.direction });
+  ctx.restore();
 };
 
 export const calculateViewport = ({ canvasWidth, canvasHeight, maze, player }) => {
   const hudSpace = 0;
-  const maxTileForFit = Math.floor(Math.min(canvasWidth / maze.width, (canvasHeight - hudSpace) / maze.height));
+  const marginSize = VIEWPORT_MARGIN_TILES * 2;
+  const maxTileForFit = Math.floor(Math.min(canvasWidth / (maze.width + marginSize), (canvasHeight - hudSpace) / (maze.height + marginSize)));
   const tile = Math.max(6, Math.min(26, maxTileForFit || 6));
-  const viewColumns = Math.max(9, Math.floor(canvasWidth / tile));
-  const viewRows = Math.max(9, Math.floor((canvasHeight - hudSpace) / tile));
+  const viewColumns = Math.max(9, Math.floor(canvasWidth / tile) - marginSize);
+  const viewRows = Math.max(9, Math.floor((canvasHeight - hudSpace) / tile) - marginSize);
   const cameraX = Math.min(Math.max(0, player.x - Math.floor(viewColumns / 2)), Math.max(0, maze.width - viewColumns));
   const cameraY = Math.min(Math.max(0, player.y - Math.floor(viewRows / 2)), Math.max(0, maze.height - viewRows));
 
@@ -25,15 +74,15 @@ export const calculateViewport = ({ canvasWidth, canvasHeight, maze, player }) =
     tile,
     cameraX: maze.width <= viewColumns ? 0 : cameraX,
     cameraY: maze.height <= viewRows ? 0 : cameraY,
-    offsetX: maze.width <= viewColumns ? Math.floor((canvasWidth - maze.width * tile) / 2) : 0,
-    offsetY: maze.height <= viewRows ? Math.floor((canvasHeight - maze.height * tile) / 2) : 0,
+    offsetX: maze.width <= viewColumns ? Math.floor((canvasWidth - maze.width * tile) / 2) : VIEWPORT_MARGIN_TILES * tile,
+    offsetY: maze.height <= viewRows ? Math.floor((canvasHeight - maze.height * tile) / 2) : VIEWPORT_MARGIN_TILES * tile,
     viewColumns,
     viewRows,
   };
 };
 
 export const drawMazeScene = (ctx, state) => {
-  const { canvas, maze, player, monsters = [], collectedKeys = new Set() } = state;
+  const { canvas, maze, player, monsters = [], collectedKeys = new Set(), timeMs = 0, reducedMotion = false } = state;
   if (!ctx || !canvas || !maze || !player) return;
 
   const viewport = calculateViewport({
@@ -87,6 +136,14 @@ export const drawMazeScene = (ctx, state) => {
     }
   }
 
+  drawExitIndicator(ctx, {
+    exit: maze.exit,
+    tile,
+    lineWidth: Math.max(lineWidth + 1, 3),
+    timeMs,
+    reducedMotion,
+  });
+
   maze.dynamicGateways.forEach((gateway) => {
     if (!gateway.warning) return;
 
@@ -109,16 +166,6 @@ export const drawMazeScene = (ctx, state) => {
     ctx.stroke();
     ctx.setLineDash([]);
   });
-
-  ctx.lineWidth = Math.max(lineWidth + 2, 4);
-  ctx.strokeStyle = '#050505';
-  ctx.beginPath();
-  ctx.moveTo(...getExitLine(maze.exit.cell, maze.exit.direction, tile, 0, 0).slice(0, 2));
-  ctx.lineTo(...getExitLine(maze.exit.cell, maze.exit.direction, tile, 0, 0).slice(2));
-  ctx.stroke();
-  ctx.strokeStyle = '#f7f7f7';
-  ctx.lineWidth = Math.max(2, lineWidth);
-  ctx.stroke();
 
   ctx.fillStyle = '#f7f7f7';
   maze.collectibles.forEach((collectible) => {
