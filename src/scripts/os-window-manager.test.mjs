@@ -250,8 +250,9 @@ test('Maze.exe help copy is a concise reference for exit, controls, scoring, haz
   assert.match(osShellSource, /Arrow keys or WASD/);
   assert.match(osShellSource, /touch D-pad/);
   assert.match(osShellSource, /Collectibles award additional points/);
-  assert.match(osShellSource, /Dynamic gateways begin at Level 6/);
-  assert.match(osShellSource, /Monsters begin at Level 11/);
+  assert.match(osShellSource, /Dynamic gateway shifts begin at Level 3/);
+  assert.match(osShellSource, /first monster begins at Level 6/);
+  assert.match(osShellSource, /second monster begins at Level 11/);
   assert.match(osShellSource, /Monster contact immediately ends the run/);
   assert.match(osShellSource, /High scores are stored locally/);
   assert.match(osShellSource, /Exit to Bin ends the current run/);

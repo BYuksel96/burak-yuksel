@@ -1,14 +1,15 @@
 import {
-  canToggleGateway,
+  applyGatewayShift,
+  chooseLocalGatewayShift,
   generateMaze,
   getCellKey,
-  getCellRing,
-  markGatewayWarning,
-  setGatewayOpen,
+  getLocalGatewayRadius,
+  isGatewayShiftSafe,
+  markGatewayShiftWarning,
 } from './maze-generation.js';
 import { createMazeChiptunePlayer, formatMazeMusicToggleLabel, getMazeMusicLifecycleAction } from './maze-audio.js';
 import { getDirectionFromKey, shouldCaptureMazeKey } from './maze-input.js';
-import { chooseMonsterMove, createMonsterMemory, getCell, isSameCell } from './maze-pathfinding.js';
+import { chooseMonsterMove, createMonsterMemory, findPath, getCell, getCellKey as getPathCellKey, isSameCell } from './maze-pathfinding.js';
 import { createSeededRandom } from './maze-rng.js';
 import { createMazeHighScoreStore, createMazeMusicPreferenceStore } from './maze-storage.js';
 import { calculateCollectibleScore, calculateLevelCompletionScore, getMonsterProfile } from './maze-state.js';
@@ -79,17 +80,75 @@ const createRuntimeState = (highScore) => ({
   newHighScore: false,
 });
 
-export const createMonsterSpawns = (maze, count) => {
-  const { minX, maxX, minY, maxY } = maze.centerBounds;
-  const candidates = [
-    { x: Math.floor((minX + maxX) / 2), y: Math.floor((minY + maxY) / 2) },
-    { x: minX, y: minY },
-    { x: maxX, y: maxY },
-    { x: minX, y: maxY },
-    { x: maxX, y: minY },
-  ];
+const MONSTER_SPAWN_DISTANCE = 5;
 
-  return candidates.slice(0, count);
+export const getCentralSpawnCells = (maze) => {
+  const { minX, maxX, minY, maxY } = maze.centerBounds;
+  const cells = [];
+
+  for (let y = minY; y <= maxY; y += 1) {
+    for (let x = minX; x <= maxX; x += 1) {
+      cells.push({ x, y });
+    }
+  }
+
+  return cells;
+};
+
+const getPathDistance = (maze, start, goal) => {
+  const path = findPath(maze, start, goal);
+  return path.length > 0 ? path.length - 1 : Number.POSITIVE_INFINITY;
+};
+
+export const getPathDistanceFromCentralSpawn = (maze, cell) =>
+  Math.min(...getCentralSpawnCells(maze).map((spawnCell) => getPathDistance(maze, spawnCell, cell)));
+
+export const canSpawnMonstersForPlayer = ({ maze, player, profile, status = 'playing', monsters = [], minimumDistance = MONSTER_SPAWN_DISTANCE }) => {
+  if (!maze || !player || !profile || status !== 'playing') return false;
+  if (profile.count === 0 || monsters.length >= profile.count) return false;
+
+  return getPathDistanceFromCentralSpawn(maze, player) >= minimumDistance;
+};
+
+const getRouteFirstStepKey = (maze, start, goal) => {
+  const route = findPath(maze, start, goal);
+  return route[1] ? getPathCellKey(route[1]) : '';
+};
+
+export const createMonsterSpawns = (maze, count, player = null) => {
+  const candidates = getCentralSpawnCells(maze)
+    .map((cell) => ({
+      cell,
+      distanceToPlayer: player ? getPathDistance(maze, cell, player) : 0,
+      routeKey: player ? getRouteFirstStepKey(maze, cell, player) : getPathCellKey(cell),
+      centerDistance: Math.abs(cell.x - maze.playerStart.x) + Math.abs(cell.y - maze.playerStart.y),
+    }))
+    .filter((candidate) => !player || candidate.distanceToPlayer > 1)
+    .sort((a, b) => b.distanceToPlayer - a.distanceToPlayer || b.centerDistance - a.centerDistance || a.cell.y - b.cell.y || a.cell.x - b.cell.x);
+
+  const selected = [];
+  const usedCellKeys = new Set();
+  const usedRouteKeys = new Set();
+
+  for (const candidate of candidates) {
+    if (selected.length >= count) break;
+    if (usedCellKeys.has(getPathCellKey(candidate.cell))) continue;
+    if (usedRouteKeys.has(candidate.routeKey) && candidates.some((item) => !usedRouteKeys.has(item.routeKey))) continue;
+
+    selected.push(candidate.cell);
+    usedCellKeys.add(getPathCellKey(candidate.cell));
+    if (candidate.routeKey) usedRouteKeys.add(candidate.routeKey);
+  }
+
+  for (const candidate of candidates) {
+    if (selected.length >= count) break;
+    if (usedCellKeys.has(getPathCellKey(candidate.cell))) continue;
+
+    selected.push(candidate.cell);
+    usedCellKeys.add(getPathCellKey(candidate.cell));
+  }
+
+  return selected;
 };
 
 export const initMazeGame = (root, options = {}) => {
@@ -226,15 +285,72 @@ export const initMazeGame = (root, options = {}) => {
 
   const maybeSpawnMonsters = () => {
     const profile = getMonsterProfile(state.level);
-    if (!state.maze || profile.count === 0 || state.monsters.length >= profile.count) return;
-    if (getCellRing(state.player, state.maze.centerBounds) < 2) return;
+    if (
+      !canSpawnMonstersForPlayer({
+        maze: state.maze,
+        player: state.player,
+        profile,
+        status: state.status,
+        monsters: state.monsters,
+      })
+    ) {
+      return;
+    }
 
-    state.monsters = createMonsterSpawns(state.maze, profile.count).map((cell, index) => ({
-      id: `monster-${index + 1}`,
+    const spawnCount = profile.count - state.monsters.length;
+    const existingCount = state.monsters.length;
+    const newMonsters = createMonsterSpawns(state.maze, spawnCount, state.player).map((cell, index) => ({
+      id: `monster-${existingCount + index + 1}`,
       cell,
       previousCell: null,
       memory: createMonsterMemory(),
     }));
+
+    state.monsters = [...state.monsters, ...newMonsters];
+  };
+
+  const getGatewayEntities = () => ({
+    player: state.player,
+    monsters: state.monsters.flatMap((monster) => [monster.cell, monster.previousCell].filter(Boolean)),
+  });
+
+  const chooseGatewayShift = () => {
+    if (!state.maze?.dynamicGateways.length || !state.player) return null;
+
+    return chooseLocalGatewayShift({
+      maze: state.maze,
+      player: state.player,
+      entities: getGatewayEntities(),
+      radius: getLocalGatewayRadius(state.maze),
+    });
+  };
+
+  const warnAndToggleGateway = () => {
+    if (state.status !== 'playing') return;
+    const shift = chooseGatewayShift();
+    if (!shift) return;
+
+    state.maze = markGatewayShiftWarning(state.maze, shift, true);
+    render();
+
+    warnedGatewayId = window.setTimeout(() => {
+      const safe = isGatewayShiftSafe({
+        maze: state.maze,
+        shift,
+        player: state.player,
+        entities: getGatewayEntities(),
+        radius: getLocalGatewayRadius(state.maze),
+      });
+
+      if (state.status !== 'playing' || !safe) {
+        state.maze = markGatewayShiftWarning(state.maze, shift, false);
+        render();
+        return;
+      }
+
+      state.maze = applyGatewayShift(state.maze, shift);
+      render();
+    }, GATEWAY_WARNING_MS);
   };
 
   const moveMonster = () => {
@@ -270,40 +386,6 @@ export const initMazeGame = (root, options = {}) => {
     if (profile.count === 0) return;
 
     monsterTimer = window.setInterval(moveMonster, profile.moveIntervalMs);
-  };
-
-  const chooseGateway = () => {
-    if (!state.maze?.dynamicGateways.length) return null;
-
-    const entities = {
-      player: state.player,
-      monsters: state.monsters.map((monster) => monster.cell),
-    };
-
-    return state.maze.dynamicGateways.find((gateway) => canToggleGateway(state.maze, gateway.id, entities)) ?? null;
-  };
-
-  const warnAndToggleGateway = () => {
-    if (state.status !== 'playing') return;
-    const gateway = chooseGateway();
-    if (!gateway) return;
-
-    state.maze = markGatewayWarning(state.maze, gateway.id, true);
-    render();
-
-    warnedGatewayId = window.setTimeout(() => {
-      if (state.status !== 'playing' || !canToggleGateway(state.maze, gateway.id, {
-        player: state.player,
-        monsters: state.monsters.map((monster) => monster.cell),
-      })) {
-        state.maze = markGatewayWarning(state.maze, gateway.id, false);
-        render();
-        return;
-      }
-
-      state.maze = setGatewayOpen(state.maze, gateway.id, !gateway.open);
-      render();
-    }, GATEWAY_WARNING_MS);
   };
 
   const scheduleGateways = () => {

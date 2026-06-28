@@ -97,13 +97,17 @@ const weightedPick = (items, rng) => {
 
 const scoreMonsterOption = ({ maze, option, player, monster, profile }) => {
   const distance = manhattanDistance(option, player);
+  const route = profile.routeLookahead > 0 ? findPath(maze, option, player) : [];
+  const routeDistance = route.length > 0 ? route.length - 1 : distance * 2;
+  const routeAwareness = Math.min(0.85, Math.max(0, profile.routeLookahead) / 4);
+  const pursuitScore = distance * (1 - routeAwareness) + routeDistance * routeAwareness;
   const previousPenalty = isSameCell(option, monster.previousCell) ? 1.4 : 0;
   const recentPenalty = monster.memory?.recentCells?.includes(getCellKey(option)) ? profile.memoryWeight : 0;
   const deadEndPenalty = monster.memory?.deadEnds?.has(getCellKey(option)) ? profile.memoryWeight * 2 : 0;
   const degree = getNeighbors(maze, option).length;
   const deadEndScore = degree <= 1 ? 0.9 : 0;
 
-  return distance + previousPenalty + recentPenalty + deadEndPenalty + deadEndScore;
+  return pursuitScore + previousPenalty + recentPenalty + deadEndPenalty + deadEndScore;
 };
 
 export const chooseMonsterMove = ({ maze, monster, player, level, rng = Math.random, reservedCells = [] }) => {

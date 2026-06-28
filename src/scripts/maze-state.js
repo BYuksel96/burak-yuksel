@@ -11,7 +11,7 @@ export const calculateLevelCompletionScore = (level, collectedAll = false) =>
   SCORE_RULES.levelBase + level * SCORE_RULES.levelMultiplier + (collectedAll ? SCORE_RULES.fullSweepBonus : 0);
 
 export const getMonsterProfile = (level) => {
-  if (level < 11) {
+  if (level < 6) {
     return {
       count: 0,
       strategy: 'none',
@@ -24,14 +24,14 @@ export const getMonsterProfile = (level) => {
     };
   }
 
-  if (level < 16) {
+  if (level < 11) {
     return {
       count: 1,
-      strategy: 'local-biased',
-      mistakeChance: 0.38,
-      memoryWeight: 0.1,
-      routeLookahead: 0,
-      decisionIntervalMs: 780,
+      strategy: 'route-aware',
+      mistakeChance: 0.24,
+      memoryWeight: 0.32,
+      routeLookahead: 1,
+      decisionIntervalMs: 700,
       moveIntervalMs: 620,
       speedScale: 0.82,
     };
@@ -39,13 +39,13 @@ export const getMonsterProfile = (level) => {
 
   if (level < 21) {
     return {
-      count: 1,
-      strategy: 'memory-biased',
-      mistakeChance: 0.22,
-      memoryWeight: 0.42,
-      routeLookahead: 1,
-      decisionIntervalMs: 620,
-      moveIntervalMs: 540,
+      count: 2,
+      strategy: level < 16 ? 'coordinated-route' : 'coordinated-memory',
+      mistakeChance: level < 16 ? 0.14 : 0.1,
+      memoryWeight: level < 16 ? 0.56 : 0.64,
+      routeLookahead: level < 16 ? 3 : 4,
+      decisionIntervalMs: level < 16 ? 600 : 540,
+      moveIntervalMs: level < 16 ? 590 : 540,
       speedScale: 0.9,
     };
   }
@@ -54,9 +54,9 @@ export const getMonsterProfile = (level) => {
     return {
       count: 2,
       strategy: 'coordinated-biased',
-      mistakeChance: 0.18,
-      memoryWeight: 0.5,
-      routeLookahead: 2,
+      mistakeChance: 0.09,
+      memoryWeight: 0.68,
+      routeLookahead: 5,
       decisionIntervalMs: 560,
       moveIntervalMs: 520,
       speedScale: 0.92,
@@ -67,9 +67,9 @@ export const getMonsterProfile = (level) => {
     return {
       count: 2,
       strategy: 'route-evaluation',
-      mistakeChance: 0.1,
-      memoryWeight: 0.65,
-      routeLookahead: 4,
+      mistakeChance: 0.08,
+      memoryWeight: 0.72,
+      routeLookahead: 6,
       decisionIntervalMs: 460,
       moveIntervalMs: 460,
       speedScale: 0.96,

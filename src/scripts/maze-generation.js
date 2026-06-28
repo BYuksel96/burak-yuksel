@@ -1,5 +1,5 @@
 import { chooseRandom, createSeededRandom, shuffle } from './maze-rng.js';
-import { DIRECTIONS, findPath, getCell, getCellKey, getNeighbors } from './maze-pathfinding.js';
+import { DIRECTIONS, findPath, getCell, getCellKey, getNeighbors, isSameCell, manhattanDistance } from './maze-pathfinding.js';
 
 export { getCellKey } from './maze-pathfinding.js';
 
@@ -17,7 +17,7 @@ export const getMazeLevelConfig = (level) => {
     rings,
     width: size,
     height: size,
-    dynamicGateways: safeLevel >= 6,
+    dynamicGateways: safeLevel >= 3,
   };
 };
 
@@ -250,18 +250,32 @@ const placeCollectibles = ({ maze, rng }) => {
   return collectibles;
 };
 
-const selectDynamicGateways = ({ maze, braidedEdges, level }) => {
-  if (level < 6) return [];
+const selectDynamicGateways = ({ maze, braidedEdges, level, rng }) => {
+  if (level < 3) return [];
 
   const count = Math.min(8, Math.max(2, Math.floor(level / 3)));
-  return braidedEdges.slice(0, count).map((edge, index) => ({
-    id: `gateway-${index + 1}`,
+  const openGateways = braidedEdges.slice(0, count).map((edge, index) => ({
+    id: `gateway-open-${index + 1}`,
     a: edge.a,
     b: edge.b,
     direction: edge.direction,
     open: true,
     warning: false,
   }));
+  const openKeys = new Set(openGateways.map((gateway) => `${getCellKey(gateway.a)}:${getCellKey(gateway.b)}`));
+  const closedGateways = shuffle(collectClosedInternalEdges(maze.cells), rng)
+    .filter((edge) => !openKeys.has(`${getCellKey(edge.a)}:${getCellKey(edge.b)}`))
+    .slice(0, count)
+    .map((edge, index) => ({
+      id: `gateway-closed-${index + 1}`,
+      a: edge.a,
+      b: edge.b,
+      direction: edge.direction,
+      open: false,
+      warning: false,
+    }));
+
+  return [...openGateways, ...closedGateways];
 };
 
 export const getAccessibleCellKeys = (maze, start) => {
@@ -391,6 +405,110 @@ export const canToggleGateway = (maze, gatewayId, entities = {}) => {
   return findPath(closedMaze, closedMaze.playerStart, closedMaze.exit.cell).length > 0;
 };
 
+export const getLocalGatewayRadius = (maze) => Math.max(5, Math.min(10, Math.floor(Math.min(maze.width, maze.height) * 0.28)));
+
+const getGatewayDistanceToCell = (gateway, cell) => Math.min(manhattanDistance(gateway.a, cell), manhattanDistance(gateway.b, cell));
+
+const getOccupiedCellKeys = (entities = {}) =>
+  [entities.player, ...(entities.monsters || [])]
+    .filter(Boolean)
+    .map(getCellKey);
+
+const isGatewayEndpointOccupied = (gateway, occupiedKeys) =>
+  occupiedKeys.includes(getCellKey(gateway.a)) || occupiedKeys.includes(getCellKey(gateway.b));
+
+const isGatewayLocalCandidate = ({ gateway, player, occupiedKeys, radius }) => {
+  const distance = getGatewayDistanceToCell(gateway, player);
+  return distance <= radius && distance > 1 && !isGatewayEndpointOccupied(gateway, occupiedKeys);
+};
+
+const resolveGatewayShift = (maze, shift) => {
+  if (!shift?.closeGateway?.id || !shift?.openGateway?.id) return null;
+
+  const closeGateway = maze.dynamicGateways.find((gateway) => gateway.id === shift.closeGateway.id);
+  const openGateway = maze.dynamicGateways.find((gateway) => gateway.id === shift.openGateway.id);
+  if (!closeGateway || !openGateway || closeGateway.id === openGateway.id) return null;
+
+  return {
+    closeGateway,
+    openGateway,
+  };
+};
+
+export const applyGatewayShift = (maze, shift, warning = false) => {
+  const resolved = resolveGatewayShift(maze, shift);
+  if (!resolved) return maze;
+
+  const closedMaze = setGatewayOpen(maze, resolved.closeGateway.id, false, warning);
+  return setGatewayOpen(closedMaze, resolved.openGateway.id, true, warning);
+};
+
+export const markGatewayShiftWarning = (maze, shift, warning = true) => {
+  const resolved = resolveGatewayShift(maze, shift);
+  if (!resolved) return maze;
+
+  return [resolved.closeGateway.id, resolved.openGateway.id].reduce(
+    (nextMaze, gatewayId) => markGatewayWarning(nextMaze, gatewayId, warning),
+    maze,
+  );
+};
+
+export const isGatewayShiftSafe = ({ maze, shift, player, entities = {}, radius = getLocalGatewayRadius(maze) }) => {
+  const resolved = resolveGatewayShift(maze, shift);
+  if (!resolved || !player) return false;
+
+  const { closeGateway, openGateway } = resolved;
+  if (!closeGateway.open || openGateway.open) return false;
+  if (!isGatewayInternal(maze, closeGateway) || !isGatewayInternal(maze, openGateway)) return false;
+
+  const occupiedKeys = getOccupiedCellKeys({
+    player,
+    monsters: entities.monsters || [],
+  });
+  if (isGatewayEndpointOccupied(closeGateway, occupiedKeys) || isGatewayEndpointOccupied(openGateway, occupiedKeys)) return false;
+  if (
+    !isGatewayLocalCandidate({ gateway: closeGateway, player, occupiedKeys, radius }) ||
+    !isGatewayLocalCandidate({ gateway: openGateway, player, occupiedKeys, radius })
+  ) {
+    return false;
+  }
+
+  const shiftedMaze = applyGatewayShift(maze, resolved);
+  if (!getNeighbors(shiftedMaze, player).length) return false;
+  if (!findPath(shiftedMaze, player, shiftedMaze.exit.cell).length) return false;
+  if (!findPath(shiftedMaze, shiftedMaze.playerStart, shiftedMaze.exit.cell).length) return false;
+  if (!getNeighbors(shiftedMaze, openGateway.a).some((neighbor) => isSameCell(neighbor, openGateway.b))) return false;
+
+  return true;
+};
+
+export const chooseLocalGatewayShift = ({ maze, player, entities = {}, radius = getLocalGatewayRadius(maze) }) => {
+  if (!maze?.dynamicGateways?.length || !player) return null;
+
+  const occupiedKeys = getOccupiedCellKeys({
+    player,
+    monsters: entities.monsters || [],
+  });
+  const byDistance = (a, b) => getGatewayDistanceToCell(a, player) - getGatewayDistanceToCell(b, player);
+  const openGateways = maze.dynamicGateways
+    .filter((gateway) => gateway.open && isGatewayLocalCandidate({ gateway, player, occupiedKeys, radius }))
+    .sort(byDistance);
+  const closedGateways = maze.dynamicGateways
+    .filter((gateway) => !gateway.open && isGatewayLocalCandidate({ gateway, player, occupiedKeys, radius }))
+    .sort(byDistance);
+
+  for (const closeGateway of openGateways) {
+    for (const openGateway of closedGateways) {
+      const shift = { closeGateway, openGateway };
+      if (isGatewayShiftSafe({ maze, shift, player, entities, radius })) {
+        return shift;
+      }
+    }
+  }
+
+  return null;
+};
+
 export const getCellRing = (cell, centerBounds) => {
   const dx = cell.x < centerBounds.minX ? centerBounds.minX - cell.x : cell.x > centerBounds.maxX ? cell.x - centerBounds.maxX : 0;
   const dy = cell.y < centerBounds.minY ? centerBounds.minY - cell.y : cell.y > centerBounds.maxY ? cell.y - centerBounds.maxY : 0;
@@ -432,12 +550,15 @@ export const generateMaze = ({ level = 1, seed = Date.now() } = {}) => {
   openExteriorExit(maze, maze.exit);
   maze.deadEnds = getDeadEnds(maze);
   maze.collectibles = placeCollectibles({ maze, rng });
-  maze.dynamicGateways = selectDynamicGateways({ maze, braidedEdges, level: config.level }).filter((gateway) => {
-    const closedMaze = {
+  maze.dynamicGateways = selectDynamicGateways({ maze, braidedEdges, level: config.level, rng }).filter((gateway) => {
+    if (!isGatewayInternal(maze, gateway)) return false;
+
+    const gatewayMaze = {
       ...maze,
-      dynamicGateways: [{ ...gateway, open: true }],
+      dynamicGateways: [{ ...gateway }],
     };
-    return isGatewayInternal(maze, gateway) && findPath(setGatewayOpen(closedMaze, gateway.id, false), maze.playerStart, maze.exit.cell).length > 0;
+    const toggledMaze = setGatewayOpen(gatewayMaze, gateway.id, !gateway.open);
+    return findPath(toggledMaze, maze.playerStart, maze.exit.cell).length > 0;
   });
 
   if (!getCell(maze, maze.exit.cell) || !findPath(maze, maze.playerStart, maze.exit.cell).length) {
