@@ -524,7 +524,7 @@ test('maze renderer exposes a real exit indicator with reduced-motion support', 
   assert.doesNotMatch(rendererSource, /shortest|solution route|minimap/i);
 });
 
-test('OS integration launches Maze.exe from Bin only and does not start quiz phases', () => {
+test('OS integration launches Maze.exe from Bin as a fullscreen game', () => {
   const shell = readSource('../components/os/OsShell.astro');
   const bin = readSource('../components/os/BinFolder.astro');
   const osWindow = readSource('../components/os/OsWindow.astro');
@@ -538,8 +538,6 @@ test('OS integration launches Maze.exe from Bin only and does not start quiz pha
   assert.match(bin, /data-os-game-file/);
   assert.match(bin, /data-os-target="maze"/);
   assert.match(osWindow, /kind: 'main' \| 'folder' \| 'game'/);
-  assert.match(manager, /GAME_APPS\s*=\s*\['maze'\]/);
+  assert.match(manager, /GAME_APPS\s*=\s*\['maze',\s*'quiz'\]/);
   assert.match(osCss, /\.os-window--game\s*\{[\s\S]*z-index:\s*24;/);
-  assert.doesNotMatch(shell, /QuizGame|AgileQuiz|ScrumQuiz/i);
-  assert.doesNotMatch(bin, /Quiz|Scrum/i);
 });

@@ -1,0 +1,174 @@
+---
+import '../../styles/quiz-game.css';
+---
+
+<section class="quiz-game" data-quiz-game aria-label="Quiz.exe Agile delivery quiz game">
+  <div class="quiz-game__live" data-quiz-live role="status" aria-live="polite"></div>
+
+  <section class="quiz-game__screen quiz-game__screen--start" data-quiz-screen="start" aria-labelledby="quiz-start-title">
+    <div class="quiz-game__start-copy">
+      <p class="quiz-game__eyebrow">Recovered training program</p>
+      <h3 id="quiz-start-title">Quiz.exe</h3>
+      <p>
+        Corrupted delivery simulator restored. Choose a mode, answer carefully, and see which parts of the Agile system still hold under pressure.
+      </p>
+    </div>
+
+    <div class="quiz-game__mode-grid" aria-label="Quiz game modes">
+      <button class="quiz-game__mode-card" type="button" data-quiz-start-mode="arcade">
+        <span>Arcade Terminal</span>
+        <strong>Lives + streaks</strong>
+        <small>Fast-paced delivery challenge. Protect your lives, build streaks and chase a high score.</small>
+      </button>
+
+      <button class="quiz-game__mode-card" type="button" data-quiz-start-mode="coach">
+        <span>Coach Console</span>
+        <strong>12-question session</strong>
+        <small>Work through realistic situations, review explanations and improve weaker knowledge areas.</small>
+      </button>
+    </div>
+
+    <div class="quiz-game__progress" data-quiz-progress-summary>
+      <p>Local progress loading...</p>
+    </div>
+
+    <div class="quiz-game__actions">
+      <button class="quiz-game__button" type="button" data-quiz-reset-progress>Reset Progress</button>
+      <button class="quiz-game__button" type="button" data-os-game-exit>Exit to Bin</button>
+    </div>
+
+    <div class="quiz-game__confirm" data-quiz-reset-confirm hidden>
+      <p>Clear Quiz.exe high scores and learning progress?</p>
+      <div>
+        <button class="quiz-game__button quiz-game__button--danger" type="button" data-quiz-confirm-reset>Yes, reset</button>
+        <button class="quiz-game__button" type="button" data-quiz-cancel-reset>No</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="quiz-game__screen quiz-game__screen--play" data-quiz-screen="play" aria-labelledby="quiz-question-title" hidden>
+    <div class="quiz-game__hud" aria-label="Quiz status">
+      <div>
+        <span>Mode</span>
+        <strong data-quiz-mode-label>Arcade</strong>
+      </div>
+      <div data-quiz-arcade-stat>
+        <span>Lives</span>
+        <strong data-quiz-lives>3</strong>
+      </div>
+      <div data-quiz-arcade-stat>
+        <span>Level</span>
+        <strong data-quiz-level>1</strong>
+      </div>
+      <div>
+        <span>Score</span>
+        <strong data-quiz-score>0</strong>
+      </div>
+      <div data-quiz-arcade-stat>
+        <span>Streak</span>
+        <strong data-quiz-streak>0</strong>
+      </div>
+      <div data-quiz-coach-stat hidden>
+        <span>Question</span>
+        <strong><span data-quiz-coach-index>1</span>/12</strong>
+      </div>
+    </div>
+
+    <div class="quiz-game__question-shell">
+      <div class="quiz-game__prompt">
+        <p class="quiz-game__meta">
+          <span data-quiz-category>Agile principles</span>
+          <span data-quiz-difficulty>Foundation</span>
+        </p>
+        <p class="quiz-game__scenario" data-quiz-scenario hidden></p>
+        <h3 id="quiz-question-title" data-quiz-prompt>Question prompt</h3>
+      </div>
+
+      <div class="quiz-game__answers" data-quiz-answers aria-label="Answer choices">
+        <button class="quiz-game__answer" type="button" data-quiz-answer data-choice-id="a">
+          <span>A</span>
+          <strong></strong>
+        </button>
+        <button class="quiz-game__answer" type="button" data-quiz-answer data-choice-id="b">
+          <span>B</span>
+          <strong></strong>
+        </button>
+        <button class="quiz-game__answer" type="button" data-quiz-answer data-choice-id="c">
+          <span>C</span>
+          <strong></strong>
+        </button>
+        <button class="quiz-game__answer" type="button" data-quiz-answer data-choice-id="d">
+          <span>D</span>
+          <strong></strong>
+        </button>
+      </div>
+
+      <section class="quiz-game__feedback" data-quiz-feedback aria-live="polite" hidden>
+        <p class="quiz-game__feedback-title" data-quiz-feedback-title>Correct</p>
+        <p data-quiz-feedback-copy></p>
+        <p data-quiz-why-it-matters></p>
+        <a data-quiz-reference href="#" target="_blank" rel="noreferrer" hidden>Source</a>
+        <div class="quiz-game__actions">
+          <button class="quiz-game__button quiz-game__button--primary" type="button" data-quiz-next>Next</button>
+          <button class="quiz-game__button" type="button" data-quiz-mode-select>Mode Select</button>
+          <button class="quiz-game__button" type="button" data-os-game-exit>Exit to Bin</button>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <section class="quiz-game__screen quiz-game__screen--summary" data-quiz-screen="arcade-summary" aria-labelledby="quiz-arcade-summary-title" hidden>
+    <p class="quiz-game__eyebrow">Run ended</p>
+    <h3 id="quiz-arcade-summary-title">Arcade Terminal</h3>
+    <p class="quiz-game__new-high" data-quiz-new-high aria-live="polite"></p>
+    <dl class="quiz-game__summary-list">
+      <div>
+        <dt>Final score</dt>
+        <dd data-quiz-final-score>0</dd>
+      </div>
+      <div>
+        <dt>Highest level</dt>
+        <dd data-quiz-highest-level>1</dd>
+      </div>
+      <div>
+        <dt>Longest streak</dt>
+        <dd data-quiz-longest-streak>0</dd>
+      </div>
+      <div>
+        <dt>High score</dt>
+        <dd data-quiz-final-high-score>0</dd>
+      </div>
+    </dl>
+    <div class="quiz-game__actions">
+      <button class="quiz-game__button quiz-game__button--primary" type="button" data-quiz-start-mode="arcade">Play Again</button>
+      <button class="quiz-game__button" type="button" data-quiz-mode-select>Return to Mode Select</button>
+      <button class="quiz-game__button" type="button" data-os-game-exit>Exit to Bin</button>
+    </div>
+  </section>
+
+  <section class="quiz-game__screen quiz-game__screen--summary" data-quiz-screen="coach-summary" aria-labelledby="quiz-coach-summary-title" hidden>
+    <p class="quiz-game__eyebrow">Learning session summary</p>
+    <h3 id="quiz-coach-summary-title">Coach Console</h3>
+    <p data-quiz-coach-score>0 correct out of 12</p>
+    <div class="quiz-game__coach-summary" data-quiz-coach-summary></div>
+    <div class="quiz-game__actions">
+      <button class="quiz-game__button quiz-game__button--primary" type="button" data-quiz-start-mode="coach">Start Another Session</button>
+      <button class="quiz-game__button" type="button" data-quiz-mode-select>Return to Mode Select</button>
+      <button class="quiz-game__button" type="button" data-os-game-exit>Exit to Bin</button>
+    </div>
+  </section>
+</section>
+
+<script>
+  import { initQuizGames } from '../../scripts/quiz-game.js';
+
+  if (typeof window !== 'undefined') {
+    const setupQuizGame = () => initQuizGames(document);
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupQuizGame, { once: true });
+    } else {
+      setupQuizGame();
+    }
+  }
+</script>

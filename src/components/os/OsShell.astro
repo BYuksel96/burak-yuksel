@@ -10,6 +10,7 @@ import LoadingScreen from './LoadingScreen.astro';
 import MazeGame from './MazeGame.astro';
 import MonitorFrame from './MonitorFrame.astro';
 import OsWindow from './OsWindow.astro';
+import QuizGame from './QuizGame.astro';
 import ResumeApp from './ResumeApp.astro';
 import Taskbar from './Taskbar.astro';
 import '../../styles/os.css';
@@ -70,7 +71,8 @@ const windows = [
     kind: 'folder',
     label: 'Folder shell',
     message: 'Easter egg files ready.',
-    helpText: 'Bin contains hidden Burak OS easter eggs. Maze.exe runs entirely in the browser and can save a local high score.',
+    helpText:
+      'Bin contains hidden Burak OS easter eggs. Maze.exe and Quiz.exe run entirely in the browser. Progress or high scores may be stored locally where available.',
   },
   {
     id: 'maze',
@@ -80,6 +82,15 @@ const windows = [
     message: 'Maze game loaded.',
     helpText:
       'Maze.exe objective: escape through the visible opening in the exterior wall. Use Arrow keys or WASD on desktop, or the touch D-pad. Collectibles award additional points. Dynamic gateway shifts begin at Level 3. The first monster begins at Level 6 after you leave the central spawn area; a second monster begins at Level 11. Monster contact immediately ends the run. High scores are stored locally where available. Exit to Bin ends the current run. Music can be enabled or disabled from the start and game-over menus.',
+  },
+  {
+    id: 'quiz',
+    title: 'Quiz.exe',
+    kind: 'game',
+    label: 'Game shell',
+    message: 'Quiz game loaded.',
+    helpText:
+      'Quiz.exe has two modes. Arcade Terminal uses lives, score, levels and streaks. Coach Console uses 12-question learning sessions and category feedback. Select one of four answers with buttons, number keys 1-4, or letter keys A-D. Explanations appear after every answer. Progress and high scores are stored locally where available. Reset Progress affects Quiz.exe only. Exit to Bin discards the active session but preserves completed progress.',
   },
 ] as const;
 ---
@@ -140,6 +151,8 @@ const windows = [
                   <BinFolder />
                 ) : window.id === 'maze' ? (
                   <MazeGame />
+                ) : window.id === 'quiz' ? (
+                  <QuizGame />
                 ) : (
                   <div class="os-placeholder-panel">
                     <p class="os-placeholder-label">{window.label}</p>

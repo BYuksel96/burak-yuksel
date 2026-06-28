@@ -121,6 +121,28 @@ test('closing windows updates only the matching window family', () => {
   assert.equal(state.isTaskbarCompact, false);
 });
 
+test('fullscreen game windows are exclusive and compact the taskbar', () => {
+  let state = createInitialOsState();
+
+  state = reduceOsWindowState(state, { type: 'open', id: 'bin' });
+  state = reduceOsWindowState(state, { type: 'open', id: 'maze' });
+  assert.equal(state.activeGameApp, 'maze');
+  assert.equal(state.activeMainApp, null);
+  assert.deepEqual(state.openFolders, ['bin']);
+  assert.equal(state.isTaskbarCompact, true);
+
+  state = reduceOsWindowState(state, { type: 'open', id: 'quiz' });
+  assert.equal(state.activeGameApp, 'quiz');
+  assert.equal(state.activeMainApp, null);
+  assert.deepEqual(state.openFolders, ['bin']);
+  assert.equal(state.isTaskbarCompact, true);
+
+  state = reduceOsWindowState(state, { type: 'close', id: 'quiz' });
+  assert.equal(state.activeGameApp, null);
+  assert.deepEqual(state.openFolders, ['bin']);
+  assert.equal(state.isTaskbarCompact, false);
+});
+
 test('launcher open actions support single-click desktop and taskbar paths', () => {
   assert.deepEqual(createLauncherOpenAction('desktop', 'resume'), { type: 'open', id: 'resume' });
   assert.deepEqual(createLauncherOpenAction('taskbar', 'downloads'), { type: 'open', id: 'downloads' });
@@ -236,8 +258,8 @@ test('Downloads and Bin windows render real folder content and updated help copy
   assert.match(downloadsSource, /Resume-BURAK-YUKSEL\.pdf/);
   assert.match(downloadsSource, /data-os-download-file/);
   assert.match(binSource, /Maze\.exe/);
+  assert.match(binSource, /Quiz\.exe/);
   assert.match(binSource, /data-os-game-file/);
-  assert.doesNotMatch(binSource, /Quiz|Scrum/i);
   assert.match(osWindowSource, /data-os-folder-drag-handle/);
   assert.doesNotMatch(osShellSource, /Downloads is an empty placeholder/);
   assert.doesNotMatch(osShellSource, /Bin is an empty placeholder/);

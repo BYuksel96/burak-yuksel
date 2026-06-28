@@ -1,6 +1,6 @@
 const MAIN_APPS = ['resume', 'blog', 'github'];
 const FOLDER_APPS = ['downloads', 'bin'];
-const GAME_APPS = ['maze'];
+const GAME_APPS = ['maze', 'quiz'];
 const ALL_TARGETS = [...MAIN_APPS, ...FOLDER_APPS, ...GAME_APPS];
 
 const isMainApp = (id) => MAIN_APPS.includes(id);
