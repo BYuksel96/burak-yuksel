@@ -8,6 +8,9 @@ import {
   createInitialOsState,
   createLauncherOpenAction,
   formatOsDateTime,
+  getGameReturnFocusSelector,
+  getWindowCloseActions,
+  getWindowFocusSelector,
   reduceOsWindowState,
   shouldOpenDownloadConfirm,
 } from './os-window-manager.js';
@@ -141,6 +144,26 @@ test('fullscreen game windows are exclusive and compact the taskbar', () => {
   assert.equal(state.activeGameApp, null);
   assert.deepEqual(state.openFolders, ['bin']);
   assert.equal(state.isTaskbarCompact, false);
+});
+
+test('game windows define explicit launch and return focus targets', () => {
+  assert.equal(getWindowFocusSelector('maze'), '[data-maze-play]');
+  assert.equal(getWindowFocusSelector('quiz'), '[data-quiz-start-mode]');
+  assert.equal(getWindowFocusSelector('bin'), '[data-os-window-close]');
+  assert.equal(getGameReturnFocusSelector('maze'), '[data-os-window-id="bin"] [data-os-game-file][data-os-target="maze"]');
+  assert.equal(getGameReturnFocusSelector('quiz'), '[data-os-window-id="bin"] [data-os-game-file][data-os-target="quiz"]');
+});
+
+test('closing a game window routes back to Bin before restoring focus', () => {
+  assert.deepEqual(getWindowCloseActions('maze', 'game'), [
+    { type: 'close', id: 'maze' },
+    { type: 'open', id: 'bin' },
+  ]);
+  assert.deepEqual(getWindowCloseActions('quiz', 'game'), [
+    { type: 'close', id: 'quiz' },
+    { type: 'open', id: 'bin' },
+  ]);
+  assert.deepEqual(getWindowCloseActions('downloads', 'folder'), [{ type: 'close', id: 'downloads' }]);
 });
 
 test('launcher open actions support single-click desktop and taskbar paths', () => {
@@ -323,6 +346,16 @@ test('shared OS controls use visible glyphs and keep minimise disabled', () => {
   assert.match(osWindowSource, /<span aria-hidden="true">-<\/span>/);
   assert.match(osWindowSource, /<span aria-hidden="true">\?<\/span>/);
   assert.match(osCss, /\.os-window-control--minimise\s*\{[\s\S]*var\(--os-muted\)[\s\S]*opacity:\s*0\.[0-9]+;/);
+});
+
+test('shared help dialog traps keyboard focus and restores the help opener', () => {
+  const windowManagerSource = readFileSync(new URL('./os-window-manager.js', import.meta.url), 'utf8');
+
+  assert.match(windowManagerSource, /lastHelpTrigger/);
+  assert.match(windowManagerSource, /focusHelpDialogTrigger/);
+  assert.match(windowManagerSource, /trapHelpDialogFocus/);
+  assert.match(windowManagerSource, /event\.key !== 'Tab'/);
+  assert.match(windowManagerSource, /getFocusableElements\(helpDialog\)/);
 });
 
 test('Blog.exe uses its own chrome as the window topbar', () => {

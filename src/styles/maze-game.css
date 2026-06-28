@@ -300,7 +300,7 @@
   }
 }
 
-@media (hover: hover) and (pointer: fine) {
+@media (hover: hover) and (pointer: fine) and (min-width: 761px) {
   .maze-game__controls {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     grid-template-rows: 2.35rem;

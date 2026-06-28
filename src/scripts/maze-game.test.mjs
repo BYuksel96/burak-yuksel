@@ -524,6 +524,14 @@ test('maze renderer exposes a real exit indicator with reduced-motion support', 
   assert.doesNotMatch(rendererSource, /shortest|solution route|minimap/i);
 });
 
+test('maze touch controls keep spatial D-pad placement on narrow mobile viewports', () => {
+  const mazeCss = readSource('../styles/maze-game.css');
+
+  assert.match(mazeCss, /@media\s*\(hover:\s*hover\)\s*and\s*\(pointer:\s*fine\)\s*and\s*\(min-width:\s*761px\)/);
+  assert.match(mazeCss, /\.maze-game__controls button\[data-maze-direction='north'\]\s*\{[\s\S]*grid-column:\s*2;[\s\S]*grid-row:\s*1;/);
+  assert.match(mazeCss, /\.maze-game__controls button\[data-maze-direction='east'\]\s*\{[\s\S]*grid-column:\s*3;[\s\S]*grid-row:\s*2;/);
+});
+
 test('OS integration launches Maze.exe from Bin as a fullscreen game', () => {
   const shell = readSource('../components/os/OsShell.astro');
   const bin = readSource('../components/os/BinFolder.astro');

@@ -2,6 +2,14 @@ const MAIN_APPS = ['resume', 'blog', 'github'];
 const FOLDER_APPS = ['downloads', 'bin'];
 const GAME_APPS = ['maze', 'quiz'];
 const ALL_TARGETS = [...MAIN_APPS, ...FOLDER_APPS, ...GAME_APPS];
+const FOCUSABLE_SELECTOR = [
+  'button:not([disabled])',
+  'a[href]',
+  'input:not([disabled])',
+  'select:not([disabled])',
+  'textarea:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(',');
 
 const isMainApp = (id) => MAIN_APPS.includes(id);
 const isFolderApp = (id) => FOLDER_APPS.includes(id);
@@ -67,6 +75,27 @@ export const createLauncherOpenAction = (launcherType, id, state = createInitial
   }
 
   return { type: 'open', id };
+};
+
+export const getWindowFocusSelector = (id) => {
+  if (id === 'maze') return '[data-maze-play]';
+  if (id === 'quiz') return '[data-quiz-start-mode]';
+
+  return '[data-os-window-close]';
+};
+
+export const getGameReturnFocusSelector = (id) => `[data-os-window-id="bin"] [data-os-game-file][data-os-target="${id}"]`;
+
+export const getWindowCloseActions = (id, kind = '') => {
+  if (!ALL_TARGETS.includes(id)) return [];
+  if (kind === 'game' || isGameApp(id)) {
+    return [
+      { type: 'close', id },
+      { type: 'open', id: 'bin' },
+    ];
+  }
+
+  return [{ type: 'close', id }];
 };
 
 export const formatOsDateTime = (date = new Date(), locale = undefined) => {
@@ -215,6 +244,17 @@ const getTargetId = (element) => element?.getAttribute('data-os-target') ?? '';
 
 const getWindowId = (element) => element?.closest('[data-os-window]')?.getAttribute('data-os-window-id') ?? '';
 
+const getWindowKind = (element) => element?.closest('[data-os-window]')?.getAttribute('data-os-window-kind') ?? '';
+
+const getFocusableElements = (root) =>
+  Array.from(root?.querySelectorAll?.(FOCUSABLE_SELECTOR) ?? []).filter(
+    (element) =>
+      element instanceof HTMLElement &&
+      !element.hidden &&
+      !element.closest('[hidden], [aria-hidden="true"]') &&
+      element.getAttribute('aria-disabled') !== 'true',
+  );
+
 export const initOsWindowManager = (screen) => {
   if (!screen || screen.dataset.osWindowManagerReady === 'true') return;
 
@@ -236,10 +276,74 @@ export const initOsWindowManager = (screen) => {
   let statusTimeInterval;
   let dragState = null;
   let pendingDownload = null;
+  let lastHelpTrigger = null;
 
   const isWindowOpen = (id) => isTargetOpen(state, id);
 
   const getHelpSource = (id) => windows.find((windowElement) => windowElement.getAttribute('data-os-window-id') === id);
+
+  const focusElement = (element) => {
+    if (element instanceof HTMLElement) {
+      element.focus({ preventScroll: true });
+      return true;
+    }
+
+    return false;
+  };
+
+  const focusOpenedWindow = (id) => {
+    const windowElement = windows.find((element) => element.getAttribute('data-os-window-id') === id);
+    if (!windowElement || windowElement.hidden) return false;
+
+    return focusElement(windowElement.querySelector(getWindowFocusSelector(id))) || focusElement(getFocusableElements(windowElement)[0]);
+  };
+
+  const focusGameReturnTarget = (id) =>
+    focusElement(screen.querySelector(getGameReturnFocusSelector(id))) ||
+    focusElement(screen.querySelector('[data-os-window-id="bin"] [data-os-window-close]')) ||
+    focusElement(screen.querySelector('[data-os-launcher="taskbar"][data-os-target="bin"]'));
+
+  const focusHelpDialogTrigger = () => {
+    const trigger = lastHelpTrigger;
+    lastHelpTrigger = null;
+
+    if (!trigger || !document.contains(trigger) || trigger.closest('[hidden], [aria-hidden="true"]')) return false;
+
+    return focusElement(trigger);
+  };
+
+  const trapHelpDialogFocus = (event) => {
+    if (!helpDialog || helpDialog.hidden || !state.helpWindowId || event.key !== 'Tab') return false;
+
+    const focusable = getFocusableElements(helpDialog);
+    if (!focusable.length) {
+      event.preventDefault();
+      return true;
+    }
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (!helpDialog.contains(document.activeElement)) {
+      event.preventDefault();
+      focusElement(first);
+      return true;
+    }
+
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      focusElement(last);
+      return true;
+    }
+
+    if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      focusElement(first);
+      return true;
+    }
+
+    return false;
+  };
 
   const renderHelpDialog = () => {
     if (!helpDialog) return;
@@ -319,6 +423,15 @@ export const initOsWindowManager = (screen) => {
 
     state = reduceOsWindowState(state, action);
     render();
+  };
+
+  const closeHelpDialog = ({ restoreFocus = true } = {}) => {
+    const hadOpenHelp = Boolean(state.helpWindowId);
+    dispatch({ type: 'close-help', id: state.helpWindowId ?? '' });
+
+    if (hadOpenHelp && restoreFocus) {
+      focusHelpDialogTrigger();
+    }
   };
 
   const setHelpDialogOrigin = (button) => {
@@ -555,19 +668,23 @@ export const initOsWindowManager = (screen) => {
 
     const closeButton = target.closest('[data-os-window-close]');
     if (closeButton) {
-      dispatch({ type: 'close', id: getWindowId(closeButton) });
+      const closeId = getWindowId(closeButton);
+      const closeKind = getWindowKind(closeButton);
+      getWindowCloseActions(closeId, closeKind).forEach(dispatch);
+      if (isGameApp(closeId)) focusGameReturnTarget(closeId);
       return;
     }
 
     const helpButton = target.closest('[data-os-window-help]');
     if (helpButton) {
+      lastHelpTrigger = helpButton instanceof HTMLElement ? helpButton : null;
       setHelpDialogOrigin(helpButton);
       dispatch({ type: 'open-help', id: getWindowId(helpButton) });
       return;
     }
 
     if (target.closest('[data-os-help-close]')) {
-      dispatch({ type: 'close-help', id: state.helpWindowId ?? '' });
+      closeHelpDialog();
       return;
     }
 
@@ -586,15 +703,18 @@ export const initOsWindowManager = (screen) => {
     const gameFile = target.closest('[data-os-game-file]');
     if (gameFile) {
       event.preventDefault();
-      dispatch({ type: 'open', id: getTargetId(gameFile) });
+      const gameId = getTargetId(gameFile);
+      dispatch({ type: 'open', id: gameId });
+      focusOpenedWindow(gameId);
       return;
     }
 
     const gameExit = target.closest('[data-os-game-exit]');
     if (gameExit) {
       event.preventDefault();
-      dispatch({ type: 'close', id: getWindowId(gameExit) });
-      dispatch({ type: 'open', id: 'bin' });
+      const gameId = getWindowId(gameExit);
+      getWindowCloseActions(gameId, 'game').forEach(dispatch);
+      focusGameReturnTarget(gameId);
     }
   });
 
@@ -616,13 +736,17 @@ export const initOsWindowManager = (screen) => {
     const target = event.target;
     if (!(target instanceof Element)) return;
 
+    if (trapHelpDialogFocus(event)) {
+      return;
+    }
+
     if (event.key === 'Escape' && pendingDownload) {
       closeDownloadConfirm();
       return;
     }
 
     if (event.key === 'Escape' && state.helpWindowId) {
-      dispatch({ type: 'close-help', id: state.helpWindowId });
+      closeHelpDialog();
       return;
     }
 
@@ -643,7 +767,9 @@ export const initOsWindowManager = (screen) => {
     const gameFile = target.closest('[data-os-game-file]');
     if (gameFile && (event.key === 'Enter' || event.key === ' ')) {
       event.preventDefault();
-      dispatch({ type: 'open', id: getTargetId(gameFile) });
+      const gameId = getTargetId(gameFile);
+      dispatch({ type: 'open', id: gameId });
+      focusOpenedWindow(gameId);
     }
   });
 
