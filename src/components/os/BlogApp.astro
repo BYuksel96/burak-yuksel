@@ -1,0 +1,401 @@
+---
+import { getCollection } from 'astro:content';
+import {
+  ARCHIVE_TAB_ID,
+  buildBlogPath,
+  estimateReadMinutes,
+  formatBlogDate,
+  groupBlogPostsByYearMonth,
+  normalizeBlogTag,
+  sortBlogPostsLatestFirst,
+} from '../../scripts/blog-app.js';
+import '../../styles/blog-app.css';
+
+const base = import.meta.env.BASE_URL || '/';
+const entries = sortBlogPostsLatestFirst(await getCollection('blog'));
+const renderedEntries = await Promise.all(
+  entries.map(async (entry) => ({
+    entry,
+    rendered: await entry.render(),
+  })),
+);
+
+const posts = renderedEntries.map(({ entry, rendered }, index) => {
+  const routeSlug = entry.data.canonicalSlug || entry.slug;
+  const uid = entry.slug.replace(/[^a-zA-Z0-9_-]+/g, '-');
+  const readMinutes = estimateReadMinutes(entry.body || '');
+  const tagItems = entry.data.tags.map(normalizeBlogTag);
+
+  return {
+    uid,
+    index,
+    title: entry.data.title,
+    description: entry.data.description,
+    pubDate: entry.data.pubDate,
+    tags: entry.data.tags,
+    tagItems,
+    tagKeys: tagItems.map((tag) => tag.key).join('|'),
+    canonicalPath: buildBlogPath(base, routeSlug),
+    rowDate: formatBlogDate(entry.data.pubDate, 'row'),
+    fullDate: formatBlogDate(entry.data.pubDate, 'long'),
+    readMinutes,
+    Content: rendered.Content,
+  };
+});
+
+const groups = groupBlogPostsByYearMonth(posts);
+const archivePanelId = 'blog-panel-archive';
+const archiveTabId = 'blog-tab-archive';
+---
+
+<section class="blog-app" data-blog-app aria-label="Blog.exe internal browser">
+  <header class="blog-app__chrome" aria-label="Blog.exe window controls" data-blog-window-chrome>
+    <div class="blog-app__chrome-controls os-window-controls" aria-label="Blog.exe window controls">
+      <button
+        class="os-window-control os-window-control--close"
+        type="button"
+        data-os-window-close
+        aria-label="Close Blog.exe"
+        title="Close Blog.exe"
+      >
+        <span aria-hidden="true">X</span>
+      </button>
+      <button
+        class="os-window-control os-window-control--minimise"
+        type="button"
+        aria-label="Minimise Blog.exe unavailable"
+        title="Minimise unavailable"
+        disabled
+      >
+        <span aria-hidden="true">-</span>
+      </button>
+      <button
+        class="os-window-control os-window-control--help"
+        type="button"
+        data-os-window-help
+        aria-label="Open Blog.exe help"
+        title="Open Blog.exe help"
+      >
+        <span aria-hidden="true">?</span>
+      </button>
+    </div>
+
+    <div class="blog-app__address" aria-label="Current Blog.exe location">
+      <span data-blog-address>burak-os://blog/archive</span>
+    </div>
+  </header>
+
+  <div class="blog-app__tab-strip" aria-label="Blog.exe open tabs">
+    <div class="blog-app__tabs" role="tablist" aria-label="Blog tabs" data-blog-tabs>
+      <div class="blog-app__tab-wrap" data-blog-tab-wrap>
+        <button
+          class="blog-app__tab blog-app__tab--archive"
+          type="button"
+          role="tab"
+          id={archiveTabId}
+          aria-selected="true"
+          aria-controls={archivePanelId}
+          tabindex="0"
+          data-blog-tab
+          data-blog-tab-id={ARCHIVE_TAB_ID}
+        >
+          <span class="blog-app__tab-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="M5 5h14v14H5z" />
+              <path d="M8 9h8M8 12h8M8 15h5" />
+            </svg>
+          </span>
+          <span class="blog-app__tab-title">Archive</span>
+        </button>
+      </div>
+
+      {posts.map((post) => (
+        <div class="blog-app__tab-wrap blog-app__tab-wrap--post" data-blog-tab-wrap hidden>
+          <button
+            class="blog-app__tab"
+            type="button"
+            role="tab"
+            id={`blog-tab-${post.uid}`}
+            aria-selected="false"
+            aria-controls={`blog-panel-${post.uid}`}
+            tabindex="-1"
+            data-blog-tab
+            data-blog-tab-id={post.uid}
+          >
+            <span class="blog-app__tab-title">{post.title}</span>
+          </button>
+          <button
+            class="blog-app__tab-close"
+            type="button"
+            data-blog-close-tab
+            data-blog-post-id={post.uid}
+            aria-label={`Close "${post.title}" tab`}
+          >
+            <span aria-hidden="true">x</span>
+          </button>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <div class="blog-app__panels">
+    <section
+      class="blog-app__panel blog-app__panel--archive"
+      role="tabpanel"
+      id={archivePanelId}
+      aria-labelledby={archiveTabId}
+      data-blog-panel
+      data-blog-tab-id={ARCHIVE_TAB_ID}
+    >
+      <div class="blog-app__archive">
+        <header class="blog-app__archive-head">
+          <div>
+            <p class="blog-app__eyebrow">Post Archive</p>
+            <h3>Writing log</h3>
+          </div>
+        </header>
+
+        <div class="blog-app__archive-list" aria-label="Blog archive grouped by year and month">
+          {groups.map((yearGroup) => (
+            <section class="blog-app__year-group" aria-labelledby={`blog-year-${yearGroup.year}`}>
+              <h4 id={`blog-year-${yearGroup.year}`} class="blog-app__year">
+                {yearGroup.year}
+              </h4>
+
+              <div class="blog-app__months">
+                {yearGroup.months.map((monthGroup) => (
+                  <section class="blog-app__month-group" aria-label={`${monthGroup.monthLabel} ${yearGroup.year}`}>
+                    <h5 class="blog-app__month">{monthGroup.monthLabel}</h5>
+                    <div class="blog-app__entries">
+                      {monthGroup.posts.map((post) => (
+                        <a
+                          class="blog-app__entry"
+                          href={post.canonicalPath}
+                          data-blog-open-post
+                          data-blog-post-id={post.uid}
+                        >
+                          <span class="blog-app__entry-main">
+                            <span class="blog-app__entry-title">{post.title}</span>
+                            <span class="blog-app__entry-description">{post.description}</span>
+                          </span>
+                          <span class="blog-app__entry-meta">
+                            <span>{post.rowDate}</span>
+                            <span>{post.readMinutes} min</span>
+                          </span>
+                        </a>
+                      ))}
+                    </div>
+                  </section>
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    {posts.map((post) => {
+      const Content = post.Content;
+
+      return (
+        <article
+          class="blog-app__panel blog-app__panel--post"
+          role="tabpanel"
+          id={`blog-panel-${post.uid}`}
+          aria-labelledby={`blog-tab-${post.uid}`}
+          data-blog-panel
+          data-blog-post-panel
+          data-blog-tab-id={post.uid}
+          data-blog-post-id={post.uid}
+          data-blog-canonical-path={post.canonicalPath}
+          hidden
+        >
+          <div class="blog-app__post-view" data-blog-post-view>
+            <div class="blog-app__article-scroll">
+              <div class="blog-app__article">
+                <header class="blog-app__article-head">
+                  <div class="blog-app__article-head-main">
+                    <div class="blog-app__post-meta">
+                      <span>{post.fullDate}</span>
+                      <span>{post.readMinutes} min read</span>
+                    </div>
+                    <h3>{post.title}</h3>
+                    <p>{post.description}</p>
+                    <div class="blog-app__tag-list" aria-label={`Tags for ${post.title}`}>
+                      <span>Tags:</span>
+                      {post.tagItems.map((tag) => (
+                        <button
+                          class="blog-app__tag"
+                          type="button"
+                          data-blog-open-tag
+                          data-blog-post-id={post.uid}
+                          data-blog-tag={tag.label}
+                          data-blog-tag-key={tag.key}
+                        >
+                          {tag.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div class="blog-app__post-actions">
+                    <button class="blog-app__back" type="button" data-blog-back data-blog-post-id={post.uid}>
+                      Back to Posts
+                    </button>
+
+                    <div class="blog-app__share-wrap" data-blog-share-wrap>
+                      <button
+                        class="blog-app__share"
+                        type="button"
+                        data-blog-share
+                        aria-expanded="false"
+                        aria-controls={`blog-share-${post.uid}`}
+                      >
+                        Share
+                      </button>
+                      <div
+                        class="blog-app__share-menu"
+                        id={`blog-share-${post.uid}`}
+                        data-blog-share-menu
+                        aria-hidden="true"
+                        hidden
+                      >
+                        <button type="button" data-blog-share-action="copy">
+                          <span class="blog-app__share-icon blog-app__share-icon--copy" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                              <path d="M10 13a5 5 0 0 0 7.54.54l2.2-2.2a5 5 0 0 0-7.08-7.08l-1.26 1.26" />
+                              <path d="M14 11a5 5 0 0 0-7.54-.54l-2.2 2.2a5 5 0 0 0 7.08 7.08l1.26-1.26" />
+                            </svg>
+                          </span>
+                          Copy Link
+                        </button>
+                        <button type="button" data-blog-share-action="linkedin">
+                          <span class="blog-app__share-icon blog-app__share-icon--linkedin" aria-hidden="true">in</span>
+                          Share on LinkedIn
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </header>
+
+                <div class="blog-app__article-body">
+                  <Content />
+
+                  <footer class="blog-app__article-foot" aria-label={`Post actions for ${post.title}`}>
+                    <button
+                      class="blog-app__icon-action blog-app__icon-action--back"
+                      type="button"
+                      data-blog-back
+                      data-blog-post-id={post.uid}
+                      aria-label="Back to posts"
+                    >
+                      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M11 6 5 12l6 6" />
+                        <path d="M6 12h13" />
+                      </svg>
+                    </button>
+
+                    <div class="blog-app__share-wrap blog-app__share-wrap--icon" data-blog-share-wrap>
+                      <button
+                        class="blog-app__icon-action blog-app__icon-action--share"
+                        type="button"
+                        data-blog-share
+                        aria-label="Share post"
+                        aria-expanded="false"
+                        aria-controls={`blog-share-bottom-${post.uid}`}
+                      >
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                          <path d="M8 12h7" />
+                          <path d="M13 8l4 4-4 4" />
+                          <path d="M5 5h7" />
+                          <path d="M5 19h7" />
+                          <path d="M5 5v14" />
+                        </svg>
+                      </button>
+                      <div
+                        class="blog-app__share-menu blog-app__share-menu--bottom"
+                        id={`blog-share-bottom-${post.uid}`}
+                        data-blog-share-menu
+                        aria-hidden="true"
+                        hidden
+                      >
+                        <button type="button" data-blog-share-action="copy">
+                          <span class="blog-app__share-icon blog-app__share-icon--copy" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                              <path d="M10 13a5 5 0 0 0 7.54.54l2.2-2.2a5 5 0 0 0-7.08-7.08l-1.26 1.26" />
+                              <path d="M14 11a5 5 0 0 0-7.54-.54l-2.2 2.2a5 5 0 0 0 7.08 7.08l1.26-1.26" />
+                            </svg>
+                          </span>
+                          Copy Link
+                        </button>
+                        <button type="button" data-blog-share-action="linkedin">
+                          <span class="blog-app__share-icon blog-app__share-icon--linkedin" aria-hidden="true">in</span>
+                          Share on LinkedIn
+                        </button>
+                      </div>
+                    </div>
+                  </footer>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <section class="blog-app__tag-results" data-blog-tag-results hidden>
+            <header class="blog-app__tag-results-head">
+              <div>
+                <p class="blog-app__eyebrow">Tag Results</p>
+                <h3 data-blog-tag-title>Posts tagged</h3>
+                <p data-blog-tag-count></p>
+              </div>
+              <button class="blog-app__back" type="button" data-blog-clear-tag data-blog-post-id={post.uid}>
+                Back to Post
+              </button>
+            </header>
+
+            <div class="blog-app__tag-results-list" aria-label="Posts matching the selected tag">
+              {posts.map((resultPost) => (
+                <a
+                  class="blog-app__entry blog-app__tag-result-row"
+                  href={resultPost.canonicalPath}
+                  data-blog-open-post
+                  data-blog-post-id={resultPost.uid}
+                  data-blog-tag-result-row
+                  data-blog-tag-keys={resultPost.tagKeys}
+                  hidden
+                >
+                  <span class="blog-app__entry-main">
+                    <span class="blog-app__entry-title">{resultPost.title}</span>
+                    <span class="blog-app__entry-description">{resultPost.description}</span>
+                    <span class="blog-app__tag-result-tags">
+                      {resultPost.tagItems.map((tag) => tag.label).join(' / ')}
+                    </span>
+                  </span>
+                  <span class="blog-app__entry-meta">
+                    <span>{resultPost.rowDate}</span>
+                    <span>{resultPost.readMinutes} min</span>
+                  </span>
+                </a>
+              ))}
+            </div>
+          </section>
+        </article>
+      );
+    })}
+  </div>
+
+  <div class="blog-app__copy-toast" data-blog-copy-toast role="status" aria-live="polite">Link Copied</div>
+</section>
+
+<script>
+  import { initBlogApps } from '../../scripts/blog-app.js';
+
+  if (typeof window !== 'undefined') {
+    const setupBlogApp = () => initBlogApps(document);
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupBlogApp, { once: true });
+    } else {
+      setupBlogApp();
+    }
+  }
+</script>
