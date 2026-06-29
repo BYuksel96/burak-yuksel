@@ -3,7 +3,10 @@ import { existsSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 
 const readGitHubAppSource = () => readFileSync(new URL('../components/os/GitHubApp.astro', import.meta.url), 'utf8');
+const readGitHubAppScript = () => readFileSync(new URL('./github-app.js', import.meta.url), 'utf8');
 const readGitHubAppStyles = () => readFileSync(new URL('../styles/github-app.css', import.meta.url), 'utf8');
+
+const getTagByAttribute = (source, attribute) => source.match(new RegExp(`<a\\b[^>]*${attribute}[^>]*>`, 'i'))?.[0] ?? '';
 
 test('uses the working unauthenticated public repos endpoint for the existing site GitHub profile', async () => {
   const { GITHUB_REPOS_ENDPOINT } = await import('./github-app.js');
@@ -12,7 +15,10 @@ test('uses the working unauthenticated public repos endpoint for the existing si
 });
 
 test('normalizes GitHub repos for card rendering', async () => {
-  const { normalizeGitHubRepo, normalizeGitHubRepos } = await import('./github-app.js');
+  const { formatRepoUpdatedDate, normalizeGitHubRepo, normalizeGitHubRepos } = await import('./github-app.js');
+
+  assert.equal(formatRepoUpdatedDate('2026-06-20T14:05:00Z', 'en'), '20 Jun 2026');
+  assert.match(formatRepoUpdatedDate('2026-06-20T14:05:00Z', 'tr'), /Haz/);
 
   assert.deepEqual(
     normalizeGitHubRepo({
@@ -28,6 +34,7 @@ test('normalizes GitHub repos for card rendering', async () => {
       description: 'No description provided.',
       language: 'Unknown',
       stars: 4,
+      updatedAt: '2026-06-20T14:05:00Z',
       updatedLabel: '20 Jun 2026',
       htmlUrl: 'https://github.com/BYuksel96/portfolio-os',
       fullName: 'BYuksel96/portfolio-os',
@@ -175,9 +182,32 @@ test('GitHubApp markup includes state containers, retry, external links, and no 
   assert.match(source, /data-github-repo-template/);
   assert.match(source, /data-github-repo-commits/);
   assert.match(source, /target="_blank"/);
-  assert.match(source, /rel="noreferrer"/);
+  assert.match(source, /rel="noopener noreferrer"/);
   assert.doesNotMatch(source, /<iframe/i);
   assert.doesNotMatch(source, /token|authorization/i);
+});
+
+test('GitHubApp rerenders repository dates with the active language', () => {
+  const script = readGitHubAppScript();
+
+  assert.match(script, /formatRepoUpdatedDate\(repo\.updatedAt,\s*language\)/);
+  assert.match(script, /updatedAt:/);
+});
+
+test('GitHub profile and repo links open safe browser tabs without iframe or token behavior', () => {
+  const source = readGitHubAppSource();
+  const script = readGitHubAppScript();
+  const profileLink = getTagByAttribute(source, 'data-github-profile-link');
+  const repoLink = getTagByAttribute(source, 'data-github-repo-link');
+
+  assert.match(profileLink, /href="https:\/\/github\.com\/BYuksel96"/);
+  assert.match(profileLink, /target="_blank"/);
+  assert.match(profileLink, /rel="noopener noreferrer"/);
+  assert.match(repoLink, /href="https:\/\/github\.com\/BYuksel96"/);
+  assert.match(repoLink, /target="_blank"/);
+  assert.match(repoLink, /rel="noopener noreferrer"/);
+  assert.match(script, /link\.href = repo\.htmlUrl;/);
+  assert.doesNotMatch(`${source}\n${script}`, /<iframe|window\.open|access_token|client_secret|api[_-]?key|authorization|bearer/i);
 });
 
 test('GitHubApp CSS is namespaced and includes responsive single-column behavior', () => {
@@ -201,4 +231,16 @@ test('GitHubApp compact layout keeps the connection sidebar readable', () => {
   assert.match(styles, /@media\s*\(max-width:\s*760px\)[\s\S]*\.github-app__sidebar\s*\{[\s\S]*grid-template-rows:\s*auto;[\s\S]*overflow:\s*visible;/);
   assert.match(styles, /@media\s*\(max-width:\s*760px\)[\s\S]*\.github-app__meta-list\s*\{[\s\S]*display:\s*grid;[\s\S]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/);
   assert.match(styles, /@media\s*\(max-width:\s*420px\)[\s\S]*\.github-app__meta-list\s*\{[\s\S]*grid-template-columns:\s*1fr;/);
+});
+
+test('GitHubApp mobile layout wraps long repository text without horizontal overflow', () => {
+  const styles = readGitHubAppStyles();
+  const mobileRules = styles.match(/@media \(max-width: 760px\) \{[\s\S]*?\n\}/)?.[0] ?? '';
+
+  assert.match(mobileRules, /\.github-app__status-card span:not\(\.github-app__status-dot\)\s*\{[^}]*white-space:\s*normal;[^}]*overflow-wrap:\s*anywhere;/s);
+  assert.match(mobileRules, /\.github-app__profile strong\s*\{[^}]*overflow-wrap:\s*anywhere;/s);
+  assert.match(mobileRules, /\.github-app__profile p\s*\{[^}]*overflow-wrap:\s*anywhere;/s);
+  assert.match(mobileRules, /\.github-app__repo-card h4\s*\{[^}]*white-space:\s*normal;[^}]*overflow-wrap:\s*anywhere;/s);
+  assert.match(mobileRules, /\.github-app__repo-card p\s*\{[^}]*overflow-wrap:\s*anywhere;/s);
+  assert.match(mobileRules, /\.github-app__repo-meta span\s*\{[^}]*overflow-wrap:\s*anywhere;/s);
 });

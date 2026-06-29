@@ -8,25 +8,26 @@ import '../../styles/github-app.css';
   data-github-app
   data-github-endpoint={GITHUB_REPOS_ENDPOINT}
   aria-label="GitHub repository explorer"
+  data-i18n-aria-label="github.aria"
 >
   <header class="github-app__header">
     <div class="github-app__heading">
-      <p class="github-app__eyebrow">Repo Explorer</p>
-      <h3>Latest public repositories</h3>
+      <p class="github-app__eyebrow" data-i18n="github.eyebrow">Repo Explorer</p>
+      <h3 data-i18n="github.title">Latest public repositories</h3>
     </div>
 
     <div class="github-app__status-card" aria-live="polite">
       <span class="github-app__status-dot" aria-hidden="true"></span>
-      <span data-github-status>Waiting for GitHub.exe to open</span>
-      <strong data-github-count>0 repos</strong>
+      <span data-github-status data-i18n="github.waiting">Waiting for GitHub.exe to open</span>
+      <strong data-github-count data-i18n="github.count" data-i18n-vars={JSON.stringify({ count: 0 })}>0 repos</strong>
     </div>
   </header>
 
   <div class="github-app__workspace">
-    <aside class="github-app__sidebar" aria-label="GitHub connection details">
+    <aside class="github-app__sidebar" aria-label="GitHub connection details" data-i18n-aria-label="github.connectionAria">
       <div class="github-app__panel-head">
-        <span class="github-app__panel-title">Connection</span>
-        <span class="github-app__panel-count">Public API</span>
+        <span class="github-app__panel-title" data-i18n="github.connection">Connection</span>
+        <span class="github-app__panel-count" data-i18n="github.publicApi">Public API</span>
       </div>
 
       <div class="github-app__profile">
@@ -36,49 +37,51 @@ import '../../styles/github-app.css';
           </svg>
         </div>
         <div>
-          <span class="github-app__profile-label">Source</span>
-          <strong>BYuksel96</strong>
-          <p>Six most recently updated public repositories.</p>
+          <span class="github-app__profile-label" data-i18n="github.source">Source</span>
+          <a class="github-app__profile-link" href="https://github.com/BYuksel96" target="_blank" rel="noopener noreferrer" data-github-profile-link>
+            <strong>BYuksel96</strong>
+          </a>
+          <p data-i18n="github.profileCopy">Six most recently updated public repositories.</p>
         </div>
       </div>
 
       <dl class="github-app__meta-list">
         <div>
-          <dt>Sort</dt>
-          <dd>Updated</dd>
+          <dt data-i18n="github.sort">Sort</dt>
+          <dd data-i18n="github.updated">Updated</dd>
         </div>
         <div>
-          <dt>Limit</dt>
-          <dd>6 repos</dd>
+          <dt data-i18n="github.limit">Limit</dt>
+          <dd data-i18n="github.limitValue">6 repos</dd>
         </div>
         <div>
-          <dt>Mode</dt>
-          <dd>Browser fetch</dd>
+          <dt data-i18n="github.mode">Mode</dt>
+          <dd data-i18n="github.browserFetch">Browser fetch</dd>
         </div>
       </dl>
     </aside>
 
-    <section class="github-app__repo-panel" aria-label="Repository results">
+    <section class="github-app__repo-panel" aria-label="Repository results" data-i18n-aria-label="github.resultsAria">
       <div class="github-app__panel-head">
-        <span class="github-app__panel-title">Repositories</span>
-        <span class="github-app__panel-count">Live public data</span>
+        <span class="github-app__panel-title" data-i18n="github.repositories">Repositories</span>
+        <span class="github-app__panel-count" data-i18n="github.livePublicData">Live public data</span>
       </div>
 
       <div class="github-app__state github-app__state--loading" data-github-loading aria-hidden="true" hidden>
         <span class="github-app__loader" aria-hidden="true"></span>
-        <h4>Connecting to GitHub...</h4>
-        <p>Fetching the latest public repositories.</p>
+        <h4 data-i18n="github.loadingTitle">Connecting to GitHub...</h4>
+        <p data-i18n="github.loadingCopy">Fetching the latest public repositories.</p>
       </div>
 
       <div class="github-app__state github-app__state--error" data-github-error aria-hidden="true" hidden>
-        <h4>GitHub could not be reached</h4>
-        <p data-github-error-message>GitHub repositories could not be loaded.</p>
-        <button class="github-app__retry" type="button" data-github-retry>Retry</button>
+        <h4 data-i18n="github.errorTitle">GitHub could not be reached</h4>
+        <p data-github-error-message data-i18n="github.errorCopy">GitHub repositories could not be loaded.</p>
+        <button class="github-app__retry" type="button" data-github-retry data-i18n="github.retry">Retry</button>
       </div>
 
       <div class="github-app__state github-app__state--empty" data-github-empty aria-hidden="true" hidden>
-        <h4>No repositories returned</h4>
-        <p>The public API did not return any repositories for this profile.</p>
+        <h4 data-i18n="github.emptyTitle">No repositories returned</h4>
+        <p data-i18n="github.emptyCopy">The public API did not return any repositories for this profile.</p>
       </div>
 
       <div class="github-app__success" data-github-success aria-hidden="true" hidden>
@@ -94,7 +97,7 @@ import '../../styles/github-app.css';
         <p data-github-repo-description></p>
       </div>
 
-      <div class="github-app__repo-meta" aria-label="Repository metadata">
+      <div class="github-app__repo-meta" aria-label="Repository metadata" data-i18n-aria-label="github.metadata">
         <span>
           <span class="github-app__language-dot" aria-hidden="true"></span>
           <span data-github-repo-language></span>
@@ -113,12 +116,12 @@ import '../../styles/github-app.css';
           <span data-github-repo-commits></span>
         </span>
         <span>
-          Updated <span data-github-repo-updated></span>
+          <span data-i18n="github.updatedPrefix">Updated</span> <span data-github-repo-updated></span>
         </span>
       </div>
 
-      <a class="github-app__repo-link" href="https://github.com/BYuksel96" target="_blank" rel="noreferrer" data-github-repo-link>
-        Open on GitHub
+      <a class="github-app__repo-link" href="https://github.com/BYuksel96" target="_blank" rel="noopener noreferrer" data-github-repo-link>
+        <span data-i18n="github.openOnGithub">Open on GitHub</span>
       </a>
     </article>
   </template>

@@ -6,6 +6,8 @@ interface Props {
 }
 
 const { id, label, icon } = Astro.props as Props;
+const labelKey = `os.launchers.${id === 'github' ? 'github' : id}`;
+const openLabelKey = `os.launchers.open${id === 'github' ? 'Github' : id.charAt(0).toUpperCase() + id.slice(1)}`;
 ---
 
 <button
@@ -16,6 +18,8 @@ const { id, label, icon } = Astro.props as Props;
   aria-controls={`os-window-${id}`}
   aria-label={`Open ${label}`}
   title={`Open ${label}`}
+  data-i18n-aria-label={openLabelKey}
+  data-i18n-title={openLabelKey}
 >
   <span class="desktop-icon-glyph" aria-hidden="true">
     {icon === 'resume' && (
@@ -44,5 +48,5 @@ const { id, label, icon } = Astro.props as Props;
       </svg>
     )}
   </span>
-  <span class="desktop-icon-label">{label}</span>
+  <span class="desktop-icon-label" data-i18n={labelKey}>{label}</span>
 </button>

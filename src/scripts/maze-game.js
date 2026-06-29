@@ -14,6 +14,7 @@ import { createSeededRandom } from './maze-rng.js';
 import { createMazeHighScoreStore, createMazeMusicPreferenceStore } from './maze-storage.js';
 import { calculateCollectibleScore, calculateLevelCompletionScore, getMonsterProfile } from './maze-state.js';
 import { drawMazeScene } from './maze-renderer.js';
+import { LANGUAGE_CHANGE_EVENT, getActiveLanguage, translate } from './i18n.js';
 
 const COUNTDOWN_VALUES = ['3', '2', '1'];
 const GATEWAY_WARNING_MS = 850;
@@ -44,12 +45,31 @@ const isWindowActive = (root) => {
   return Boolean(windowElement && !windowElement.hidden && windowElement.getAttribute('data-window-state') === 'open' && !document.hidden);
 };
 
+const isOsBlockingContext = (root) => {
+  const screen = root.closest('[data-os-screen]');
+  if (!screen) return false;
+
+  const helpDialog = screen.querySelector('[data-os-help-dialog]');
+  const downloadConfirm = screen.querySelector('[data-os-download-confirm]');
+  const lockScreen = screen.querySelector('[data-os-lock-screen]');
+
+  return Boolean(
+    screen.hasAttribute('data-os-locked') ||
+      (helpDialog && !helpDialog.hidden) ||
+      (downloadConfirm && !downloadConfirm.hidden) ||
+      (lockScreen && !lockScreen.hidden),
+  );
+};
+
 export const getMazeLifecycleTransition = ({ status, windowOpen, pageVisible }) => {
   if (!windowOpen && ['countdown', 'playing', 'paused', 'game-over'].includes(status)) return 'stop';
   if (!pageVisible && ['countdown', 'playing'].includes(status)) return 'pause';
   if (windowOpen && pageVisible && status === 'paused') return 'resume';
   return 'none';
 };
+
+export const shouldCaptureMazeShortcut = ({ key, isActive, status, osBlocked = false } = {}) =>
+  !osBlocked && shouldCaptureMazeKey({ key, isActive, status });
 
 export const isExitTraversal = ({ maze, player, directionName }) =>
   Boolean(maze?.exit?.cell && isSameCell(player, maze.exit.cell) && directionName === maze.exit.direction);
@@ -186,7 +206,7 @@ export const initMazeGame = (root, options = {}) => {
     setText(root, '[data-maze-high-score]', String(state.highScore));
     setText(root, '[data-maze-countdown-value]', state.countdownText);
     root.querySelectorAll('[data-maze-music-toggle]').forEach((button) => {
-      button.textContent = formatMazeMusicToggleLabel(musicEnabled);
+      button.textContent = formatMazeMusicToggleLabel(musicEnabled, getActiveLanguage());
       button.setAttribute('aria-pressed', String(musicEnabled));
     });
     setHidden(root.querySelector('[data-maze-start-screen]'), state.status !== 'idle');
@@ -198,7 +218,7 @@ export const initMazeGame = (root, options = {}) => {
       setText(root, '[data-maze-final-score]', String(state.score));
       setText(root, '[data-maze-highest-level]', String(state.highestLevelReached));
       setText(root, '[data-maze-game-over-high-score]', String(state.highScore));
-      setText(root, '[data-maze-new-high-score]', state.newHighScore ? 'New high score achieved' : '');
+      setText(root, '[data-maze-new-high-score]', state.newHighScore ? translate('maze.newHighScore') : '');
     }
 
     if (context && canvas && state.maze && state.player) {
@@ -566,7 +586,16 @@ export const initMazeGame = (root, options = {}) => {
   root.addEventListener('pointerleave', () => window.clearInterval(touchTimer));
 
   window.addEventListener('keydown', (event) => {
-    if (!shouldCaptureMazeKey({ key: event.key, isActive: isWindowActive(root), status: state.status })) return;
+    if (
+      !shouldCaptureMazeShortcut({
+        key: event.key,
+        isActive: isWindowActive(root),
+        status: state.status,
+        osBlocked: isOsBlockingContext(root),
+      })
+    ) {
+      return;
+    }
 
     event.preventDefault();
     tryMovePlayer(getDirectionFromKey(event.key));
@@ -584,6 +613,7 @@ export const initMazeGame = (root, options = {}) => {
   }
 
   window.addEventListener('resize', render);
+  window.addEventListener(LANGUAGE_CHANGE_EVENT, render);
   window.addEventListener('pagehide', () => {
     clearTimers();
     musicPlayer.stop();

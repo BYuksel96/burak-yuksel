@@ -1,4 +1,4 @@
-import { QUIZ_QUESTIONS, getCategoryLabel } from './quiz-data.js';
+import { QUIZ_QUESTIONS } from './quiz-data.js';
 import {
   answerArcadeQuestion,
   continueArcadeRun,
@@ -9,6 +9,14 @@ import {
   getCoachCategoryInsights,
 } from './quiz-state.js';
 import { createQuizProgressStore } from './quiz-storage.js';
+import {
+  LANGUAGE_CHANGE_EVENT,
+  getActiveLanguage,
+  getTranslatedQuizCategoryLabel,
+  getTranslatedQuizDifficultyLabel,
+  localizeQuizQuestion,
+  translate,
+} from './i18n.js';
 
 const choiceLabels = ['a', 'b', 'c', 'd'];
 
@@ -17,6 +25,22 @@ const getWindowElement = (root) => root.closest('[data-os-window]');
 const isWindowActive = (root) => {
   const windowElement = getWindowElement(root);
   return Boolean(windowElement && !windowElement.hidden && windowElement.getAttribute('data-window-state') === 'open' && !document.hidden);
+};
+
+const isOsBlockingContext = (root) => {
+  const screen = root.closest('[data-os-screen]');
+  if (!screen) return false;
+
+  const helpDialog = screen.querySelector('[data-os-help-dialog]');
+  const downloadConfirm = screen.querySelector('[data-os-download-confirm]');
+  const lockScreen = screen.querySelector('[data-os-lock-screen]');
+
+  return Boolean(
+    screen.hasAttribute('data-os-locked') ||
+      (helpDialog && !helpDialog.hidden) ||
+      (downloadConfirm && !downloadConfirm.hidden) ||
+      (lockScreen && !lockScreen.hidden),
+  );
 };
 
 const setHidden = (element, hidden) => {
@@ -39,8 +63,8 @@ export const getQuizChoiceIdFromKey = (key) => {
   return null;
 };
 
-export const shouldCaptureQuizShortcut = ({ key, screen, feedbackVisible, windowActive }) =>
-  Boolean(getQuizChoiceIdFromKey(key) && screen === 'play' && !feedbackVisible && windowActive);
+export const shouldCaptureQuizShortcut = ({ key, screen, feedbackVisible, windowActive, osBlocked = false }) =>
+  Boolean(!osBlocked && getQuizChoiceIdFromKey(key) && screen === 'play' && !feedbackVisible && windowActive);
 
 const getCurrentQuestion = (state) => {
   if (state.mode === 'arcade') return state.arcadeRun?.currentQuestion ?? null;
@@ -61,6 +85,7 @@ export const initQuizGame = (root) => {
     coachAnswers: [],
     pendingArcadeSummary: false,
   };
+  let lastFeedback = null;
 
   const screens = Array.from(root.querySelectorAll('[data-quiz-screen]'));
   const answerButtons = Array.from(root.querySelectorAll('[data-quiz-answer]'));
@@ -102,17 +127,27 @@ export const initQuizGame = (root) => {
   const renderProgressSummary = () => {
     const progress = getProgress();
     const insights = getCoachCategoryInsights(progress);
-    const persistentWeak = insights.filter((item) => item.status === 'weak').map((item) => item.label);
+    const language = getActiveLanguage();
+    const persistentWeak = insights
+      .filter((item) => item.status === 'weak')
+      .map((item) => getTranslatedQuizCategoryLabel(item.categoryId, language));
     const summary = root.querySelector('[data-quiz-progress-summary]');
     if (!summary) return;
 
-    const learningLabel = progress.totalCoachAttempts < 3 ? 'Still gathering data' : `${progress.totalCoachAttempts} coach attempts`;
-    const revisitLabel = persistentWeak.length ? persistentWeak.slice(0, 2).join(', ') : progress.totalCoachAttempts < 3 ? 'Needs more attempts' : 'No persistent weak area';
+    const learningLabel =
+      progress.totalCoachAttempts < 3
+        ? translate('quiz.stillGathering', language)
+        : translate('quiz.coachAttempts', language, { count: progress.totalCoachAttempts });
+    const revisitLabel = persistentWeak.length
+      ? persistentWeak.slice(0, 2).join(', ')
+      : progress.totalCoachAttempts < 3
+        ? translate('quiz.needsMoreAttempts', language)
+        : translate('quiz.noWeakArea', language);
 
     summary.innerHTML = `
-      <div>Arcade high score<strong>${progress.arcadeHighScore}</strong></div>
-      <div>Coach progress<strong>${learningLabel}</strong></div>
-      <div>Revisit signal<strong>${revisitLabel}</strong></div>
+      <div>${translate('quiz.arcadeHighScore', language)}<strong>${progress.arcadeHighScore}</strong></div>
+      <div>${translate('quiz.coachProgress', language)}<strong>${learningLabel}</strong></div>
+      <div>${translate('quiz.revisitSignal', language)}<strong>${revisitLabel}</strong></div>
     `;
   };
 
@@ -122,6 +157,7 @@ export const initQuizGame = (root) => {
     state.coachSession = null;
     state.coachAnswers = [];
     state.pendingArcadeSummary = false;
+    lastFeedback = null;
     answerButtons.forEach((button) => {
       button.disabled = false;
       button.removeAttribute('data-answer-selected');
@@ -143,7 +179,7 @@ export const initQuizGame = (root) => {
     const isArcade = state.mode === 'arcade';
     const progress = getProgress();
 
-    setText(root, '[data-quiz-mode-label]', isArcade ? 'Arcade' : 'Coach');
+    setText(root, '[data-quiz-mode-label]', isArcade ? translate('quiz.arcadeTerminal') : translate('quiz.coachConsole'));
     root.querySelectorAll('[data-quiz-arcade-stat]').forEach((element) => setHidden(element, !isArcade));
     root.querySelectorAll('[data-quiz-coach-stat]').forEach((element) => setHidden(element, isArcade));
 
@@ -160,18 +196,13 @@ export const initQuizGame = (root) => {
     state.arcadeRun = state.arcadeRun ? { ...state.arcadeRun, highScore: progress.arcadeHighScore } : null;
   };
 
-  const renderQuestion = ({ focus = false } = {}) => {
-    const question = getCurrentQuestion(state);
-    if (!question) {
-      renderStart({ focus });
-      return;
-    }
+  const renderQuestionText = () => {
+    const sourceQuestion = getCurrentQuestion(state);
+    if (!sourceQuestion) return null;
 
-    showScreen('play');
-    renderHud();
-    setHidden(feedbackPanel, true);
-    setText(root, '[data-quiz-category]', getCategoryLabel(question.category));
-    setText(root, '[data-quiz-difficulty]', formatDifficulty(question.difficulty));
+    const question = localizeQuizQuestion(sourceQuestion, getActiveLanguage());
+    setText(root, '[data-quiz-category]', getTranslatedQuizCategoryLabel(question.category));
+    setText(root, '[data-quiz-difficulty]', getTranslatedQuizDifficultyLabel(question.difficulty) || formatDifficulty(question.difficulty));
     setText(root, '[data-quiz-prompt]', question.prompt);
 
     const scenario = root.querySelector('[data-quiz-scenario]');
@@ -185,6 +216,69 @@ export const initQuizGame = (root) => {
       const choice = question.choices.find((item) => item.id === choiceId);
       const label = button.querySelector('strong');
       if (label) label.textContent = choice?.text ?? '';
+    });
+
+    return question;
+  };
+
+  const applyFeedbackButtonState = ({ question, selectedChoiceId, isCorrect }) => {
+    answerButtons.forEach((button) => {
+      const choiceId = button.getAttribute('data-choice-id');
+      button.disabled = true;
+      button.toggleAttribute('data-answer-selected', choiceId === selectedChoiceId);
+      button.toggleAttribute('data-answer-correct', choiceId === question.correctChoiceId);
+      button.toggleAttribute('data-answer-incorrect', choiceId === selectedChoiceId && !isCorrect);
+    });
+  };
+
+  const renderFeedbackCopy = ({ announceResult = false, focus = false, scroll = false } = {}) => {
+    if (!lastFeedback) return;
+
+    const { question, isCorrect, scoreAwarded } = lastFeedback;
+    const language = getActiveLanguage();
+    const localizedQuestion = localizeQuizQuestion(question, language);
+    setText(root, '[data-quiz-feedback-title]', isCorrect ? `${translate('quiz.correct', language)}${scoreAwarded ? ` +${scoreAwarded}` : ''}` : translate('quiz.incorrect', language));
+    setText(root, '[data-quiz-feedback-copy]', localizedQuestion.explanation);
+    setText(root, '[data-quiz-why-it-matters]', state.mode === 'coach' ? translate('quiz.whyThisMatters', language, { text: localizedQuestion.whyItMatters }) : '');
+
+    if (referenceLink) {
+      if (localizedQuestion.reference) {
+        referenceLink.href = localizedQuestion.reference.url;
+        referenceLink.textContent = `${localizedQuestion.reference.title}: ${localizedQuestion.reference.section}`;
+        setHidden(referenceLink, false);
+      } else {
+        setHidden(referenceLink, true);
+      }
+    }
+
+    const nextButton = root.querySelector('[data-quiz-next]');
+    if (nextButton) {
+      nextButton.textContent = state.pendingArcadeSummary
+        ? translate('quiz.gameOver', language)
+        : state.mode === 'coach' && state.coachSession?.currentIndex === state.coachSession.questions.length - 1
+          ? translate('quiz.viewSummary', language)
+          : translate('quiz.next', language);
+    }
+
+    if (announceResult) announce(isCorrect ? translate('quiz.correctAnnounce', language) : translate('quiz.incorrectAnnounce', language));
+    if (scroll) scrollFeedbackIntoView();
+    if (focus) focusFirst('[data-quiz-next]');
+  };
+
+  const renderQuestion = ({ focus = false } = {}) => {
+    const sourceQuestion = getCurrentQuestion(state);
+    if (!sourceQuestion) {
+      renderStart({ focus });
+      return;
+    }
+
+    showScreen('play');
+    renderHud();
+    lastFeedback = null;
+    setHidden(feedbackPanel, true);
+    renderQuestionText();
+
+    answerButtons.forEach((button) => {
       button.disabled = false;
       button.removeAttribute('data-answer-selected');
       button.removeAttribute('data-answer-correct');
@@ -195,37 +289,10 @@ export const initQuizGame = (root) => {
   };
 
   const revealFeedback = ({ question, selectedChoiceId, isCorrect, scoreAwarded = 0 }) => {
-    answerButtons.forEach((button) => {
-      const choiceId = button.getAttribute('data-choice-id');
-      button.disabled = true;
-      button.toggleAttribute('data-answer-selected', choiceId === selectedChoiceId);
-      button.toggleAttribute('data-answer-correct', choiceId === question.correctChoiceId);
-      button.toggleAttribute('data-answer-incorrect', choiceId === selectedChoiceId && !isCorrect);
-    });
-
+    lastFeedback = { question, selectedChoiceId, isCorrect, scoreAwarded };
+    applyFeedbackButtonState(lastFeedback);
     setHidden(feedbackPanel, false);
-    setText(root, '[data-quiz-feedback-title]', isCorrect ? `Correct${scoreAwarded ? ` +${scoreAwarded}` : ''}` : 'Incorrect');
-    setText(root, '[data-quiz-feedback-copy]', question.explanation);
-    setText(root, '[data-quiz-why-it-matters]', state.mode === 'coach' ? `Why this matters: ${question.whyItMatters}` : '');
-
-    if (referenceLink) {
-      if (question.reference) {
-        referenceLink.href = question.reference.url;
-        referenceLink.textContent = `${question.reference.title}: ${question.reference.section}`;
-        setHidden(referenceLink, false);
-      } else {
-        setHidden(referenceLink, true);
-      }
-    }
-
-    const nextButton = root.querySelector('[data-quiz-next]');
-    if (nextButton) {
-      nextButton.textContent = state.pendingArcadeSummary ? 'Game Over' : state.mode === 'coach' && state.coachSession?.currentIndex === state.coachSession.questions.length - 1 ? 'View Summary' : 'Next';
-    }
-
-    announce(isCorrect ? 'Correct answer. Explanation ready.' : 'Incorrect answer. Correct answer and explanation ready.');
-    scrollFeedbackIntoView();
-    focusFirst('[data-quiz-next]');
+    renderFeedbackCopy({ announceResult: true, focus: true, scroll: true });
   };
 
   const finalizeArcadeSummary = () => {
@@ -243,9 +310,9 @@ export const initQuizGame = (root) => {
     setText(root, '[data-quiz-highest-level]', String(state.arcadeRun.highestLevel));
     setText(root, '[data-quiz-longest-streak]', String(state.arcadeRun.longestStreak));
     setText(root, '[data-quiz-final-high-score]', String(progress.arcadeHighScore));
-    setText(root, '[data-quiz-new-high]', state.arcadeRun.newHighScore ? 'NEW HIGH SCORE' : '');
+    setText(root, '[data-quiz-new-high]', state.arcadeRun.newHighScore ? translate('quiz.newHighScore') : '');
     showScreen('arcade-summary');
-    announce('Arcade run ended.');
+    announce(translate('quiz.arcadeEndedAnnounce'));
     focusFirst('[data-quiz-screen="arcade-summary"] [data-quiz-start-mode]');
   };
 
@@ -261,30 +328,41 @@ export const initQuizGame = (root) => {
       progress: getProgress(),
     });
 
-    setText(root, '[data-quiz-coach-score]', `${summary.correctCount} correct out of ${summary.totalQuestions} (${summary.percentage}%)`);
+    const language = getActiveLanguage();
+    setText(
+      root,
+      '[data-quiz-coach-score]',
+      translate('quiz.correctOutOf', language, {
+        correct: summary.correctCount,
+        total: summary.totalQuestions,
+        percentage: summary.percentage,
+      }),
+    );
     const container = root.querySelector('[data-quiz-coach-summary]');
     if (container) {
-      const strongest = summary.strongestCategory?.label ?? 'Still gathering data';
+      const strongest = summary.strongestCategory
+        ? getTranslatedQuizCategoryLabel(summary.strongestCategory.categoryId, language)
+        : translate('quiz.stillGathering', language);
       const revisit = summary.revisitCategories.length
         ? summary.revisitCategories
             .slice(0, 3)
-            .map((item) => `${item.label}: ${item.statusLabel}`)
+            .map((item) => `${getTranslatedQuizCategoryLabel(item.categoryId, language)}: ${item.statusLabel === 'Revisit this area' ? translate('quiz.revisitArea', language) : translate('quiz.earlyIndication', language)}`)
             .join('; ')
-        : 'Needs more attempts before persistent weak areas are labelled.';
+        : translate('quiz.needsMoreAttempts', language);
       container.innerHTML = `
-        <div><p>Strongest category</p><strong>${strongest}</strong></div>
-        <div><p>Suggested revisit</p><strong>${revisit}</strong></div>
+        <div><p>${translate('quiz.strongestCategory', language)}</p><strong>${strongest}</strong></div>
+        <div><p>${translate('quiz.suggestedRevisit', language)}</p><strong>${revisit}</strong></div>
         ${summary.categoryPerformance
           .map(
             (item) =>
-              `<div><p>${item.label}</p><strong>${item.attempts ? `${item.correct}/${item.attempts}` : 'Still gathering data'}</strong></div>`,
+              `<div><p>${getTranslatedQuizCategoryLabel(item.categoryId, language)}</p><strong>${item.attempts ? `${item.correct}/${item.attempts}` : translate('quiz.stillGathering', language)}</strong></div>`,
           )
           .join('')}
       `;
     }
 
     showScreen('coach-summary');
-    announce('Coach session summary ready.');
+    announce(translate('quiz.coachReadyAnnounce'));
     focusFirst('[data-quiz-screen="coach-summary"] [data-quiz-start-mode]');
   };
 
@@ -418,7 +496,7 @@ export const initQuizGame = (root) => {
       store.reset();
       renderProgressSummary();
       setHidden(resetConfirm, true);
-      announce('Quiz progress reset.');
+      announce(translate('quiz.resetAnnounce'));
       focusFirst('[data-quiz-start-mode]');
       return;
     }
@@ -437,6 +515,7 @@ export const initQuizGame = (root) => {
         screen: state.screen,
         feedbackVisible: !feedbackPanel?.hidden,
         windowActive: isWindowActive(root),
+        osBlocked: isOsBlockingContext(root),
       })
     ) {
       return;
@@ -460,6 +539,34 @@ export const initQuizGame = (root) => {
       attributeFilter: ['hidden', 'data-window-state'],
     });
   }
+
+  window.addEventListener(LANGUAGE_CHANGE_EVENT, () => {
+    if (state.screen === 'start') {
+      renderProgressSummary();
+      return;
+    }
+
+    if (state.screen === 'play' && feedbackPanel?.hidden) {
+      renderQuestion({ focus: false });
+      return;
+    }
+
+    if (state.screen === 'play') {
+      renderHud();
+      renderQuestionText();
+      renderFeedbackCopy();
+      return;
+    }
+
+    if (state.screen === 'coach-summary') {
+      renderCoachSummary();
+      return;
+    }
+
+    if (state.screen === 'arcade-summary') {
+      setText(root, '[data-quiz-new-high]', state.arcadeRun?.newHighScore ? translate('quiz.newHighScore') : '');
+    }
+  });
 
   window.addEventListener('pagehide', resetActiveSession);
   renderStart();

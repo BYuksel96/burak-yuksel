@@ -1,3 +1,5 @@
+import { LANGUAGE_CHANGE_EVENT, getActiveLanguage, getLanguageLocale, translate } from './i18n.js';
+
 export const ARCHIVE_TAB_ID = 'archive';
 
 const MONTH_LABELS = [
@@ -39,15 +41,33 @@ export const getUtcDateTimestamp = (dateValue) => {
   return Date.UTC(parts.year, parts.monthIndex, parts.day);
 };
 
-export const formatBlogDate = (dateValue, variant = 'long') => {
+export const formatBlogDate = (dateValue, variant = 'long', language = 'en') => {
   const parts = getUtcDateParts(dateValue);
-  const month = variant === 'short' ? parts.shortMonthLabel : parts.monthLabel;
+  const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
+  if (Number.isNaN(date.getTime())) return '';
+  const locale = getLanguageLocale(language, 'en-US');
 
   if (variant === 'row') {
-    return `${parts.shortMonthLabel} ${String(parts.day).padStart(2, '0')}`;
+    return new Intl.DateTimeFormat(locale, {
+      month: 'short',
+      day: '2-digit',
+      timeZone: 'UTC',
+    }).format(date);
   }
 
-  return `${month} ${String(parts.day).padStart(2, '0')}, ${parts.year}`;
+  if (variant === 'month') {
+    return new Intl.DateTimeFormat(locale, {
+      month: 'long',
+      timeZone: 'UTC',
+    }).format(new Date(Date.UTC(parts.year, parts.monthIndex, 1)));
+  }
+
+  return new Intl.DateTimeFormat(locale, {
+    month: 'long',
+    day: '2-digit',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(date);
 };
 
 export const sortBlogPostsLatestFirst = (posts = []) =>
@@ -88,6 +108,84 @@ export const buildBlogPath = (base = '/', slug = '') => {
   return `${normaliseBase(base)}blog/${cleanSlug}/`.replace(/\/{2,}/g, '/');
 };
 
+export const toBlogPostUid = (slug = '') =>
+  String(slug)
+    .trim()
+    .replace(/^\/+|\/+$/g, '')
+    .replace(/[^a-zA-Z0-9_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+export const normalizeBlogDeepLinkSlug = (value = '') => {
+  let cleanValue = String(value ?? '').trim();
+  if (!cleanValue) return '';
+
+  if (cleanValue.startsWith('#')) {
+    const hashValue = cleanValue.slice(1);
+    const hashParams = new URLSearchParams(hashValue);
+    cleanValue = hashParams.get('blog') ?? hashValue.replace(/^blog=/, '');
+  }
+
+  try {
+    cleanValue = new URL(cleanValue).pathname;
+  } catch {
+    // Plain slugs and relative paths are handled below.
+  }
+
+  cleanValue = cleanValue.split('?')[0].split('#')[0];
+
+  try {
+    cleanValue = decodeURIComponent(cleanValue);
+  } catch {
+    // Keep the original value if it is not valid percent-encoding.
+  }
+
+  const segments = cleanValue.replace(/^\/+|\/+$/g, '').split('/').filter(Boolean);
+  const slug = segments.at(-1) ?? cleanValue;
+  return slug.trim().toLowerCase();
+};
+
+const createBlogDeepLinkRecord = (record = {}) => {
+  const slug = record.slug ?? record.id ?? record.uid ?? '';
+
+  return {
+    uid: record.uid ?? toBlogPostUid(slug),
+    slug,
+    canonicalSlug: record.canonicalSlug ?? record.routeSlug ?? record.data?.canonicalSlug ?? '',
+    canonicalPath: record.canonicalPath ?? record.path ?? record.href ?? '',
+  };
+};
+
+const getBlogDeepLinkRecords = (source = []) => {
+  if (Array.isArray(source)) {
+    return source.map(createBlogDeepLinkRecord);
+  }
+
+  return Array.from(source?.querySelectorAll?.('[data-blog-post-panel]') ?? []).map((panel) =>
+    createBlogDeepLinkRecord({
+      uid: getPostId(panel),
+      canonicalPath: panel.getAttribute('data-blog-canonical-path') ?? '',
+    }),
+  );
+};
+
+const getBlogDeepLinkCandidates = (record = {}) =>
+  [record.slug, record.uid, record.canonicalSlug, record.routeSlug, record.canonicalPath, record.path, record.href]
+    .map(normalizeBlogDeepLinkSlug)
+    .filter(Boolean);
+
+export const resolveBlogDeepLinkUid = (source = [], deepLinkSlug = '') => {
+  const targetSlug = normalizeBlogDeepLinkSlug(deepLinkSlug);
+  if (!targetSlug) return '';
+
+  const match = getBlogDeepLinkRecords(source).find((record) => getBlogDeepLinkCandidates(record).includes(targetSlug));
+  return match?.uid ?? '';
+};
+
+export const createBlogDeepLinkOpenAction = (source = [], deepLinkSlug = '') => {
+  const id = resolveBlogDeepLinkUid(source, deepLinkSlug);
+  return id ? { type: 'open-post', id } : null;
+};
+
 export const buildBlogDisplayAddress = (path = '') => {
   const cleanPath = path ? String(path).replace(/^\/+/, '') : 'blog/archive';
   return `burak-os://${cleanPath}`;
@@ -99,6 +197,8 @@ export const buildLinkedInShareUrl = (absoluteUrl, text = SHARE_COPY) => {
   const prefilled = `${text} ${absoluteUrl}`;
   return `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(prefilled)}`;
 };
+
+export const getBlogScrollBehavior = (reducedMotionQuery = null) => (reducedMotionQuery?.matches ? 'auto' : 'smooth');
 
 export const estimateReadMinutes = (text = '', wordsPerMinute = 140) => {
   const words = String(text)
@@ -116,6 +216,29 @@ export const normalizeBlogTag = (tag = '') => {
     .replace(/^-+|-+$/g, '');
 
   return { key, label };
+};
+
+const getLocalizedTagLabel = (tagKey = '', fallback = '') => {
+  const translated = translate(`blog.tagsByKey.${tagKey}`, getActiveLanguage());
+  return translated === `blog.tagsByKey.${tagKey}` ? fallback : translated;
+};
+
+const updateLocalizedBlogDates = (root) => {
+  root.querySelectorAll('[data-blog-date]').forEach((element) => {
+    const dateValue = element.getAttribute('data-blog-date');
+    const variant = element.getAttribute('data-blog-date-variant') || 'long';
+    element.textContent = formatBlogDate(dateValue, variant, getActiveLanguage());
+  });
+
+  root.querySelectorAll('[data-blog-month-label]').forEach((element) => {
+    const year = Number(element.getAttribute('data-blog-year'));
+    const monthIndex = Number(element.getAttribute('data-blog-month-index'));
+    const label = formatBlogDate(new Date(Date.UTC(year, monthIndex, 1)), 'month', getActiveLanguage());
+    element.textContent = label;
+
+    const section = element.closest('[data-blog-month-section]');
+    if (section && label) section.setAttribute('aria-label', `${label} ${year}`);
+  });
 };
 
 const uniquePostIds = (ids = []) => ids.filter((id, index) => id && ids.indexOf(id) === index);
@@ -251,6 +374,8 @@ export const initBlogApp = (root) => {
   const tabList = root.querySelector('[data-blog-tabs]');
   const address = root.querySelector('[data-blog-address]');
   const toast = root.querySelector('[data-blog-copy-toast]');
+  const reducedMotionQuery =
+    typeof window.matchMedia === 'function' ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
 
   const getTabs = () => Array.from(root.querySelectorAll(SELECTOR_TAB));
   const getTabById = (id) => getTabs().find((tab) => getTabId(tab) === id);
@@ -284,7 +409,7 @@ export const initBlogApp = (root) => {
     const tab = getTabById(id);
     if (tab instanceof HTMLElement) {
       tab.focus({ preventScroll: true });
-      tab.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+      tab.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: getBlogScrollBehavior(reducedMotionQuery) });
     }
   };
 
@@ -344,11 +469,13 @@ export const initBlogApp = (root) => {
       });
 
       if (title) {
-        title.textContent = `Posts tagged "${tagView.label}"`;
+        title.textContent = translate('blog.postsTagged', getActiveLanguage(), {
+          tag: getLocalizedTagLabel(tagView.key, tagView.label),
+        });
       }
 
       if (count) {
-        count.textContent = `${visibleCount} matching ${visibleCount === 1 ? 'post' : 'posts'}`;
+        count.textContent = translate('blog.matchingPosts', getActiveLanguage(), { count: visibleCount });
       }
     });
 
@@ -368,6 +495,21 @@ export const initBlogApp = (root) => {
   const dispatch = (action, options = {}) => {
     state = reduceBlogTabState(state, action);
     render(options);
+  };
+
+  const openBlogDeepLink = (deepLinkSlug = '', options = {}) => {
+    const action = createBlogDeepLinkOpenAction(root, deepLinkSlug);
+    if (!action) return false;
+
+    dispatch(action, options);
+    return true;
+  };
+
+  const getPendingBlogDeepLink = () => root.getAttribute('data-blog-deep-link') ?? root.dataset.blogDeepLink ?? '';
+
+  const clearPendingBlogDeepLink = () => {
+    delete root.dataset.blogDeepLink;
+    root.removeAttribute('data-blog-deep-link');
   };
 
   const activateRelativeTab = (currentTab, key) => {
@@ -463,7 +605,7 @@ export const initBlogApp = (root) => {
       }
 
       if (action === 'linkedin') {
-        window.open(buildLinkedInShareUrl(shareUrl), '_blank', 'noopener,noreferrer');
+        window.open(buildLinkedInShareUrl(shareUrl, translate('blog.shareCopy', getActiveLanguage())), '_blank', 'noopener,noreferrer');
         closeAllShareMenus();
         return;
       }
@@ -504,7 +646,26 @@ export const initBlogApp = (root) => {
     tabList.scrollLeft += event.deltaY;
   });
 
-  render({ focus: false });
+  root.addEventListener('blog-app:open-deep-link', (event) => {
+    const deepLinkSlug = event.detail?.slug ?? getPendingBlogDeepLink();
+    if (openBlogDeepLink(deepLinkSlug, { focus: Boolean(event.detail?.focus) })) {
+      clearPendingBlogDeepLink();
+    }
+  });
+
+  window.addEventListener(LANGUAGE_CHANGE_EVENT, () => {
+    updateLocalizedBlogDates(root);
+    render({ focus: false });
+  });
+
+  updateLocalizedBlogDates(root);
+
+  const pendingBlogDeepLink = getPendingBlogDeepLink();
+  if (pendingBlogDeepLink && openBlogDeepLink(pendingBlogDeepLink, { focus: false })) {
+    clearPendingBlogDeepLink();
+  } else {
+    render({ focus: false });
+  }
 };
 
 export const initBlogApps = (documentRoot = document) => {

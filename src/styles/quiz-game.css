@@ -467,6 +467,12 @@
     scroll-padding-block-start: 0.7rem;
   }
 
+  .quiz-game__screen--summary {
+    align-content: start;
+    justify-items: center;
+    scroll-padding-block-start: 0.7rem;
+  }
+
   .quiz-game__start-copy {
     gap: 0.38rem;
   }

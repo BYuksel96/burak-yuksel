@@ -495,8 +495,11 @@
 
 @media (max-width: 760px) {
   .resume-app {
-    --resume-outer-pad: 1rem;
-    --resume-outer-bottom: 5.7rem;
+    --resume-outer-pad: 0rem;
+    --resume-outer-bottom: 0rem;
+    width: 100%;
+    height: 100%;
+    margin: 0;
   }
 
   .resume-app__header {
@@ -511,13 +514,19 @@
   }
 
   .resume-app__selected {
+    min-width: 0;
     max-width: 100%;
     font-size: 0.68rem;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   .resume-app__workspace {
     grid-template-columns: minmax(0, 1fr);
     padding: 0.72rem;
+    overflow-x: hidden;
   }
 
   .resume-app__inspector {
@@ -536,6 +545,14 @@
   .resume-app__file {
     min-height: 3.35rem;
     grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .resume-app__file-title {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   .resume-app__status {
@@ -582,6 +599,7 @@
     font-size: 0.94rem;
     font-weight: 850;
     line-height: 1.12;
+    overflow-wrap: anywhere;
   }
 
   .resume-app__mobile-preview-head p {
@@ -593,6 +611,11 @@
   .resume-app__detail-paragraph,
   .resume-app__detail-list li {
     font-size: 0.77rem;
+    overflow-wrap: anywhere;
+  }
+
+  .resume-app__detail-scroll {
+    overflow-x: hidden;
   }
 }
 
