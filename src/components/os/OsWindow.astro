@@ -8,6 +8,7 @@ interface Props {
 
 const { id, title, kind, helpText } = Astro.props as Props;
 const windowId = `os-window-${id}`;
+const windowKey = `os.windows.${id}`;
 ---
 
 <section
@@ -18,6 +19,8 @@ const windowId = `os-window-${id}`;
   data-os-window-kind={kind}
   data-os-help-title={`${title} Help`}
   data-os-help-copy={helpText}
+  data-os-help-title-key={`${windowKey}.helpTitle`}
+  data-os-help-copy-key={`${windowKey}.helpCopy`}
   aria-hidden="true"
   hidden
 >
@@ -26,18 +29,42 @@ const windowId = `os-window-${id}`;
       <>
         <div class="os-window-topbar" data-os-folder-drag-handle={kind === 'folder' ? '' : undefined}>
           <div class="os-window-controls" aria-label={`${title} window controls`}>
-            <button class="os-window-control os-window-control--close" type="button" data-os-window-close aria-label={`Close ${title}`} title={`Close ${title}`}>
+            <button
+              class="os-window-control os-window-control--close"
+              type="button"
+              data-os-window-close
+              aria-label={`Close ${title}`}
+              title={`Close ${title}`}
+              data-i18n-aria-label="os.controls.closeWindow"
+              data-i18n-title="os.controls.closeWindow"
+            >
               <span aria-hidden="true">X</span>
             </button>
-            <button class="os-window-control os-window-control--minimise" type="button" aria-label={`Minimise ${title} unavailable`} title="Minimise unavailable" disabled>
+            <button
+              class="os-window-control os-window-control--minimise"
+              type="button"
+              aria-label={`Minimise ${title} unavailable`}
+              title="Minimise unavailable"
+              data-i18n-aria-label="os.controls.minimiseUnavailable"
+              data-i18n-title="os.controls.minimiseUnavailable"
+              disabled
+            >
               <span aria-hidden="true">-</span>
             </button>
-            <button class="os-window-control os-window-control--help" type="button" data-os-window-help aria-label={`Open ${title} help`} title={`Open ${title} help`}>
+            <button
+              class="os-window-control os-window-control--help"
+              type="button"
+              data-os-window-help
+              aria-label={`Open ${title} help`}
+              title={`Open ${title} help`}
+              data-i18n-aria-label="os.controls.openHelp"
+              data-i18n-title="os.controls.openHelp"
+            >
               <span aria-hidden="true">?</span>
             </button>
           </div>
 
-          <h2 class="os-window-title">{title}</h2>
+          <h2 class="os-window-title" data-i18n={`${windowKey}.title`}>{title}</h2>
         </div>
 
         <div class="os-window-divider" aria-hidden="true"></div>

@@ -1,3 +1,5 @@
+import { LANGUAGE_CHANGE_EVENT, getActiveLanguage, getLanguageLocale, translate } from './i18n.js';
+
 export const ARCHIVE_TAB_ID = 'archive';
 
 const MONTH_LABELS = [
@@ -39,15 +41,33 @@ export const getUtcDateTimestamp = (dateValue) => {
   return Date.UTC(parts.year, parts.monthIndex, parts.day);
 };
 
-export const formatBlogDate = (dateValue, variant = 'long') => {
+export const formatBlogDate = (dateValue, variant = 'long', language = 'en') => {
   const parts = getUtcDateParts(dateValue);
-  const month = variant === 'short' ? parts.shortMonthLabel : parts.monthLabel;
+  const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
+  if (Number.isNaN(date.getTime())) return '';
+  const locale = getLanguageLocale(language, 'en-US');
 
   if (variant === 'row') {
-    return `${parts.shortMonthLabel} ${String(parts.day).padStart(2, '0')}`;
+    return new Intl.DateTimeFormat(locale, {
+      month: 'short',
+      day: '2-digit',
+      timeZone: 'UTC',
+    }).format(date);
   }
 
-  return `${month} ${String(parts.day).padStart(2, '0')}, ${parts.year}`;
+  if (variant === 'month') {
+    return new Intl.DateTimeFormat(locale, {
+      month: 'long',
+      timeZone: 'UTC',
+    }).format(new Date(Date.UTC(parts.year, parts.monthIndex, 1)));
+  }
+
+  return new Intl.DateTimeFormat(locale, {
+    month: 'long',
+    day: '2-digit',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(date);
 };
 
 export const sortBlogPostsLatestFirst = (posts = []) =>
@@ -196,6 +216,29 @@ export const normalizeBlogTag = (tag = '') => {
     .replace(/^-+|-+$/g, '');
 
   return { key, label };
+};
+
+const getLocalizedTagLabel = (tagKey = '', fallback = '') => {
+  const translated = translate(`blog.tagsByKey.${tagKey}`, getActiveLanguage());
+  return translated === `blog.tagsByKey.${tagKey}` ? fallback : translated;
+};
+
+const updateLocalizedBlogDates = (root) => {
+  root.querySelectorAll('[data-blog-date]').forEach((element) => {
+    const dateValue = element.getAttribute('data-blog-date');
+    const variant = element.getAttribute('data-blog-date-variant') || 'long';
+    element.textContent = formatBlogDate(dateValue, variant, getActiveLanguage());
+  });
+
+  root.querySelectorAll('[data-blog-month-label]').forEach((element) => {
+    const year = Number(element.getAttribute('data-blog-year'));
+    const monthIndex = Number(element.getAttribute('data-blog-month-index'));
+    const label = formatBlogDate(new Date(Date.UTC(year, monthIndex, 1)), 'month', getActiveLanguage());
+    element.textContent = label;
+
+    const section = element.closest('[data-blog-month-section]');
+    if (section && label) section.setAttribute('aria-label', `${label} ${year}`);
+  });
 };
 
 const uniquePostIds = (ids = []) => ids.filter((id, index) => id && ids.indexOf(id) === index);
@@ -426,11 +469,13 @@ export const initBlogApp = (root) => {
       });
 
       if (title) {
-        title.textContent = `Posts tagged "${tagView.label}"`;
+        title.textContent = translate('blog.postsTagged', getActiveLanguage(), {
+          tag: getLocalizedTagLabel(tagView.key, tagView.label),
+        });
       }
 
       if (count) {
-        count.textContent = `${visibleCount} matching ${visibleCount === 1 ? 'post' : 'posts'}`;
+        count.textContent = translate('blog.matchingPosts', getActiveLanguage(), { count: visibleCount });
       }
     });
 
@@ -560,7 +605,7 @@ export const initBlogApp = (root) => {
       }
 
       if (action === 'linkedin') {
-        window.open(buildLinkedInShareUrl(shareUrl), '_blank', 'noopener,noreferrer');
+        window.open(buildLinkedInShareUrl(shareUrl, translate('blog.shareCopy', getActiveLanguage())), '_blank', 'noopener,noreferrer');
         closeAllShareMenus();
         return;
       }
@@ -607,6 +652,13 @@ export const initBlogApp = (root) => {
       clearPendingBlogDeepLink();
     }
   });
+
+  window.addEventListener(LANGUAGE_CHANGE_EVENT, () => {
+    updateLocalizedBlogDates(root);
+    render({ focus: false });
+  });
+
+  updateLocalizedBlogDates(root);
 
   const pendingBlogDeepLink = getPendingBlogDeepLink();
   if (pendingBlogDeepLink && openBlogDeepLink(pendingBlogDeepLink, { focus: false })) {

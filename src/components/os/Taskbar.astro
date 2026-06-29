@@ -10,6 +10,8 @@ interface Props {
 }
 
 const { items } = Astro.props as Props;
+const labelKeyFor = (id: string) => `os.launchers.${id}`;
+const openLabelKeyFor = (id: string) => `os.launchers.open${id === 'github' ? 'Github' : id.charAt(0).toUpperCase() + id.slice(1)}`;
 ---
 
 <nav class="os-taskbar" aria-label="Burak OS taskbar">
@@ -25,6 +27,7 @@ const { items } = Astro.props as Props;
           aria-controls={`os-window-${item.id}`}
           aria-label={`Open ${item.label}`}
           aria-pressed="false"
+          data-i18n-aria-label={openLabelKeyFor(item.id)}
         >
           <span class="taskbar-icon" aria-hidden="true">
             {item.icon === 'resume' && (
@@ -58,7 +61,7 @@ const { items } = Astro.props as Props;
               </svg>
             )}
           </span>
-          <span class="taskbar-label">{item.label}</span>
+          <span class="taskbar-label" data-i18n={labelKeyFor(item.id)}>{item.label}</span>
         </button>
       </>
     ))}

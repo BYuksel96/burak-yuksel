@@ -2,7 +2,7 @@
 
 Source for Burak Yuksel's static personal portfolio at `burakyuksel.dev`.
 
-The site is now a one-page Astro 5 portfolio app styled as `Burak OS`: a browser-local desktop shell with internal apps, folders, games, theme controls, and legacy URL fallbacks. It stays fully static for GitHub Pages hosting; there is no backend, database, authentication, or runtime server.
+The site is now a one-page Astro 5 portfolio app styled as `Burak OS`: a browser-local desktop shell with internal apps, folders, games, theme controls, session-only language mode, and legacy URL fallbacks. It stays fully static for GitHub Pages hosting; there is no backend, database, authentication, or runtime server.
 
 ## Experience
 
@@ -12,6 +12,7 @@ The site is now a one-page Astro 5 portfolio app styled as `Burak OS`: a browser
 - `GitHub.exe` fetches public repository data from GitHub without tokens.
 - `Downloads` contains the resume PDF behind an OS-local confirmation flow.
 - `Bin` contains browser-only easter-egg games: `Maze.exe` and `Quiz.exe`.
+- The top bar supports session-only English, Spanish, French, German, and Turkish language mode for the website UI and in-page content.
 - `/resume/`, `/blog/`, and `/blog/[slug]/` are static `noindex` fallback routes into Burak OS. Blog post routes deep-link into `Blog.exe` and open the matching post tab.
 - External profile/repository links open in real browser tabs; downloadable assets live under `public/`.
 
@@ -48,7 +49,7 @@ Focused node tests live in `src/scripts/*.test.mjs` and can be run with `node --
 
 ## Content
 
-Blog posts are Markdown files in `src/content/blog` with frontmatter validated by `src/content/config.ts`. Resume timeline content is stored in `src/content/timeline.json`. The downloadable resume is the static `public/Resume-BURAK-YUKSEL.pdf` asset.
+Blog posts are Markdown files in `src/content/blog` with frontmatter validated by `src/content/config.ts`. Resume timeline content is stored in `src/content/timeline.json`. Website localization dictionaries live in `src/scripts/i18n-data-*.js`. The downloadable resume is the static `public/Resume-BURAK-YUKSEL.pdf` asset.
 
 ## Deployment
 

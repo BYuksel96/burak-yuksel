@@ -16,33 +16,33 @@ const entries = timeline.map((item, index) => ({
 }));
 ---
 
-<section class="resume-app" data-resume-app data-resume-default-id={defaultId} aria-label="Resume.exe career file explorer">
+<section class="resume-app" data-resume-app data-resume-default-id={defaultId} aria-label="Resume.exe career file explorer" data-i18n-aria-label="resume.aria">
   <header class="resume-app__header">
     <div class="resume-app__heading">
-      <p class="resume-app__eyebrow">Career File Explorer</p>
-      <h3>Timeline archive</h3>
+      <p class="resume-app__eyebrow" data-i18n="resume.eyebrow">Career File Explorer</p>
+      <h3 data-i18n="resume.title">Timeline archive</h3>
     </div>
 
     <div class="resume-app__actions">
       <span class="resume-app__selected">
-        Selected:
+        <span data-i18n="resume.selected">Selected:</span>
         <strong data-resume-selected-label></strong>
       </span>
       <a class="resume-app__linkedin" href={linkedinUrl} target="_blank" rel="noopener noreferrer">
         <span aria-hidden="true">in</span>
-        LinkedIn
+        <span data-i18n="resume.linkedin">LinkedIn</span>
       </a>
     </div>
   </header>
 
   <div class="resume-app__workspace">
-    <aside class="resume-app__sidebar" aria-label="Career files">
+    <aside class="resume-app__sidebar" aria-label="Career files" data-i18n-aria-label="resume.filesAria">
       <div class="resume-app__panel-head">
-        <span class="resume-app__panel-title">Career Files</span>
-        <span class="resume-app__panel-count">{entries.length} items</span>
+        <span class="resume-app__panel-title" data-i18n="resume.filesTitle">Career Files</span>
+        <span class="resume-app__panel-count" data-i18n="resume.itemCount" data-i18n-vars={JSON.stringify({ count: entries.length })}>{entries.length} items</span>
       </div>
 
-      <div class="resume-app__file-list" data-resume-list role="listbox" aria-label="Select a career file">
+      <div class="resume-app__file-list" data-resume-list role="listbox" aria-label="Select a career file" data-i18n-aria-label="resume.listAria">
         {entries.map((item) => (
           <div class="resume-app__file-wrap">
             <button
@@ -52,6 +52,7 @@ const entries = timeline.map((item, index) => ({
               data-resume-select
               data-resume-event-id={item.id}
               data-resume-title={item.title}
+              data-resume-title-key={`resume.entries.${item.id}.title`}
               aria-selected={item.id === defaultId ? 'true' : 'false'}
               aria-current={item.id === defaultId ? 'true' : 'false'}
               aria-controls={`resume-record-${item.id}`}
@@ -64,10 +65,10 @@ const entries = timeline.map((item, index) => ({
                 </svg>
               </span>
               <span class="resume-app__file-copy">
-                <span class="resume-app__file-title">{item.title}</span>
-                <span class="resume-app__file-date">{item.date}</span>
+                <span class="resume-app__file-title" data-i18n={`resume.entries.${item.id}.title`}>{item.title}</span>
+                <span class="resume-app__file-date" data-i18n={`resume.entries.${item.id}.date`}>{item.date}</span>
               </span>
-              {item.current && <span class="resume-app__status resume-app__status--current">Current</span>}
+              {item.current && <span class="resume-app__status resume-app__status--current" data-i18n="resume.current">Current</span>}
             </button>
 
             <article
@@ -80,11 +81,11 @@ const entries = timeline.map((item, index) => ({
               <div class="resume-app__mobile-preview-head">
                 <img src={item.imageSrc} alt="" loading="lazy" />
                 <div>
-                  <h4>{item.title}</h4>
-                  <p>{item.date}</p>
+                  <h4 data-i18n={`resume.entries.${item.id}.title`}>{item.title}</h4>
+                  <p data-i18n={`resume.entries.${item.id}.date`}>{item.date}</p>
                 </div>
               </div>
-              <div class="resume-app__detail-scroll">
+              <div class="resume-app__detail-scroll" data-i18n-html={`resume.entries.${item.id}.detailHtml`}>
                 {item.blocks.map((block) => (
                   block.type === 'list' ? (
                     <ul class="resume-app__detail-list">
@@ -107,8 +108,8 @@ const entries = timeline.map((item, index) => ({
 
     <aside class="resume-app__inspector" aria-label="Selected career file inspector">
       <div class="resume-app__panel-head">
-        <span class="resume-app__panel-title">File Preview</span>
-        <span class="resume-app__panel-count">Inspector</span>
+        <span class="resume-app__panel-title" data-i18n="resume.previewTitle">File Preview</span>
+        <span class="resume-app__panel-count" data-i18n="resume.inspector">Inspector</span>
       </div>
 
       <div class="resume-app__record-stack">
@@ -126,18 +127,18 @@ const entries = timeline.map((item, index) => ({
                 <img src={item.imageSrc} alt="" loading="lazy" />
               </div>
               <div class="resume-app__record-title">
-                <p>{item.current ? 'Active file' : 'Archive file'}</p>
-                <h4>{item.title}</h4>
-                <span>{item.date}</span>
+                <p data-i18n={item.current ? 'resume.activeFile' : 'resume.archiveFile'}>{item.current ? 'Active file' : 'Archive file'}</p>
+                <h4 data-i18n={`resume.entries.${item.id}.title`}>{item.title}</h4>
+                <span data-i18n={`resume.entries.${item.id}.date`}>{item.date}</span>
               </div>
             </header>
 
             <div class="resume-app__record-meta">
               <span>#{String(item.index + 1).padStart(2, '0')}</span>
-              <span>{item.current ? 'Current timeline marker' : 'Timeline marker'}</span>
+              <span data-i18n={item.current ? 'resume.currentMarker' : 'resume.marker'}>{item.current ? 'Current timeline marker' : 'Timeline marker'}</span>
             </div>
 
-            <div class="resume-app__detail-scroll">
+            <div class="resume-app__detail-scroll" data-i18n-html={`resume.entries.${item.id}.detailHtml`}>
               {item.blocks.map((block) => (
                 block.type === 'list' ? (
                   <ul class="resume-app__detail-list">

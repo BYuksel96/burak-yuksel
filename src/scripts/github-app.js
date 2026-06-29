@@ -1,19 +1,22 @@
+import { LANGUAGE_CHANGE_EVENT, applyI18n, getActiveLanguage, getLanguageLocale, translate } from './i18n.js';
+
 export const GITHUB_REPOS_ENDPOINT = 'https://api.github.com/users/BYuksel96/repos?sort=updated&per_page=6';
 
-const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-export const formatRepoUpdatedDate = (dateValue) => {
+export const formatRepoUpdatedDate = (dateValue, language = 'en') => {
   const date = new Date(dateValue);
-  if (Number.isNaN(date.getTime())) return 'Unknown';
+  if (Number.isNaN(date.getTime())) return translate('github.unknownDate', language);
 
-  const day = String(date.getUTCDate()).padStart(2, '0');
-  const month = MONTH_LABELS[date.getUTCMonth()] ?? '';
-  const year = date.getUTCFullYear();
-  return `${day} ${month} ${year}`;
+  return new Intl.DateTimeFormat(language === 'en' ? 'en-GB' : getLanguageLocale(language, 'en-GB'), {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(date);
 };
 
-export const formatCommitCount = (count) => {
+export const formatCommitCount = (count, language = 'en') => {
   if (!Number.isInteger(count) || count < 0) return 'Commits unavailable';
+  if (language !== 'en') return translate('github.commitCount', language, { count });
   return `${count} ${count === 1 ? 'commit' : 'commits'}`;
 };
 
@@ -27,6 +30,7 @@ export const normalizeGitHubRepo = (repo = {}) => {
     description: String(repo?.description || '').trim() || 'No description provided.',
     language: String(repo?.language || '').trim() || 'Unknown',
     stars: Number.isFinite(stars) ? stars : 0,
+    updatedAt: repo?.updated_at ?? '',
     updatedLabel: formatRepoUpdatedDate(repo?.updated_at),
     htmlUrl: String(repo?.html_url || 'https://github.com/BYuksel96'),
     fullName,
@@ -165,18 +169,23 @@ const setText = (root, selector, text) => {
 const renderRepoCard = (template, repo) => {
   const card = template.content.firstElementChild.cloneNode(true);
   const link = card.querySelector('[data-github-repo-link]');
+  const language = getActiveLanguage();
+  const description = repo.description === 'No description provided.' ? translate('github.noDescription', language) : repo.description;
+  const repoLanguage = repo.language === 'Unknown' ? translate('github.unknownLanguage', language) : repo.language;
 
   setText(card, '[data-github-repo-name]', repo.name);
-  setText(card, '[data-github-repo-description]', repo.description);
-  setText(card, '[data-github-repo-language]', repo.language);
+  setText(card, '[data-github-repo-description]', description);
+  setText(card, '[data-github-repo-language]', repoLanguage);
   setText(card, '[data-github-repo-stars]', String(repo.stars));
-  setText(card, '[data-github-repo-commits]', repo.commitLabel);
-  setText(card, '[data-github-repo-updated]', repo.updatedLabel);
+  setText(card, '[data-github-repo-commits]', Number.isInteger(repo.commitCount) ? formatCommitCount(repo.commitCount, language) : translate('github.commitsUnavailable', language));
+  setText(card, '[data-github-repo-updated]', formatRepoUpdatedDate(repo.updatedAt, language));
 
   if (link) {
     link.href = repo.htmlUrl;
-    link.setAttribute('aria-label', `Open ${repo.name} on GitHub`);
+    link.setAttribute('aria-label', translate('github.openRepo', language, { name: repo.name }));
   }
+
+  applyI18n(card, language);
 
   return card;
 };
@@ -203,18 +212,19 @@ export const renderGitHubApp = (root, state) => {
   if (statusText) {
     statusText.textContent =
       state.status === 'loading'
-        ? 'Connecting to GitHub...'
+        ? translate('github.loadingTitle')
         : state.status === 'error'
-          ? 'Unable to reach GitHub'
+          ? translate('github.unable')
           : state.status === 'empty'
-            ? 'No public repositories returned'
+            ? translate('github.noneReturned')
             : state.status === 'success'
-              ? 'Latest repositories loaded'
-              : 'Waiting for GitHub.exe to open';
+              ? translate('github.loaded')
+              : translate('github.waiting');
   }
 
   if (count) {
-    count.textContent = `${state.repos.length} repos`;
+    count.textContent = translate('github.count', getActiveLanguage(), { count: state.repos.length });
+    count.setAttribute('data-i18n-vars', JSON.stringify({ count: state.repos.length }));
   }
 
   if (errorMessage) {
@@ -278,6 +288,10 @@ export const initGitHubApp = (root, options = {}) => {
       attributeFilter: ['hidden', 'data-window-state'],
     });
   }
+
+  window.addEventListener(LANGUAGE_CHANGE_EVENT, () => {
+    renderGitHubApp(root, state);
+  });
 
   renderGitHubApp(root, state);
   loadWhenOpen();

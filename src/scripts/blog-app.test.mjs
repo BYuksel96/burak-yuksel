@@ -9,6 +9,7 @@ import {
   buildBlogPath,
   buildLinkedInShareUrl,
   createInitialBlogTabState,
+  formatBlogDate,
   groupBlogPostsByYearMonth,
   normalizeBlogTag,
   reduceBlogTabState,
@@ -57,6 +58,15 @@ test('builds internal browser display addresses from preserved blog paths', () =
   assert.equal(buildBlogDisplayAddress('/blog/hello-world/'), 'burak-os://blog/hello-world/');
   assert.equal(buildBlogDisplayAddress('/portfolio/blog/post/'), 'burak-os://portfolio/blog/post/');
   assert.equal(buildBlogDisplayAddress(''), 'burak-os://blog/archive');
+});
+
+test('formats blog dates using the active language locale', () => {
+  const date = new Date('2026-06-20T14:05:00Z');
+
+  assert.equal(formatBlogDate(date, 'long', 'en'), 'June 20, 2026');
+  assert.equal(formatBlogDate(date, 'row', 'en'), 'Jun 20');
+  assert.match(formatBlogDate(date, 'long', 'tr'), /Haziran|Haz/);
+  assert.match(formatBlogDate(date, 'row', 'de'), /Juni|Jun/);
 });
 
 test('resolves canonical and entry slugs to existing Blog.exe post uids', () => {
@@ -198,7 +208,7 @@ test('BlogApp LinkedIn sharing opens a safe external browser tab with the canoni
   assert.equal(linkedIn.searchParams.get('shareActive'), 'true');
   assert.equal(linkedIn.searchParams.get('text'), 'Read this https://burakyuksel.dev/blog/hello-world/');
   assert.match(script, /const shareUrl = toAbsoluteShareUrl\(canonicalPath,\s*window\.location\.origin\);/);
-  assert.match(script, /window\.open\(buildLinkedInShareUrl\(shareUrl\),\s*'_blank',\s*'noopener,noreferrer'\);/);
+  assert.match(script, /window\.open\(buildLinkedInShareUrl\(shareUrl,\s*translate\('blog\.shareCopy',\s*getActiveLanguage\(\)\)\),\s*'_blank',\s*'noopener,noreferrer'\);/);
 });
 
 test('BlogApp markup uses proper tab semantics and separate close controls', () => {
@@ -230,10 +240,22 @@ test('BlogApp renders clickable tags and same-tab tag result panels', () => {
 
   assert.match(source, />Tags:\s*</);
   assert.match(source, /data-blog-open-tag/);
+  assert.match(source, /data-i18n=\{`blog\.tagsByKey\.\$\{tag\.key\}`\}/);
   assert.match(source, /data-blog-tag-results/);
   assert.match(source, /data-blog-clear-tag/);
   assert.match(source, /data-blog-open-post/);
   assert.doesNotMatch(source, /post\.tags\.join/);
+});
+
+test('BlogApp marks date surfaces for language reformatting', () => {
+  const source = readBlogAppSource();
+  const script = readBlogAppScript();
+
+  assert.match(source, /data-blog-date=\{post\.dateIso\}/);
+  assert.match(source, /data-blog-month-label/);
+  assert.match(source, /data-blog-month-section/);
+  assert.match(script, /updateLocalizedBlogDates/);
+  assert.match(script, /formatBlogDate\(dateValue,\s*variant,\s*getActiveLanguage\(\)\)/);
 });
 
 test('BlogApp places Back to Posts and Share actions in the article head and footer', () => {

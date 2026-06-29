@@ -15,7 +15,10 @@ test('uses the working unauthenticated public repos endpoint for the existing si
 });
 
 test('normalizes GitHub repos for card rendering', async () => {
-  const { normalizeGitHubRepo, normalizeGitHubRepos } = await import('./github-app.js');
+  const { formatRepoUpdatedDate, normalizeGitHubRepo, normalizeGitHubRepos } = await import('./github-app.js');
+
+  assert.equal(formatRepoUpdatedDate('2026-06-20T14:05:00Z', 'en'), '20 Jun 2026');
+  assert.match(formatRepoUpdatedDate('2026-06-20T14:05:00Z', 'tr'), /Haz/);
 
   assert.deepEqual(
     normalizeGitHubRepo({
@@ -31,6 +34,7 @@ test('normalizes GitHub repos for card rendering', async () => {
       description: 'No description provided.',
       language: 'Unknown',
       stars: 4,
+      updatedAt: '2026-06-20T14:05:00Z',
       updatedLabel: '20 Jun 2026',
       htmlUrl: 'https://github.com/BYuksel96/portfolio-os',
       fullName: 'BYuksel96/portfolio-os',
@@ -181,6 +185,13 @@ test('GitHubApp markup includes state containers, retry, external links, and no 
   assert.match(source, /rel="noopener noreferrer"/);
   assert.doesNotMatch(source, /<iframe/i);
   assert.doesNotMatch(source, /token|authorization/i);
+});
+
+test('GitHubApp rerenders repository dates with the active language', () => {
+  const script = readGitHubAppScript();
+
+  assert.match(script, /formatRepoUpdatedDate\(repo\.updatedAt,\s*language\)/);
+  assert.match(script, /updatedAt:/);
 });
 
 test('GitHub profile and repo links open safe browser tabs without iframe or token behavior', () => {

@@ -1,3 +1,5 @@
+import { LANGUAGE_CHANGE_EVENT, getActiveLanguage, translate } from './i18n.js';
+
 const SELECTOR_SELECT = '[data-resume-select]';
 const SELECTOR_PANEL = '[data-resume-panel]';
 
@@ -92,7 +94,8 @@ export const initResumeApp = (root) => {
     });
 
     const activeSelector = selectors.find((selector) => getEventId(selector) === id);
-    const label = activeSelector?.getAttribute('data-resume-title') ?? '';
+    const labelKey = activeSelector?.getAttribute('data-resume-title-key') ?? '';
+    const label = labelKey ? translate(labelKey, getActiveLanguage()) : (activeSelector?.getAttribute('data-resume-title') ?? '');
     if (selectedLabel) {
       selectedLabel.textContent = label;
     }
@@ -143,6 +146,10 @@ export const initResumeApp = (root) => {
 
   const defaultId = root.getAttribute('data-resume-default-id') || getEventId(selectors[0]);
   setSelected(defaultId, { scroll: false });
+
+  window.addEventListener(LANGUAGE_CHANGE_EVENT, () => {
+    setSelected(root.dataset.resumeSelected || defaultId, { scroll: false });
+  });
 };
 
 export const initResumeApps = (documentRoot = document) => {

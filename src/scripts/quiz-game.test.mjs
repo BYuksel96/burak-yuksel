@@ -518,3 +518,12 @@ test('Quiz.exe browser lifecycle is idempotent and watches OS window visibility'
   assert.match(quizScript, /getQuizChoiceIdFromKey/);
   assert.match(quizScript, /shouldCaptureQuizShortcut/);
 });
+
+test('Quiz.exe refreshes dynamic question and feedback copy on language changes', () => {
+  const source = readSource('./quiz-game.js');
+
+  assert.match(source, /let lastFeedback = null;/);
+  assert.match(source, /renderQuestionText/);
+  assert.match(source, /renderFeedbackCopy/);
+  assert.match(source, /state\.screen === 'play'[\s\S]*renderQuestionText\(\);\s*renderFeedbackCopy\(\);/);
+});

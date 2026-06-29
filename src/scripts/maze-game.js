@@ -14,6 +14,7 @@ import { createSeededRandom } from './maze-rng.js';
 import { createMazeHighScoreStore, createMazeMusicPreferenceStore } from './maze-storage.js';
 import { calculateCollectibleScore, calculateLevelCompletionScore, getMonsterProfile } from './maze-state.js';
 import { drawMazeScene } from './maze-renderer.js';
+import { LANGUAGE_CHANGE_EVENT, getActiveLanguage, translate } from './i18n.js';
 
 const COUNTDOWN_VALUES = ['3', '2', '1'];
 const GATEWAY_WARNING_MS = 850;
@@ -205,7 +206,7 @@ export const initMazeGame = (root, options = {}) => {
     setText(root, '[data-maze-high-score]', String(state.highScore));
     setText(root, '[data-maze-countdown-value]', state.countdownText);
     root.querySelectorAll('[data-maze-music-toggle]').forEach((button) => {
-      button.textContent = formatMazeMusicToggleLabel(musicEnabled);
+      button.textContent = formatMazeMusicToggleLabel(musicEnabled, getActiveLanguage());
       button.setAttribute('aria-pressed', String(musicEnabled));
     });
     setHidden(root.querySelector('[data-maze-start-screen]'), state.status !== 'idle');
@@ -217,7 +218,7 @@ export const initMazeGame = (root, options = {}) => {
       setText(root, '[data-maze-final-score]', String(state.score));
       setText(root, '[data-maze-highest-level]', String(state.highestLevelReached));
       setText(root, '[data-maze-game-over-high-score]', String(state.highScore));
-      setText(root, '[data-maze-new-high-score]', state.newHighScore ? 'New high score achieved' : '');
+      setText(root, '[data-maze-new-high-score]', state.newHighScore ? translate('maze.newHighScore') : '');
     }
 
     if (context && canvas && state.maze && state.player) {
@@ -612,6 +613,7 @@ export const initMazeGame = (root, options = {}) => {
   }
 
   window.addEventListener('resize', render);
+  window.addEventListener(LANGUAGE_CHANGE_EVENT, render);
   window.addEventListener('pagehide', () => {
     clearTimers();
     musicPlayer.stop();

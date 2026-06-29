@@ -36,6 +36,7 @@ const posts = renderedEntries.map(({ entry, rendered }, index) => {
     tagItems,
     tagKeys: tagItems.map((tag) => tag.key).join('|'),
     canonicalPath: buildBlogPath(base, routeSlug),
+    dateIso: new Date(entry.data.pubDate).toISOString(),
     rowDate: formatBlogDate(entry.data.pubDate, 'row'),
     fullDate: formatBlogDate(entry.data.pubDate, 'long'),
     readMinutes,
@@ -48,15 +49,17 @@ const archivePanelId = 'blog-panel-archive';
 const archiveTabId = 'blog-tab-archive';
 ---
 
-<section class="blog-app" data-blog-app aria-label="Blog.exe internal browser">
-  <header class="blog-app__chrome" aria-label="Blog.exe window controls" data-blog-window-chrome>
-    <div class="blog-app__chrome-controls os-window-controls" aria-label="Blog.exe window controls">
+<section class="blog-app" data-blog-app aria-label="Blog.exe internal browser" data-i18n-aria-label="blog.aria">
+  <header class="blog-app__chrome" aria-label="Blog.exe window controls" data-blog-window-chrome data-i18n-aria-label="blog.controlsAria">
+    <div class="blog-app__chrome-controls os-window-controls" aria-label="Blog.exe window controls" data-i18n-aria-label="blog.controlsAria">
       <button
         class="os-window-control os-window-control--close"
         type="button"
         data-os-window-close
         aria-label="Close Blog.exe"
         title="Close Blog.exe"
+        data-i18n-aria-label="blog.close"
+        data-i18n-title="blog.close"
       >
         <span aria-hidden="true">X</span>
       </button>
@@ -65,6 +68,8 @@ const archiveTabId = 'blog-tab-archive';
         type="button"
         aria-label="Minimise Blog.exe unavailable"
         title="Minimise unavailable"
+        data-i18n-aria-label="blog.minimise"
+        data-i18n-title="os.controls.minimiseUnavailable"
         disabled
       >
         <span aria-hidden="true">-</span>
@@ -75,18 +80,20 @@ const archiveTabId = 'blog-tab-archive';
         data-os-window-help
         aria-label="Open Blog.exe help"
         title="Open Blog.exe help"
+        data-i18n-aria-label="blog.help"
+        data-i18n-title="blog.help"
       >
         <span aria-hidden="true">?</span>
       </button>
     </div>
 
-    <div class="blog-app__address" aria-label="Current Blog.exe location">
+    <div class="blog-app__address" aria-label="Current Blog.exe location" data-i18n-aria-label="blog.location">
       <span data-blog-address>burak-os://blog/archive</span>
     </div>
   </header>
 
-  <div class="blog-app__tab-strip" aria-label="Blog.exe open tabs">
-    <div class="blog-app__tabs" role="tablist" aria-label="Blog tabs" data-blog-tabs>
+  <div class="blog-app__tab-strip" aria-label="Blog.exe open tabs" data-i18n-aria-label="blog.openTabs">
+    <div class="blog-app__tabs" role="tablist" aria-label="Blog tabs" data-blog-tabs data-i18n-aria-label="blog.tabs">
       <div class="blog-app__tab-wrap" data-blog-tab-wrap>
         <button
           class="blog-app__tab blog-app__tab--archive"
@@ -105,7 +112,7 @@ const archiveTabId = 'blog-tab-archive';
               <path d="M8 9h8M8 12h8M8 15h5" />
             </svg>
           </span>
-          <span class="blog-app__tab-title">Archive</span>
+          <span class="blog-app__tab-title" data-i18n="blog.archive">Archive</span>
         </button>
       </div>
 
@@ -122,7 +129,7 @@ const archiveTabId = 'blog-tab-archive';
             data-blog-tab
             data-blog-tab-id={post.uid}
           >
-            <span class="blog-app__tab-title">{post.title}</span>
+            <span class="blog-app__tab-title" data-i18n={`blog.posts.${post.uid}.title`}>{post.title}</span>
           </button>
           <button
             class="blog-app__tab-close"
@@ -130,6 +137,8 @@ const archiveTabId = 'blog-tab-archive';
             data-blog-close-tab
             data-blog-post-id={post.uid}
             aria-label={`Close "${post.title}" tab`}
+            data-i18n-aria-label="blog.closeTab"
+            data-i18n-vars={JSON.stringify({ title: post.title })}
           >
             <span aria-hidden="true">x</span>
           </button>
@@ -150,12 +159,12 @@ const archiveTabId = 'blog-tab-archive';
       <div class="blog-app__archive">
         <header class="blog-app__archive-head">
           <div>
-            <p class="blog-app__eyebrow">Post Archive</p>
-            <h3>Writing log</h3>
+            <p class="blog-app__eyebrow" data-i18n="blog.archiveEyebrow">Post Archive</p>
+            <h3 data-i18n="blog.archiveTitle">Writing log</h3>
           </div>
         </header>
 
-        <div class="blog-app__archive-list" aria-label="Blog archive grouped by year and month">
+        <div class="blog-app__archive-list" aria-label="Blog archive grouped by year and month" data-i18n-aria-label="blog.groupedAria">
           {groups.map((yearGroup) => (
             <section class="blog-app__year-group" aria-labelledby={`blog-year-${yearGroup.year}`}>
               <h4 id={`blog-year-${yearGroup.year}`} class="blog-app__year">
@@ -164,8 +173,19 @@ const archiveTabId = 'blog-tab-archive';
 
               <div class="blog-app__months">
                 {yearGroup.months.map((monthGroup) => (
-                  <section class="blog-app__month-group" aria-label={`${monthGroup.monthLabel} ${yearGroup.year}`}>
-                    <h5 class="blog-app__month">{monthGroup.monthLabel}</h5>
+                  <section
+                    class="blog-app__month-group"
+                    aria-label={`${monthGroup.monthLabel} ${yearGroup.year}`}
+                    data-blog-month-section
+                  >
+                    <h5
+                      class="blog-app__month"
+                      data-blog-month-label
+                      data-blog-year={yearGroup.year}
+                      data-blog-month-index={monthGroup.monthIndex}
+                    >
+                      {monthGroup.monthLabel}
+                    </h5>
                     <div class="blog-app__entries">
                       {monthGroup.posts.map((post) => (
                         <a
@@ -175,12 +195,12 @@ const archiveTabId = 'blog-tab-archive';
                           data-blog-post-id={post.uid}
                         >
                           <span class="blog-app__entry-main">
-                            <span class="blog-app__entry-title">{post.title}</span>
-                            <span class="blog-app__entry-description">{post.description}</span>
+                            <span class="blog-app__entry-title" data-i18n={`blog.posts.${post.uid}.title`}>{post.title}</span>
+                            <span class="blog-app__entry-description" data-i18n={`blog.posts.${post.uid}.description`}>{post.description}</span>
                           </span>
                           <span class="blog-app__entry-meta">
-                            <span>{post.rowDate}</span>
-                            <span>{post.readMinutes} min</span>
+                            <span data-blog-date={post.dateIso} data-blog-date-variant="row">{post.rowDate}</span>
+                            <span data-i18n="blog.readMinutesShort" data-i18n-vars={JSON.stringify({ minutes: post.readMinutes })}>{post.readMinutes} min</span>
                           </span>
                         </a>
                       ))}
@@ -216,13 +236,13 @@ const archiveTabId = 'blog-tab-archive';
                 <header class="blog-app__article-head">
                   <div class="blog-app__article-head-main">
                     <div class="blog-app__post-meta">
-                      <span>{post.fullDate}</span>
-                      <span>{post.readMinutes} min read</span>
+                      <span data-blog-date={post.dateIso} data-blog-date-variant="long">{post.fullDate}</span>
+                      <span data-i18n="blog.readMinutesLong" data-i18n-vars={JSON.stringify({ minutes: post.readMinutes })}>{post.readMinutes} min read</span>
                     </div>
-                    <h3>{post.title}</h3>
-                    <p>{post.description}</p>
-                    <div class="blog-app__tag-list" aria-label={`Tags for ${post.title}`}>
-                      <span>Tags:</span>
+                    <h3 data-i18n={`blog.posts.${post.uid}.title`}>{post.title}</h3>
+                    <p data-i18n={`blog.posts.${post.uid}.description`}>{post.description}</p>
+                    <div class="blog-app__tag-list" aria-label={`Tags for ${post.title}`} data-i18n-aria-label="blog.tagsFor" data-i18n-vars={JSON.stringify({ title: post.title })}>
+                      <span data-i18n="blog.tags">Tags:</span>
                       {post.tagItems.map((tag) => (
                         <button
                           class="blog-app__tag"
@@ -232,7 +252,7 @@ const archiveTabId = 'blog-tab-archive';
                           data-blog-tag={tag.label}
                           data-blog-tag-key={tag.key}
                         >
-                          {tag.label}
+                          <span data-i18n={`blog.tagsByKey.${tag.key}`}>{tag.label}</span>
                         </button>
                       ))}
                     </div>
@@ -240,7 +260,7 @@ const archiveTabId = 'blog-tab-archive';
 
                   <div class="blog-app__post-actions">
                     <button class="blog-app__back" type="button" data-blog-back data-blog-post-id={post.uid}>
-                      Back to Posts
+                      <span data-i18n="blog.backToPosts">Back to Posts</span>
                     </button>
 
                     <div class="blog-app__share-wrap" data-blog-share-wrap>
@@ -251,7 +271,7 @@ const archiveTabId = 'blog-tab-archive';
                         aria-expanded="false"
                         aria-controls={`blog-share-${post.uid}`}
                       >
-                        Share
+                        <span data-i18n="blog.share">Share</span>
                       </button>
                       <div
                         class="blog-app__share-menu"
@@ -267,11 +287,11 @@ const archiveTabId = 'blog-tab-archive';
                               <path d="M14 11a5 5 0 0 0-7.54-.54l-2.2 2.2a5 5 0 0 0 7.08 7.08l1.26-1.26" />
                             </svg>
                           </span>
-                          Copy Link
+                          <span data-i18n="blog.copyLink">Copy Link</span>
                         </button>
                         <button type="button" data-blog-share-action="linkedin">
                           <span class="blog-app__share-icon blog-app__share-icon--linkedin" aria-hidden="true">in</span>
-                          Share on LinkedIn
+                          <span data-i18n="blog.shareLinkedIn">Share on LinkedIn</span>
                         </button>
                       </div>
                     </div>
@@ -279,15 +299,18 @@ const archiveTabId = 'blog-tab-archive';
                 </header>
 
                 <div class="blog-app__article-body">
-                  <Content />
+                  <div data-i18n-html={`blog.posts.${post.uid}.bodyHtml`}>
+                    <Content />
+                  </div>
 
-                  <footer class="blog-app__article-foot" aria-label={`Post actions for ${post.title}`}>
+                  <footer class="blog-app__article-foot" aria-label={`Post actions for ${post.title}`} data-i18n-aria-label="blog.postActions" data-i18n-vars={JSON.stringify({ title: post.title })}>
                     <button
                       class="blog-app__icon-action blog-app__icon-action--back"
                       type="button"
                       data-blog-back
                       data-blog-post-id={post.uid}
                       aria-label="Back to posts"
+                      data-i18n-aria-label="blog.backAria"
                     >
                       <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                         <path d="M11 6 5 12l6 6" />
@@ -301,6 +324,7 @@ const archiveTabId = 'blog-tab-archive';
                         type="button"
                         data-blog-share
                         aria-label="Share post"
+                        data-i18n-aria-label="blog.sharePost"
                         aria-expanded="false"
                         aria-controls={`blog-share-bottom-${post.uid}`}
                       >
@@ -326,11 +350,11 @@ const archiveTabId = 'blog-tab-archive';
                               <path d="M14 11a5 5 0 0 0-7.54-.54l-2.2 2.2a5 5 0 0 0 7.08 7.08l1.26-1.26" />
                             </svg>
                           </span>
-                          Copy Link
+                          <span data-i18n="blog.copyLink">Copy Link</span>
                         </button>
                         <button type="button" data-blog-share-action="linkedin">
                           <span class="blog-app__share-icon blog-app__share-icon--linkedin" aria-hidden="true">in</span>
-                          Share on LinkedIn
+                          <span data-i18n="blog.shareLinkedIn">Share on LinkedIn</span>
                         </button>
                       </div>
                     </div>
@@ -343,16 +367,16 @@ const archiveTabId = 'blog-tab-archive';
           <section class="blog-app__tag-results" data-blog-tag-results hidden>
             <header class="blog-app__tag-results-head">
               <div>
-                <p class="blog-app__eyebrow">Tag Results</p>
+                <p class="blog-app__eyebrow" data-i18n="blog.tagResults">Tag Results</p>
                 <h3 data-blog-tag-title>Posts tagged</h3>
                 <p data-blog-tag-count></p>
               </div>
               <button class="blog-app__back" type="button" data-blog-clear-tag data-blog-post-id={post.uid}>
-                Back to Post
+                <span data-i18n="blog.backToPost">Back to Post</span>
               </button>
             </header>
 
-            <div class="blog-app__tag-results-list" aria-label="Posts matching the selected tag">
+            <div class="blog-app__tag-results-list" aria-label="Posts matching the selected tag" data-i18n-aria-label="blog.matchingRows">
               {posts.map((resultPost) => (
                 <a
                   class="blog-app__entry blog-app__tag-result-row"
@@ -364,15 +388,20 @@ const archiveTabId = 'blog-tab-archive';
                   hidden
                 >
                   <span class="blog-app__entry-main">
-                    <span class="blog-app__entry-title">{resultPost.title}</span>
-                    <span class="blog-app__entry-description">{resultPost.description}</span>
+                    <span class="blog-app__entry-title" data-i18n={`blog.posts.${resultPost.uid}.title`}>{resultPost.title}</span>
+                    <span class="blog-app__entry-description" data-i18n={`blog.posts.${resultPost.uid}.description`}>{resultPost.description}</span>
                     <span class="blog-app__tag-result-tags">
-                      {resultPost.tagItems.map((tag) => tag.label).join(' / ')}
+                      {resultPost.tagItems.map((tag, tagIndex) => (
+                        <>
+                          {tagIndex > 0 && ' / '}
+                          <span data-i18n={`blog.tagsByKey.${tag.key}`}>{tag.label}</span>
+                        </>
+                      ))}
                     </span>
                   </span>
                   <span class="blog-app__entry-meta">
-                    <span>{resultPost.rowDate}</span>
-                    <span>{resultPost.readMinutes} min</span>
+                    <span data-blog-date={resultPost.dateIso} data-blog-date-variant="row">{resultPost.rowDate}</span>
+                    <span data-i18n="blog.readMinutesShort" data-i18n-vars={JSON.stringify({ minutes: resultPost.readMinutes })}>{resultPost.readMinutes} min</span>
                   </span>
                 </a>
               ))}
@@ -383,7 +412,7 @@ const archiveTabId = 'blog-tab-archive';
     })}
   </div>
 
-  <div class="blog-app__copy-toast" data-blog-copy-toast role="status" aria-live="polite">Link Copied</div>
+  <div class="blog-app__copy-toast" data-blog-copy-toast role="status" aria-live="polite" data-i18n="blog.linkCopied">Link Copied</div>
 </section>
 
 <script>

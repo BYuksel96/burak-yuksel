@@ -233,6 +233,24 @@ test('formats browser-local status time without seconds', () => {
 
   assert.equal(formatOsDateTime(date, 'en-GB'), 'Thu 11 Jun 22:14');
   assert.equal(formatOsDateTime(date, 'en-US'), 'Thu Jun 11 22:14');
+  assert.match(formatOsDateTime(date, 'tr-TR'), /Haz/);
+});
+
+test('non-blog window controls expose localized aria and title hooks', () => {
+  const source = readFileSync(new URL('../components/os/OsWindow.astro', import.meta.url), 'utf8');
+
+  assert.match(source, /data-i18n-aria-label="os\.controls\.closeWindow"/);
+  assert.match(source, /data-i18n-title="os\.controls\.closeWindow"/);
+  assert.match(source, /data-i18n-aria-label="os\.controls\.minimiseUnavailable"/);
+  assert.match(source, /data-i18n-title="os\.controls\.minimiseUnavailable"/);
+  assert.match(source, /data-i18n-aria-label="os\.controls\.openHelp"/);
+});
+
+test('status time refreshes from the active language on language changes', () => {
+  const source = readFileSync(new URL('./os-window-manager.js', import.meta.url), 'utf8');
+
+  assert.match(source, /getLanguageLocale\(getActiveLanguage\(\),\s*'en-GB'\)/);
+  assert.match(source, /LANGUAGE_CHANGE_EVENT[\s\S]*updateStatusTime\(\)/);
 });
 
 test('startup hashes resolve to OS app and Blog.exe deep-link routes', () => {

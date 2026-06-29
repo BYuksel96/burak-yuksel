@@ -1,3 +1,5 @@
+import { LANGUAGE_CHANGE_EVENT, getActiveLanguage, getLanguageLocale, translate } from './i18n.js';
+
 const MAIN_APPS = ['resume', 'blog', 'github'];
 const FOLDER_APPS = ['downloads', 'bin'];
 const GAME_APPS = ['maze', 'quiz'];
@@ -452,9 +454,10 @@ export const initOsWindowManager = (screen) => {
     if (!themeToggle) return;
 
     const nextTheme = getNextOsTheme(activeTheme);
+    const nextThemeLabel = translate(nextTheme === 'light' ? 'os.topbar.themeLight' : 'os.topbar.themeDark');
     themeToggle.setAttribute('aria-pressed', String(activeTheme === 'light'));
-    themeToggle.setAttribute('aria-label', `Switch to ${nextTheme} theme`);
-    themeToggle.setAttribute('title', `Switch to ${nextTheme} theme`);
+    themeToggle.setAttribute('aria-label', nextThemeLabel);
+    themeToggle.setAttribute('title', nextThemeLabel);
   };
 
   const toggleTheme = () => {
@@ -466,8 +469,9 @@ export const initOsWindowManager = (screen) => {
     if (!lockScreen) return;
 
     const instruction = getLockScreenInstruction(screen.dataset.osPointer || 'hover');
+    const copy = translate(instruction.mode === 'touch' ? 'os.lock.touch' : 'os.lock.desktop');
     lockScreen.dataset.osLockMode = instruction.mode;
-    lockScreen.setAttribute('aria-label', instruction.copy);
+    lockScreen.setAttribute('aria-label', copy);
   };
 
   const renderLockScreen = ({ focus = false } = {}) => {
@@ -632,11 +636,13 @@ export const initOsWindowManager = (screen) => {
     if (!isOpen) return;
 
     if (helpTitle) {
-      helpTitle.textContent = source.getAttribute('data-os-help-title') || 'Help';
+      const titleKey = source.getAttribute('data-os-help-title-key') ?? '';
+      helpTitle.textContent = titleKey ? translate(titleKey, getActiveLanguage()) : source.getAttribute('data-os-help-title') || translate('os.controls.help');
     }
 
     if (helpCopy) {
-      helpCopy.textContent = source.getAttribute('data-os-help-copy') || '';
+      const copyKey = source.getAttribute('data-os-help-copy-key') ?? '';
+      helpCopy.textContent = copyKey ? translate(copyKey, getActiveLanguage()) : source.getAttribute('data-os-help-copy') || '';
     }
 
     helpCloseButton?.focus({ preventScroll: true });
@@ -726,7 +732,7 @@ export const initOsWindowManager = (screen) => {
     if (!statusTime) return;
 
     const now = new Date();
-    statusTime.textContent = formatOsDateTime(now, navigator.language);
+    statusTime.textContent = formatOsDateTime(now, getLanguageLocale(getActiveLanguage(), 'en-GB'));
     statusTime.setAttribute('datetime', now.toISOString());
   };
 
@@ -1220,6 +1226,12 @@ export const initOsWindowManager = (screen) => {
   window.addEventListener('resize', reclampFolderPositions);
   window.addEventListener('orientationchange', reclampFolderPositions);
   window.addEventListener('hashchange', applyStartupHashRoute);
+  window.addEventListener(LANGUAGE_CHANGE_EVENT, () => {
+    updateStatusTime();
+    renderTheme();
+    renderLockMode();
+    renderHelpDialog();
+  });
   renderTheme();
   renderLockScreen();
   render();

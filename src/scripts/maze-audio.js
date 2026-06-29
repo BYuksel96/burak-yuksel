@@ -33,7 +33,8 @@ const STEP_SECONDS = 0.18;
 const NOTE_VOLUME = 0.035;
 const MASTER_VOLUME = 0.42;
 
-export const formatMazeMusicToggleLabel = (enabled) => `MUSIC: ${enabled ? 'ON' : 'OFF'}`;
+export const formatMazeMusicToggleLabel = (enabled, language = 'en') =>
+  language === 'en' ? `MUSIC: ${enabled ? 'ON' : 'OFF'}` : translate(enabled ? 'maze.musicOn' : 'maze.musicOff', language);
 
 export const getMazeMusicLifecycleAction = ({ windowOpen, pageVisible }) => (!windowOpen || !pageVisible ? 'stop' : 'none');
 
@@ -146,3 +147,4 @@ export const createMazeChiptunePlayer = ({
     },
   };
 };
+import { translate } from './i18n.js';
