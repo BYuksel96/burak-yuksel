@@ -1,138 +1,63 @@
 # burak-yuksel
 
-This repository contains the source code and content for my personal professional website.
+Source for Burak Yuksel's static personal portfolio at `burakyuksel.dev`.
 
-The site serves as:
-- My online CV
-- A timeline of my career and experience
-- A blog for long-form writing on topics such as delivery, leadership, and engineering
-- A central hub linking to my GitHub and professional profiles
+The site is now a one-page Astro 5 portfolio app styled as `Burak OS`: a browser-local desktop shell with internal apps, folders, games, theme controls, and legacy URL fallbacks. It stays fully static for GitHub Pages hosting; there is no backend, database, authentication, or runtime server.
 
-The website is intentionally designed to be:
-- Clean and minimal
-- Fully static
-- Fast, accessible, and responsive
-- Easy to maintain over time
+## Experience
 
----
-
-## 🧱 Tech Stack
-
-- **Astro** — static site generation
-- **Markdown** — blog content
-- **JSON** — structured CV timeline data
-- **CSS + JavaScript** — styling and interaction
-- **GSAP** — animations and scroll-based effects
-- **GitHub Pages** — hosting and deployment
-
-No backend, database, or authentication is used.
-
----
-
-## 📂 Project Structure (High Level)
-
-- `/src/pages` — site pages (home, CV, blog)
-- `/src/components` — reusable UI components
-- `/src/content/blog` — blog posts written in Markdown
-- `/src/content/timeline.json` — CV timeline data
-- `/public` — static assets (including downloadable CV PDF)
-
----
-
-## ✍️ Writing & Publishing
-
-Blog posts are written as Markdown files with metadata (title, date, tags, read time).  
-Publishing a new article is as simple as adding a new file and pushing to the repository.
-
-The CV timeline is driven from structured data, allowing updates without touching layout code.
-
----
+- `src/pages/index.astro` boots the Burak OS shell.
+- `Resume.exe` presents the resume timeline from `src/content/timeline.json`.
+- `Blog.exe` presents Markdown posts from `src/content/blog` in internal tabs.
+- `GitHub.exe` fetches public repository data from GitHub without tokens.
+- `Downloads` contains the resume PDF behind an OS-local confirmation flow.
+- `Bin` contains browser-only easter-egg games: `Maze.exe` and `Quiz.exe`.
+- `/resume/`, `/blog/`, and `/blog/[slug]/` are static `noindex` fallback routes into Burak OS. Blog post routes deep-link into `Blog.exe` and open the matching post tab.
+- External profile/repository links open in real browser tabs; downloadable assets live under `public/`.
 
 ## Project Structure
-```
+
+```text
 /
-├── public/
+├── public/                  # Static assets, CNAME, favicon/logo, resume PDF
 ├── src/
+│   ├── components/os/       # Burak OS shell, apps, folders, dialogs, games
 │   ├── content/
-│   │   ├── blog/         # Markdown posts
-│   │   └── config.ts     # Content collections schema
-│   ├── layouts/
-│   │   └── BaseLayout.astro
-│   ├── pages/            # File-based routes
-│   │   ├── index.astro
-│   │   └── blog/
-│   │       ├── [slug].astro
-│   │       └── index.astro
-│   └── styles/
-│       └── global.css
+│   │   ├── blog/            # Markdown blog posts
+│   │   ├── config.ts        # Astro content schema
+│   │   └── timeline.json    # Resume timeline data
+│   ├── layouts/             # Shared BaseLayout
+│   ├── pages/               # Static routes and legacy fallbacks
+│   ├── scripts/             # Browser behavior and focused node tests
+│   └── styles/              # OS/app/page styles
+├── .github/workflows/       # GitHub Pages deployment
 ├── astro.config.mjs
 ├── package.json
 └── tsconfig.json
 ```
 
----
-
 ## Commands
-- `npm install` — install dependencies
-- `npm run dev` — start local dev server at `http://localhost:4321`
-- `npm run build` — build the static site to `dist/`
-- `npm run preview` — preview the production build locally
 
----
+- `npm install` - install dependencies from `package-lock.json`.
+- `npm run dev` - start Astro locally, usually at `http://localhost:4321`.
+- `npm run build` - build the static site into `dist/` and validate content.
+- `npm run preview` - preview the production build locally.
+- `npm run astro` - run Astro CLI commands.
 
-## GitHub Pages Setup
-1. Set `site` and `base` in `astro.config.mjs` for your custom domain root deployment:  
-   ```js
-   export default defineConfig({
-     site: 'https://burakyuksel.dev',
-     base: '/',
-     output: 'static',
-   });
-   ```
-2. Add `public/CNAME` containing:
-   ```txt
-   burakyuksel.dev
-   ```
-3. Build the site: `npm run build` (outputs to `dist/`).
-4. Deploy with GitHub Pages (this repo uses GitHub Actions workflow deployment).
+Focused node tests live in `src/scripts/*.test.mjs` and can be run with `node --test src/scripts/*.test.mjs`.
 
-Markdown posts live in `src/content/blog`. Frontmatter is validated by the schema in `src/content/config.ts`, and the routes are generated statically for GitHub Pages-friendly hosting.
+## Content
 
----
+Blog posts are Markdown files in `src/content/blog` with frontmatter validated by `src/content/config.ts`. Resume timeline content is stored in `src/content/timeline.json`. The downloadable resume is the static `public/Resume-BURAK-YUKSEL.pdf` asset.
 
-## 🔐 Licensing
+## Deployment
 
-This repository uses **two licenses**, applied intentionally:
+The production site is built as static output and deployed to GitHub Pages through `.github/workflows/deploy.yaml`. `astro.config.mjs` is configured for the custom domain root deployment, and `public/CNAME` contains `burakyuksel.dev`.
 
-### Source Code
-All source code and configuration files are licensed under the **MIT License**.
+## Licensing
 
-See `LICENSE` for details.
+Source code and configuration are licensed under the MIT License in `LICENSE`.
 
-### Written Content
-All written content (blog posts, CV text, timeline descriptions) is licensed under:
-
-**Creative Commons Attribution–NonCommercial–NoDerivatives 4.0 (CC BY-NC-ND 4.0)**
-
-This allows free reading and sharing with attribution, while preventing commercial use or modification.
-
-See `CONTENT-LICENSE.md` for details.
-
----
-
-## 📌 Notes
-
-- This is a personal, professional project.
-- The design and animations are intentionally opinionated.
-- Content reflects my own experience and views.
-
----
-
-## 📌 Future Implementation / Post Ideas
-
-- Notify users of a new blog post. Subscription system.
-- Future post: Talk about the importance of coming prepared to a meeting as a Technical Program Manager. This differentiates "oh not another meeting" to "Oh this was a great meeting and a good use of everyones time". Current project at work I supported bringing technical leads to one call. Talked over the technical elements and drew up an action plan for all to follow-up on.
-
----
+Written content and original authored media are licensed separately under Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International in `CONTENT-LICENSE`.
 
 © 2026 Burak Yuksel

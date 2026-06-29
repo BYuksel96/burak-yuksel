@@ -44,12 +44,31 @@ const isWindowActive = (root) => {
   return Boolean(windowElement && !windowElement.hidden && windowElement.getAttribute('data-window-state') === 'open' && !document.hidden);
 };
 
+const isOsBlockingContext = (root) => {
+  const screen = root.closest('[data-os-screen]');
+  if (!screen) return false;
+
+  const helpDialog = screen.querySelector('[data-os-help-dialog]');
+  const downloadConfirm = screen.querySelector('[data-os-download-confirm]');
+  const lockScreen = screen.querySelector('[data-os-lock-screen]');
+
+  return Boolean(
+    screen.hasAttribute('data-os-locked') ||
+      (helpDialog && !helpDialog.hidden) ||
+      (downloadConfirm && !downloadConfirm.hidden) ||
+      (lockScreen && !lockScreen.hidden),
+  );
+};
+
 export const getMazeLifecycleTransition = ({ status, windowOpen, pageVisible }) => {
   if (!windowOpen && ['countdown', 'playing', 'paused', 'game-over'].includes(status)) return 'stop';
   if (!pageVisible && ['countdown', 'playing'].includes(status)) return 'pause';
   if (windowOpen && pageVisible && status === 'paused') return 'resume';
   return 'none';
 };
+
+export const shouldCaptureMazeShortcut = ({ key, isActive, status, osBlocked = false } = {}) =>
+  !osBlocked && shouldCaptureMazeKey({ key, isActive, status });
 
 export const isExitTraversal = ({ maze, player, directionName }) =>
   Boolean(maze?.exit?.cell && isSameCell(player, maze.exit.cell) && directionName === maze.exit.direction);
@@ -566,7 +585,16 @@ export const initMazeGame = (root, options = {}) => {
   root.addEventListener('pointerleave', () => window.clearInterval(touchTimer));
 
   window.addEventListener('keydown', (event) => {
-    if (!shouldCaptureMazeKey({ key: event.key, isActive: isWindowActive(root), status: state.status })) return;
+    if (
+      !shouldCaptureMazeShortcut({
+        key: event.key,
+        isActive: isWindowActive(root),
+        status: state.status,
+        osBlocked: isOsBlockingContext(root),
+      })
+    ) {
+      return;
+    }
 
     event.preventDefault();
     tryMovePlayer(getDirectionFromKey(event.key));

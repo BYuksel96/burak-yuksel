@@ -19,6 +19,22 @@ const isWindowActive = (root) => {
   return Boolean(windowElement && !windowElement.hidden && windowElement.getAttribute('data-window-state') === 'open' && !document.hidden);
 };
 
+const isOsBlockingContext = (root) => {
+  const screen = root.closest('[data-os-screen]');
+  if (!screen) return false;
+
+  const helpDialog = screen.querySelector('[data-os-help-dialog]');
+  const downloadConfirm = screen.querySelector('[data-os-download-confirm]');
+  const lockScreen = screen.querySelector('[data-os-lock-screen]');
+
+  return Boolean(
+    screen.hasAttribute('data-os-locked') ||
+      (helpDialog && !helpDialog.hidden) ||
+      (downloadConfirm && !downloadConfirm.hidden) ||
+      (lockScreen && !lockScreen.hidden),
+  );
+};
+
 const setHidden = (element, hidden) => {
   if (!element) return;
   element.hidden = hidden;
@@ -39,8 +55,8 @@ export const getQuizChoiceIdFromKey = (key) => {
   return null;
 };
 
-export const shouldCaptureQuizShortcut = ({ key, screen, feedbackVisible, windowActive }) =>
-  Boolean(getQuizChoiceIdFromKey(key) && screen === 'play' && !feedbackVisible && windowActive);
+export const shouldCaptureQuizShortcut = ({ key, screen, feedbackVisible, windowActive, osBlocked = false }) =>
+  Boolean(!osBlocked && getQuizChoiceIdFromKey(key) && screen === 'play' && !feedbackVisible && windowActive);
 
 const getCurrentQuestion = (state) => {
   if (state.mode === 'arcade') return state.arcadeRun?.currentQuestion ?? null;
@@ -437,6 +453,7 @@ export const initQuizGame = (root) => {
         screen: state.screen,
         feedbackVisible: !feedbackPanel?.hidden,
         windowActive: isWindowActive(root),
+        osBlocked: isOsBlockingContext(root),
       })
     ) {
       return;

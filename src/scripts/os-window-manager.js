@@ -2,6 +2,20 @@ const MAIN_APPS = ['resume', 'blog', 'github'];
 const FOLDER_APPS = ['downloads', 'bin'];
 const GAME_APPS = ['maze', 'quiz'];
 const ALL_TARGETS = [...MAIN_APPS, ...FOLDER_APPS, ...GAME_APPS];
+const STARTUP_HASH_APPS = [...MAIN_APPS, ...FOLDER_APPS];
+const OS_THEMES = ['dark', 'light'];
+const OS_THEME_STORAGE_KEY = 'burak-os-theme';
+const LOCK_SWIPE_MIN_DISTANCE = 48;
+const LOCK_SCREEN_INSTRUCTIONS = {
+  desktop: {
+    mode: 'desktop',
+    copy: 'Press Enter key to unlock',
+  },
+  touch: {
+    mode: 'touch',
+    copy: 'Swipe up to unlock',
+  },
+};
 const FOCUSABLE_SELECTOR = [
   'button:not([disabled])',
   'a[href]',
@@ -16,6 +30,83 @@ const isFolderApp = (id) => FOLDER_APPS.includes(id);
 const isGameApp = (id) => GAME_APPS.includes(id);
 
 const uniqueFolders = (folders) => folders.filter((id, index) => FOLDER_APPS.includes(id) && folders.indexOf(id) === index);
+
+const normalizeOsTheme = (theme) => (OS_THEMES.includes(theme) ? theme : null);
+
+export const resolveOsTheme = ({ storedTheme = null, prefersLight = false } = {}) => normalizeOsTheme(storedTheme) ?? (prefersLight ? 'light' : 'dark');
+
+export const getNextOsTheme = (theme) => (normalizeOsTheme(theme) === 'light' ? 'dark' : 'light');
+
+export const createOsThemeSessionStore = (getStorage = () => (typeof window !== 'undefined' ? window.sessionStorage : null)) => {
+  let memoryTheme = null;
+
+  return {
+    read() {
+      try {
+        const storedTheme = normalizeOsTheme(getStorage()?.getItem(OS_THEME_STORAGE_KEY));
+        if (storedTheme) {
+          memoryTheme = storedTheme;
+          return storedTheme;
+        }
+      } catch {
+        // Some browsers or privacy modes can block storage. The session still gets an in-memory preference.
+      }
+
+      return memoryTheme;
+    },
+    write(theme) {
+      const nextTheme = normalizeOsTheme(theme);
+      if (!nextTheme) return memoryTheme;
+
+      memoryTheme = nextTheme;
+
+      try {
+        getStorage()?.setItem(OS_THEME_STORAGE_KEY, nextTheme);
+      } catch {
+        // Keep the in-memory value when sessionStorage is unavailable.
+      }
+
+      return memoryTheme;
+    },
+  };
+};
+
+export const getLockScreenInstruction = (pointerMode = 'hover') =>
+  pointerMode === 'touch' ? { ...LOCK_SCREEN_INSTRUCTIONS.touch } : { ...LOCK_SCREEN_INSTRUCTIONS.desktop };
+
+export const shouldUnlockLockScreen = ({
+  pointerMode = 'hover',
+  interactionType,
+  key = '',
+  swipeStartY,
+  swipeEndY,
+  swipeMinDistance = LOCK_SWIPE_MIN_DISTANCE,
+} = {}) => {
+  if (pointerMode === 'touch') {
+    return (
+      interactionType === 'swipe' &&
+      Number.isFinite(swipeStartY) &&
+      Number.isFinite(swipeEndY) &&
+      swipeStartY - swipeEndY >= swipeMinDistance
+    );
+  }
+
+  return interactionType === 'keydown' && key === 'Enter';
+};
+
+export const parseOsStartupHash = (hash = '') => {
+  const hashValue = String(hash ?? '').trim().replace(/^#/, '');
+  if (!hashValue) return null;
+
+  const params = new URLSearchParams(hashValue);
+  const blogSlug = params.get('blog') ?? '';
+  if (blogSlug) return { id: 'blog', blogSlug };
+
+  const appId = params.get('app') ?? '';
+  if (STARTUP_HASH_APPS.includes(appId)) return { id: appId, blogSlug: '' };
+
+  return null;
+};
 
 const isTargetOpen = (state, id) => {
   if (isMainApp(id)) return state.activeMainApp === id;
@@ -57,12 +148,48 @@ export const clampFolderDragPosition = ({ desired, folderRect, screenRect, taskb
   };
 };
 
+export const clampFolderPositionMap = ({ positions = {}, folderRects = {}, screenRect, taskbarRect = null, inset = 8 } = {}) =>
+  Object.entries(positions).reduce((nextPositions, [id, position]) => {
+    const folderRect = folderRects[id];
+    if (!FOLDER_APPS.includes(id) || !folderRect || !Number.isFinite(position?.x) || !Number.isFinite(position?.y)) {
+      return nextPositions;
+    }
+
+    nextPositions[id] = clampFolderDragPosition({
+      desired: position,
+      folderRect,
+      screenRect,
+      taskbarRect,
+      inset,
+    });
+
+    return nextPositions;
+  }, {});
+
 export const shouldOpenDownloadConfirm = ({ pointerMode = 'hover', interactionType, key = '' } = {}) => {
   if (interactionType === 'click') return pointerMode === 'touch';
   if (interactionType === 'dblclick') return pointerMode !== 'touch';
   if (interactionType === 'keydown') return key === 'Enter' || key === ' ';
 
   return false;
+};
+
+export const getLauncherFocusSelectors = (id, preferredLauncherType = '') => {
+  if (!ALL_TARGETS.includes(id) || isGameApp(id)) return [];
+
+  const fallbackTypes = ['desktop', 'taskbar'];
+  const launcherTypes = fallbackTypes.includes(preferredLauncherType)
+    ? [preferredLauncherType, ...fallbackTypes.filter((type) => type !== preferredLauncherType)]
+    : fallbackTypes;
+
+  return launcherTypes.map((type) => `[data-os-launcher="${type}"][data-os-target="${id}"]`);
+};
+
+export const getNextModalFocusIndex = ({ currentIndex = -1, focusableCount = 0, shiftKey = false } = {}) => {
+  if (focusableCount <= 0) return -1;
+  if (currentIndex < 0) return shiftKey ? focusableCount - 1 : 0;
+
+  return (currentIndex + (shiftKey ? -1 : 1) + focusableCount) % focusableCount;
 };
 
 export const createLauncherOpenAction = (launcherType, id, state = createInitialOsState()) => {
@@ -230,6 +357,16 @@ export const reduceOsWindowState = (state, action) => {
     });
   }
 
+  if (action.type === 'clamp-folder' && isFolderApp(action.id) && state.openFolders.includes(action.id)) {
+    return withDerivedState({
+      ...state,
+      folderPositions: {
+        ...state.folderPositions,
+        [action.id]: action.position,
+      },
+    });
+  }
+
   if (action.type === 'open-help') {
     return withDerivedState({
       ...state,
@@ -273,10 +410,24 @@ export const initOsWindowManager = (screen) => {
   const downloadConfirmDialog = screen.querySelector('[data-os-download-confirm]');
   const downloadConfirmYes = downloadConfirmDialog?.querySelector('[data-os-download-confirm-yes]');
   const statusTime = screen.querySelector('[data-os-status-time]');
+  const themeToggle = screen.querySelector('[data-os-theme-toggle]');
+  const lockButton = screen.querySelector('[data-os-lock-button]');
+  const lockScreen = screen.querySelector('[data-os-lock-screen]');
+  const themeRoot = document.body?.classList.contains('os-body') ? document.body : screen.closest('.os-body');
+  const themeStore = createOsThemeSessionStore();
   let statusTimeInterval;
   let dragState = null;
   let pendingDownload = null;
   let lastHelpTrigger = null;
+  let lastDownloadTrigger = null;
+  let lastLockTrigger = null;
+  const launcherTriggers = new Map();
+  let lockSwipeStartY = null;
+  let isLockScreenOpen = false;
+  let activeTheme = resolveOsTheme({
+    storedTheme: themeStore.read(),
+    prefersLight: window.matchMedia?.('(prefers-color-scheme: light)')?.matches ?? false,
+  });
 
   const isWindowOpen = (id) => isTargetOpen(state, id);
 
@@ -291,6 +442,69 @@ export const initOsWindowManager = (screen) => {
     return false;
   };
 
+  const renderTheme = () => {
+    if (themeRoot) {
+      themeRoot.dataset.osTheme = activeTheme;
+    }
+
+    screen.dataset.osTheme = activeTheme;
+
+    if (!themeToggle) return;
+
+    const nextTheme = getNextOsTheme(activeTheme);
+    themeToggle.setAttribute('aria-pressed', String(activeTheme === 'light'));
+    themeToggle.setAttribute('aria-label', `Switch to ${nextTheme} theme`);
+    themeToggle.setAttribute('title', `Switch to ${nextTheme} theme`);
+  };
+
+  const toggleTheme = () => {
+    activeTheme = themeStore.write(getNextOsTheme(activeTheme)) ?? activeTheme;
+    renderTheme();
+  };
+
+  const renderLockMode = () => {
+    if (!lockScreen) return;
+
+    const instruction = getLockScreenInstruction(screen.dataset.osPointer || 'hover');
+    lockScreen.dataset.osLockMode = instruction.mode;
+    lockScreen.setAttribute('aria-label', instruction.copy);
+  };
+
+  const renderLockScreen = ({ focus = false } = {}) => {
+    if (!lockScreen) return;
+
+    renderLockMode();
+    lockScreen.hidden = !isLockScreenOpen;
+    lockScreen.setAttribute('aria-hidden', String(!isLockScreenOpen));
+    screen.toggleAttribute('data-os-locked', isLockScreenOpen);
+
+    if (isLockScreenOpen && focus) {
+      focusElement(lockScreen);
+    }
+  };
+
+  const openLockScreen = (trigger) => {
+    if (!lockScreen) return;
+
+    lastLockTrigger = trigger instanceof HTMLElement ? trigger : null;
+    isLockScreenOpen = true;
+    dragState = null;
+    lockSwipeStartY = null;
+    renderLockScreen({ focus: true });
+  };
+
+  const closeLockScreen = () => {
+    if (!isLockScreenOpen) return;
+
+    isLockScreenOpen = false;
+    lockSwipeStartY = null;
+    renderLockScreen();
+
+    if (!focusElement(lastLockTrigger)) {
+      focusElement(lockButton);
+    }
+  };
+
   const focusOpenedWindow = (id) => {
     const windowElement = windows.find((element) => element.getAttribute('data-os-window-id') === id);
     if (!windowElement || windowElement.hidden) return false;
@@ -303,6 +517,23 @@ export const initOsWindowManager = (screen) => {
     focusElement(screen.querySelector('[data-os-window-id="bin"] [data-os-window-close]')) ||
     focusElement(screen.querySelector('[data-os-launcher="taskbar"][data-os-target="bin"]'));
 
+  const rememberLauncherTrigger = (launcher) => {
+    const id = getTargetId(launcher);
+    const type = launcher?.getAttribute('data-os-launcher') ?? '';
+    if (!id || isGameApp(id) || !(launcher instanceof HTMLElement)) return;
+
+    launcherTriggers.set(id, { type, element: launcher });
+  };
+
+  const focusLauncherForTarget = (id) => {
+    const remembered = launcherTriggers.get(id);
+    if (remembered?.element && document.contains(remembered.element) && !remembered.element.closest('[hidden], [aria-hidden="true"]')) {
+      return focusElement(remembered.element);
+    }
+
+    return getLauncherFocusSelectors(id, remembered?.type).some((selector) => focusElement(screen.querySelector(selector)));
+  };
+
   const focusHelpDialogTrigger = () => {
     const trigger = lastHelpTrigger;
     lastHelpTrigger = null;
@@ -312,37 +543,81 @@ export const initOsWindowManager = (screen) => {
     return focusElement(trigger);
   };
 
+  const focusDownloadConfirmTrigger = () => {
+    const trigger = lastDownloadTrigger;
+    lastDownloadTrigger = null;
+
+    if (!trigger || !document.contains(trigger) || trigger.closest('[hidden], [aria-hidden="true"]')) return false;
+
+    return focusElement(trigger);
+  };
+
+  const trapModalFocus = (event, root) => {
+    const focusable = getFocusableElements(root);
+    const nextIndex = getNextModalFocusIndex({
+      currentIndex: focusable.indexOf(document.activeElement),
+      focusableCount: focusable.length,
+      shiftKey: event.shiftKey,
+    });
+
+    if (nextIndex < 0) {
+      event.preventDefault();
+      return true;
+    }
+
+    const isOutside = !root.contains(document.activeElement);
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const shouldWrap = isOutside || (event.shiftKey && document.activeElement === first) || (!event.shiftKey && document.activeElement === last);
+
+    if (!shouldWrap) return false;
+
+    event.preventDefault();
+    focusElement(focusable[nextIndex]);
+    return true;
+  };
+
   const trapHelpDialogFocus = (event) => {
     if (!helpDialog || helpDialog.hidden || !state.helpWindowId || event.key !== 'Tab') return false;
 
-    const focusable = getFocusableElements(helpDialog);
-    if (!focusable.length) {
+    return trapModalFocus(event, helpDialog);
+  };
+
+  const trapDownloadConfirmFocus = (event) => {
+    if (!downloadConfirmDialog || downloadConfirmDialog.hidden || !pendingDownload || event.key !== 'Tab') return false;
+
+    const confirmControls = getFocusableElements(downloadConfirmDialog).filter(
+      (element) =>
+        element.matches('[data-os-download-confirm-yes], [data-os-download-confirm-no]') &&
+        !element.classList.contains('os-download-confirm-backdrop'),
+    );
+    const focusRoot = {
+      contains: (element) => downloadConfirmDialog.contains(element),
+    };
+    const nextIndex = getNextModalFocusIndex({
+      currentIndex: confirmControls.indexOf(document.activeElement),
+      focusableCount: confirmControls.length,
+      shiftKey: event.shiftKey,
+    });
+
+    if (nextIndex < 0) {
       event.preventDefault();
       return true;
     }
 
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
+    const first = confirmControls[0];
+    const last = confirmControls[confirmControls.length - 1];
+    const shouldWrap =
+      !focusRoot.contains(document.activeElement) ||
+      !confirmControls.includes(document.activeElement) ||
+      (event.shiftKey && document.activeElement === first) ||
+      (!event.shiftKey && document.activeElement === last);
 
-    if (!helpDialog.contains(document.activeElement)) {
-      event.preventDefault();
-      focusElement(first);
-      return true;
-    }
+    if (!shouldWrap) return false;
 
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      focusElement(last);
-      return true;
-    }
-
-    if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      focusElement(first);
-      return true;
-    }
-
-    return false;
+    event.preventDefault();
+    focusElement(confirmControls[nextIndex]);
+    return true;
   };
 
   const renderHelpDialog = () => {
@@ -459,6 +734,7 @@ export const initOsWindowManager = (screen) => {
     if (!event.pointerType) return;
 
     screen.dataset.osPointer = event.pointerType === 'touch' ? 'touch' : 'hover';
+    renderLockMode();
   };
 
   const getLocalRect = (rect) => {
@@ -578,6 +854,40 @@ export const initOsWindowManager = (screen) => {
     dragState = null;
   };
 
+  const reclampFolderPositions = () => {
+    const layerRect = windowLayer.getBoundingClientRect();
+    const taskbarBounds = taskbar?.getBoundingClientRect();
+    const folderRects = Object.fromEntries(
+      windows
+        .filter((windowElement) => windowElement.getAttribute('data-os-window-kind') === 'folder' && !windowElement.hidden)
+        .map((windowElement) => {
+          const id = windowElement.getAttribute('data-os-window-id') ?? '';
+          const rect = windowElement.getBoundingClientRect();
+          return [id, { width: rect.width, height: rect.height }];
+        }),
+    );
+    const nextPositions = clampFolderPositionMap({
+      positions: state.folderPositions,
+      folderRects,
+      screenRect: {
+        width: layerRect.width,
+        height: layerRect.height,
+      },
+      taskbarRect: taskbarBounds
+        ? {
+            top: taskbarBounds.top - layerRect.top,
+          }
+        : null,
+    });
+
+    Object.entries(nextPositions).forEach(([id, position]) => {
+      const current = state.folderPositions[id];
+      if (!current || current.x !== position.x || current.y !== position.y) {
+        dispatch({ type: 'clamp-folder', id, position });
+      }
+    });
+  };
+
   const renderDownloadConfirm = () => {
     if (!downloadConfirmDialog) return;
 
@@ -591,6 +901,7 @@ export const initOsWindowManager = (screen) => {
   };
 
   const openDownloadConfirm = (downloadFile) => {
+    lastDownloadTrigger = downloadFile instanceof HTMLElement ? downloadFile : null;
     pendingDownload = {
       url: downloadFile.getAttribute('data-os-download-url') || '',
       name: downloadFile.getAttribute('data-os-download-name') || 'download',
@@ -599,14 +910,19 @@ export const initOsWindowManager = (screen) => {
     renderDownloadConfirm();
   };
 
-  const closeDownloadConfirm = () => {
+  const closeDownloadConfirm = ({ restoreFocus = true } = {}) => {
+    const hadPendingDownload = Boolean(pendingDownload);
     pendingDownload = null;
     renderDownloadConfirm();
+
+    if (hadPendingDownload && restoreFocus) {
+      focusDownloadConfirmTrigger();
+    }
   };
 
   const triggerPendingDownload = () => {
     if (!pendingDownload?.url) {
-      closeDownloadConfirm();
+      closeDownloadConfirm({ restoreFocus: true });
       return;
     }
 
@@ -619,7 +935,32 @@ export const initOsWindowManager = (screen) => {
     link.click();
     link.remove();
 
-    closeDownloadConfirm();
+    closeDownloadConfirm({ restoreFocus: true });
+  };
+
+  const applyStartupHashRoute = () => {
+    const route = parseOsStartupHash(window.location.hash);
+    if (!route) return false;
+
+    dispatch({ type: 'open', id: route.id });
+    focusOpenedWindow(route.id);
+
+    if (route.blogSlug) {
+      const blogRoot = screen.querySelector('[data-blog-app]');
+      if (blogRoot instanceof HTMLElement) {
+        blogRoot.setAttribute('data-blog-deep-link', route.blogSlug);
+        blogRoot.dispatchEvent(
+          new CustomEvent('blog-app:open-deep-link', {
+            detail: {
+              slug: route.blogSlug,
+              focus: true,
+            },
+          }),
+        );
+      }
+    }
+
+    return true;
   };
 
   screen.addEventListener('pointerdown', updatePointerMode);
@@ -630,17 +971,85 @@ export const initOsWindowManager = (screen) => {
     const target = event.target;
     if (!(target instanceof Element)) return;
 
+    if (isLockScreenOpen) {
+      if (target.closest('[data-os-lock-screen]')) {
+        event.preventDefault();
+        lockSwipeStartY = event.clientY;
+        focusElement(lockScreen);
+      }
+      return;
+    }
+
     focusFolderWindow(target);
     startFolderDrag(event);
   });
 
-  screen.addEventListener('pointermove', moveFolderDrag);
-  screen.addEventListener('pointerup', stopFolderDrag);
-  screen.addEventListener('pointercancel', stopFolderDrag);
+  screen.addEventListener('pointermove', (event) => {
+    if (isLockScreenOpen) return;
+
+    moveFolderDrag(event);
+  });
+
+  screen.addEventListener('pointerup', (event) => {
+    if (isLockScreenOpen) {
+      const target = event.target;
+      const isLockTarget = target instanceof Element && target.closest('[data-os-lock-screen]');
+
+      if (isLockTarget) {
+        event.preventDefault();
+
+        if (
+          shouldUnlockLockScreen({
+            pointerMode: screen.dataset.osPointer || 'hover',
+            interactionType: 'swipe',
+            swipeStartY: lockSwipeStartY,
+            swipeEndY: event.clientY,
+          })
+        ) {
+          closeLockScreen();
+        } else {
+          focusElement(lockScreen);
+        }
+      }
+
+      lockSwipeStartY = null;
+      return;
+    }
+
+    stopFolderDrag(event);
+  });
+
+  screen.addEventListener('pointercancel', (event) => {
+    if (isLockScreenOpen) {
+      lockSwipeStartY = null;
+      return;
+    }
+
+    stopFolderDrag(event);
+  });
 
   screen.addEventListener('click', (event) => {
     const target = event.target;
     if (!(target instanceof Element)) return;
+
+    if (isLockScreenOpen) {
+      event.preventDefault();
+      focusElement(lockScreen);
+      return;
+    }
+
+    if (target.closest('[data-os-theme-toggle]')) {
+      event.preventDefault();
+      toggleTheme();
+      return;
+    }
+
+    const lockTrigger = target.closest('[data-os-lock-button]');
+    if (lockTrigger) {
+      event.preventDefault();
+      openLockScreen(lockTrigger);
+      return;
+    }
 
     if (target.closest('[data-os-download-confirm-yes]')) {
       event.preventDefault();
@@ -650,19 +1059,24 @@ export const initOsWindowManager = (screen) => {
 
     if (target.closest('[data-os-download-confirm-no]')) {
       event.preventDefault();
-      closeDownloadConfirm();
+      closeDownloadConfirm({ restoreFocus: true });
       return;
     }
 
     const taskbarLauncher = target.closest('[data-os-launcher="taskbar"]');
     if (taskbarLauncher) {
+      rememberLauncherTrigger(taskbarLauncher);
       dispatch(createLauncherOpenAction('taskbar', getTargetId(taskbarLauncher), state));
+      if (isWindowOpen(getTargetId(taskbarLauncher))) focusOpenedWindow(getTargetId(taskbarLauncher));
+      else focusLauncherForTarget(getTargetId(taskbarLauncher));
       return;
     }
 
     const desktopLauncher = target.closest('[data-os-launcher="desktop"]');
     if (desktopLauncher) {
+      rememberLauncherTrigger(desktopLauncher);
       dispatch(createLauncherOpenAction('desktop', getTargetId(desktopLauncher)));
+      focusOpenedWindow(getTargetId(desktopLauncher));
       return;
     }
 
@@ -672,6 +1086,7 @@ export const initOsWindowManager = (screen) => {
       const closeKind = getWindowKind(closeButton);
       getWindowCloseActions(closeId, closeKind).forEach(dispatch);
       if (isGameApp(closeId)) focusGameReturnTarget(closeId);
+      else focusLauncherForTarget(closeId);
       return;
     }
 
@@ -736,12 +1151,27 @@ export const initOsWindowManager = (screen) => {
     const target = event.target;
     if (!(target instanceof Element)) return;
 
+    if (isLockScreenOpen) {
+      if (shouldUnlockLockScreen({ pointerMode: screen.dataset.osPointer || 'hover', interactionType: 'keydown', key: event.key })) {
+        event.preventDefault();
+        closeLockScreen();
+      } else if (target.closest('[data-os-lock-screen]')) {
+        event.preventDefault();
+        focusElement(lockScreen);
+      }
+      return;
+    }
+
     if (trapHelpDialogFocus(event)) {
       return;
     }
 
+    if (trapDownloadConfirmFocus(event)) {
+      return;
+    }
+
     if (event.key === 'Escape' && pendingDownload) {
-      closeDownloadConfirm();
+      closeDownloadConfirm({ restoreFocus: true });
       return;
     }
 
@@ -753,7 +1183,9 @@ export const initOsWindowManager = (screen) => {
     const desktopLauncher = target.closest('[data-os-launcher="desktop"]');
     if (desktopLauncher && (event.key === 'Enter' || event.key === ' ')) {
       event.preventDefault();
+      rememberLauncherTrigger(desktopLauncher);
       dispatch(createLauncherOpenAction('desktop', getTargetId(desktopLauncher)));
+      focusOpenedWindow(getTargetId(desktopLauncher));
       return;
     }
 
@@ -785,5 +1217,11 @@ export const initOsWindowManager = (screen) => {
     { once: true },
   );
 
+  window.addEventListener('resize', reclampFolderPositions);
+  window.addEventListener('orientationchange', reclampFolderPositions);
+  window.addEventListener('hashchange', applyStartupHashRoute);
+  renderTheme();
+  renderLockScreen();
   render();
+  applyStartupHashRoute();
 };

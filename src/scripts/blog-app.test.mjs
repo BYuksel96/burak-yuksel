@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
+import * as blogApp from './blog-app.js';
 import {
   ARCHIVE_TAB_ID,
   buildBlogDisplayAddress,
@@ -18,6 +19,9 @@ import {
 const readBlogAppSource = () => readFileSync(new URL('../components/os/BlogApp.astro', import.meta.url), 'utf8');
 const readBlogAppScript = () => readFileSync(new URL('./blog-app.js', import.meta.url), 'utf8');
 const readBlogAppStyles = () => readFileSync(new URL('../styles/blog-app.css', import.meta.url), 'utf8');
+const readResumePageSource = () => readFileSync(new URL('../pages/resume.astro', import.meta.url), 'utf8');
+const readBlogIndexPageSource = () => readFileSync(new URL('../pages/blog/index.astro', import.meta.url), 'utf8');
+const readBlogSlugPageSource = () => readFileSync(new URL('../pages/blog/[slug].astro', import.meta.url), 'utf8');
 
 test('groups posts by UTC year and month with latest posts first', () => {
   const posts = sortBlogPostsLatestFirst([
@@ -53,6 +57,43 @@ test('builds internal browser display addresses from preserved blog paths', () =
   assert.equal(buildBlogDisplayAddress('/blog/hello-world/'), 'burak-os://blog/hello-world/');
   assert.equal(buildBlogDisplayAddress('/portfolio/blog/post/'), 'burak-os://portfolio/blog/post/');
   assert.equal(buildBlogDisplayAddress(''), 'burak-os://blog/archive');
+});
+
+test('resolves canonical and entry slugs to existing Blog.exe post uids', () => {
+  const records = [
+    {
+      slug: 'vibe-coding',
+      canonicalSlug: 'vibe-coding-to-the-max',
+      canonicalPath: '/blog/vibe-coding-to-the-max/',
+    },
+    {
+      slug: 'hello-world',
+      canonicalPath: '/blog/hello-world/',
+    },
+  ];
+
+  assert.equal(blogApp.resolveBlogDeepLinkUid?.(records, 'vibe-coding-to-the-max'), 'vibe-coding');
+  assert.equal(blogApp.resolveBlogDeepLinkUid?.(records, '/blog/vibe-coding/'), 'vibe-coding');
+  assert.equal(blogApp.resolveBlogDeepLinkUid?.(records, 'https://burakyuksel.dev/blog/hello-world/'), 'hello-world');
+  assert.equal(blogApp.resolveBlogDeepLinkUid?.(records, '#blog=missing-post'), '');
+});
+
+test('builds reducer actions for Blog.exe deep links when a post exists', () => {
+  const records = [{ slug: 'vibe-coding', canonicalSlug: 'vibe-coding-to-the-max' }];
+  const action = blogApp.createBlogDeepLinkOpenAction?.(records, '#blog=vibe-coding-to-the-max');
+
+  assert.deepEqual(action, { type: 'open-post', id: 'vibe-coding' });
+  assert.equal(blogApp.createBlogDeepLinkOpenAction?.(records, '#blog=missing-post'), null);
+});
+
+test('Blog.exe consumes startup and custom-event deep links after initialization', () => {
+  const script = readBlogAppScript();
+
+  assert.match(script, /data-blog-deep-link/);
+  assert.match(script, /openBlogDeepLink/);
+  assert.match(script, /createBlogDeepLinkOpenAction\(root,\s*deepLinkSlug\)/);
+  assert.match(script, /blog-app:open-deep-link/);
+  assert.match(script, /delete root\.dataset\.blogDeepLink/);
 });
 
 test('tab reducer keeps archive permanent and prevents duplicate post tabs', () => {
@@ -146,6 +187,18 @@ test('share helpers convert canonical paths to absolute copy and LinkedIn URLs',
   assert.equal(absolute, 'https://example.test/blog/hello-world/');
   assert.match(linkedIn, /^https:\/\/www\.linkedin\.com\/feed\/\?shareActive=true&text=/);
   assert.match(decodeURIComponent(linkedIn), /Read this https:\/\/example\.test\/blog\/hello-world\//);
+});
+
+test('BlogApp LinkedIn sharing opens a safe external browser tab with the canonical post URL', () => {
+  const script = readBlogAppScript();
+  const linkedIn = new URL(buildLinkedInShareUrl('https://burakyuksel.dev/blog/hello-world/', 'Read this'));
+
+  assert.equal(linkedIn.origin, 'https://www.linkedin.com');
+  assert.equal(linkedIn.pathname, '/feed/');
+  assert.equal(linkedIn.searchParams.get('shareActive'), 'true');
+  assert.equal(linkedIn.searchParams.get('text'), 'Read this https://burakyuksel.dev/blog/hello-world/');
+  assert.match(script, /const shareUrl = toAbsoluteShareUrl\(canonicalPath,\s*window\.location\.origin\);/);
+  assert.match(script, /window\.open\(buildLinkedInShareUrl\(shareUrl\),\s*'_blank',\s*'noopener,noreferrer'\);/);
 });
 
 test('BlogApp markup uses proper tab semantics and separate close controls', () => {
@@ -287,4 +340,56 @@ test('BlogApp reveals opened share menus inside scrollable post panels', () => {
   assert.match(script, /shareMenu\.scrollIntoView/);
   assert.match(script, /block:\s*'nearest'/);
   assert.match(script, /inline:\s*'nearest'/);
+});
+
+test('BlogApp smooth tab scrolling respects reduced-motion preference', () => {
+  const script = readBlogAppScript();
+
+  assert.equal(blogApp.getBlogScrollBehavior?.({ matches: true }), 'auto');
+  assert.equal(blogApp.getBlogScrollBehavior?.({ matches: false }), 'smooth');
+  assert.equal(blogApp.getBlogScrollBehavior?.(null), 'smooth');
+  assert.match(script, /window\.matchMedia\('\(prefers-reduced-motion: reduce\)'\)/);
+  assert.match(script, /behavior:\s*getBlogScrollBehavior/);
+});
+
+test('BlogApp mobile layout wraps long titles without horizontal overflow', () => {
+  const styles = readBlogAppStyles();
+  const mobileRules = styles.match(/@media \(max-width: 760px\) \{[\s\S]*?\n\}/)?.[0] ?? '';
+
+  assert.match(mobileRules, /\.blog-app__address span\s*\{[^}]*white-space:\s*normal;[^}]*overflow-wrap:\s*anywhere;/s);
+  assert.match(mobileRules, /\.blog-app__tab-title\s*\{[^}]*white-space:\s*normal;[^}]*overflow-wrap:\s*anywhere;/s);
+  assert.match(mobileRules, /\.blog-app__entry-title\s*\{[^}]*white-space:\s*normal;[^}]*overflow-wrap:\s*anywhere;/s);
+  assert.match(mobileRules, /\.blog-app__entry-description\s*\{[^}]*white-space:\s*normal;[^}]*overflow-wrap:\s*anywhere;/s);
+  assert.match(mobileRules, /\.blog-app__article-head h3\s*\{[^}]*overflow-wrap:\s*anywhere;/s);
+  assert.match(mobileRules, /\.blog-app__tag-results-head h3\s*\{[^}]*overflow-wrap:\s*anywhere;/s);
+  assert.match(mobileRules, /\.blog-app__tag-result-tags\s*\{[^}]*white-space:\s*normal;[^}]*overflow-wrap:\s*anywhere;/s);
+});
+
+test('legacy resume and blog routes are static noindex redirects into Burak OS', () => {
+  const resumePage = readResumePageSource();
+  const blogIndexPage = readBlogIndexPageSource();
+  const blogSlugPage = readBlogSlugPageSource();
+
+  assert.match(resumePage, /#app=resume/);
+  assert.match(blogIndexPage, /#app=blog/);
+  assert.match(blogSlugPage, /#blog=\$\{encodeURIComponent\(deepLinkSlug\)\}/);
+
+  [resumePage, blogIndexPage, blogSlugPage].forEach((source) => {
+    assert.match(source, /<meta name="robots" content="noindex, follow" \/>/);
+    assert.match(source, /http-equiv="refresh"/);
+    assert.match(source, /window\.location\.replace/);
+    assert.match(source, /rel="canonical"/);
+    assert.doesNotMatch(source, /styles\/cv\.css/);
+    assert.doesNotMatch(source, /styles\/blog\.css/);
+  });
+});
+
+test('legacy blog post route generates canonical and entry slug fallbacks without Markdown imports', () => {
+  const source = readBlogSlugPageSource();
+
+  assert.match(source, /params:\s*\{\s*slug:\s*routeSlug\s*\}/);
+  assert.match(source, /post\.data\.canonicalSlug/);
+  assert.match(source, /post\.slug/);
+  assert.doesNotMatch(source, /post\.render\(/);
+  assert.doesNotMatch(source, /<Content \/>/);
 });

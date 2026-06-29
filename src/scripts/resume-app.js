@@ -60,6 +60,8 @@ export const parseDescriptionLines = (description) => {
 
 const getEventId = (element) => element?.getAttribute('data-resume-event-id') ?? '';
 
+export const getResumeScrollBehavior = (reducedMotionQuery = null) => (reducedMotionQuery?.matches ? 'auto' : 'smooth');
+
 export const initResumeApp = (root) => {
   if (!root || root.dataset.resumeAppReady === 'true') return;
 
@@ -68,6 +70,8 @@ export const initResumeApp = (root) => {
   const selectors = Array.from(root.querySelectorAll(SELECTOR_SELECT));
   const panels = Array.from(root.querySelectorAll(SELECTOR_PANEL));
   const selectedLabel = root.querySelector('[data-resume-selected-label]');
+  const reducedMotionQuery =
+    typeof window.matchMedia === 'function' ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
 
   const setSelected = (id, options = {}) => {
     if (!id) return;
@@ -98,7 +102,7 @@ export const initResumeApp = (root) => {
     }
 
     if (options.scroll && activeSelector instanceof HTMLElement) {
-      activeSelector.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+      activeSelector.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: getResumeScrollBehavior(reducedMotionQuery) });
     }
   };
 

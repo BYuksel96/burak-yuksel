@@ -373,6 +373,15 @@
   }
 }
 
+@media (max-width: 420px) and (max-height: 760px) {
+  .maze-game__overlay--start,
+  .maze-game__overlay--game-over {
+    place-items: start center;
+    align-content: start;
+    scroll-padding-block-start: 0.65rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .maze-game__overlay--countdown span {
     animation: none;

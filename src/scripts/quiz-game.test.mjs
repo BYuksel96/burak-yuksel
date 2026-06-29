@@ -436,6 +436,7 @@ test('quiz keyboard shortcuts map answers only while an active question can acce
   assert.equal(shouldCaptureQuizShortcut({ key: '1', screen: 'start', feedbackVisible: false, windowActive: true }), false);
   assert.equal(shouldCaptureQuizShortcut({ key: '1', screen: 'play', feedbackVisible: true, windowActive: true }), false);
   assert.equal(shouldCaptureQuizShortcut({ key: '1', screen: 'play', feedbackVisible: false, windowActive: false }), false);
+  assert.equal(shouldCaptureQuizShortcut({ key: '1', screen: 'play', feedbackVisible: false, windowActive: true, osBlocked: true }), false);
 });
 
 test('Quiz.exe markup, styling, and OS integration are wired as a Bin-only game', () => {
@@ -494,6 +495,17 @@ test('Quiz.exe mobile start screen keeps the recovered-program heading visible',
 
   assert.match(mobileStartBlock, /align-content:\s*start/);
   assert.match(mobileStartBlock, /scroll-padding-block-start/);
+});
+
+test('Quiz.exe mobile summary screens keep arcade and coach results visible', () => {
+  const quizCss = readSource('../styles/quiz-game.css');
+  const mobileSummaryBlock =
+    quizCss.match(/@media\s*\(max-width:\s*760px\)\s*\{[\s\S]*?\.quiz-game__screen--summary\s*\{(?<block>[\s\S]*?)\n\s*\}/)?.groups
+      ?.block ?? '';
+
+  assert.match(mobileSummaryBlock, /align-content:\s*start/);
+  assert.match(mobileSummaryBlock, /justify-items:\s*center/);
+  assert.match(mobileSummaryBlock, /scroll-padding-block-start/);
 });
 
 test('Quiz.exe browser lifecycle is idempotent and watches OS window visibility', () => {

@@ -475,6 +475,7 @@ test('maze music player is user-started, idempotent, and stoppable', async () =>
 
 test('maze input helpers only capture movement keys while gameplay is active', async () => {
   const { getDirectionFromKey, shouldCaptureMazeKey } = await import('./maze-input.js');
+  const { shouldCaptureMazeShortcut } = await import('./maze-game.js');
 
   assert.deepEqual(getDirectionFromKey('ArrowUp'), { dx: 0, dy: -1, name: 'north' });
   assert.deepEqual(getDirectionFromKey('w'), { dx: 0, dy: -1, name: 'north' });
@@ -483,6 +484,8 @@ test('maze input helpers only capture movement keys while gameplay is active', a
   assert.equal(shouldCaptureMazeKey({ key: 'ArrowDown', isActive: true, status: 'playing' }), true);
   assert.equal(shouldCaptureMazeKey({ key: 'ArrowDown', isActive: false, status: 'playing' }), false);
   assert.equal(shouldCaptureMazeKey({ key: 'ArrowDown', isActive: true, status: 'countdown' }), false);
+  assert.equal(shouldCaptureMazeShortcut?.({ key: 'ArrowDown', isActive: true, status: 'playing', osBlocked: false }), true);
+  assert.equal(shouldCaptureMazeShortcut?.({ key: 'ArrowDown', isActive: true, status: 'playing', osBlocked: true }), false);
 });
 
 test('maze lifecycle stops on window close and pauses on page hide', async () => {
@@ -530,6 +533,17 @@ test('maze touch controls keep spatial D-pad placement on narrow mobile viewport
   assert.match(mazeCss, /@media\s*\(hover:\s*hover\)\s*and\s*\(pointer:\s*fine\)\s*and\s*\(min-width:\s*761px\)/);
   assert.match(mazeCss, /\.maze-game__controls button\[data-maze-direction='north'\]\s*\{[\s\S]*grid-column:\s*2;[\s\S]*grid-row:\s*1;/);
   assert.match(mazeCss, /\.maze-game__controls button\[data-maze-direction='east'\]\s*\{[\s\S]*grid-column:\s*3;[\s\S]*grid-row:\s*2;/);
+});
+
+test('Maze start and game-over overlays top-align on short narrow mobile viewports', () => {
+  const mazeCss = readSource('../styles/maze-game.css');
+  const shortMobileBlock =
+    mazeCss.match(/@media\s*\(max-width:\s*420px\)\s*and\s*\(max-height:\s*760px\)\s*\{(?<block>[\s\S]*?)\n\}/)?.groups?.block ?? '';
+
+  assert.match(shortMobileBlock, /\.maze-game__overlay--start,\s*\n\s*\.maze-game__overlay--game-over\s*\{/);
+  assert.match(shortMobileBlock, /place-items:\s*start center;/);
+  assert.match(shortMobileBlock, /align-content:\s*start;/);
+  assert.match(shortMobileBlock, /scroll-padding-block-start:/);
 });
 
 test('OS integration launches Maze.exe from Bin as a fullscreen game', () => {

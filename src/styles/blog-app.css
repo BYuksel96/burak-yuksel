@@ -936,12 +936,32 @@
     padding: 0.62rem 0.72rem;
   }
 
+  .blog-app__address span {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.2;
+  }
+
   .blog-app__tabs {
     padding-inline: 0.72rem;
   }
 
   .blog-app__tab-wrap {
     max-width: min(15rem, 76vw);
+  }
+
+  .blog-app__tab {
+    align-items: flex-start;
+    line-height: 1.15;
+  }
+
+  .blog-app__tab-title {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   .blog-app__archive-head {
@@ -999,6 +1019,22 @@
     padding: 0.82rem;
   }
 
+  .blog-app__article-head h3 {
+    overflow-wrap: anywhere;
+  }
+
+  .blog-app__article-head p {
+    overflow-wrap: anywhere;
+  }
+
+  .blog-app__tag-results-head h3 {
+    overflow-wrap: anywhere;
+  }
+
+  .blog-app__tag-results-head p {
+    overflow-wrap: anywhere;
+  }
+
   .blog-app__post-actions {
     justify-self: start;
     justify-content: flex-start;
@@ -1017,13 +1053,47 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .blog-app__entry-title {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .blog-app__entry-description {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .blog-app__tag-result-tags {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
   .blog-app__entry-meta {
+    flex-wrap: wrap;
     justify-content: space-between;
   }
 
   .blog-app__article-body,
   .blog-app__tag-results-list {
     padding: 0.82rem;
+  }
+
+  .blog-app__article-body h1,
+  .blog-app__article-body h2,
+  .blog-app__article-body h3,
+  .blog-app__article-body h4,
+  .blog-app__article-body h5,
+  .blog-app__article-body h6,
+  .blog-app__article-body p,
+  .blog-app__article-body li,
+  .blog-app__tag {
+    overflow-wrap: anywhere;
   }
 }
 

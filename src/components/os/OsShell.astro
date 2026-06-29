@@ -111,11 +111,36 @@ const windows = [
         <header class="os-topbar" aria-label="Burak OS status">
           <div class="os-system-name">Burak OS</div>
           <time class="os-status-time" data-os-status-time aria-live="polite">Thu 11 Jun 22:14</time>
-          <div class="os-status-actions" aria-label="System placeholder controls">
+          <div class="os-status-actions" aria-label="System controls">
             <button class="os-status-button os-status-button--language" type="button" aria-label="Language placeholder" title="Language placeholder">
               EN
             </button>
-            <button class="os-status-button os-status-button--shutdown" type="button" aria-label="Shutdown placeholder" title="Shutdown placeholder">
+            <button
+              class="os-status-button os-status-button--theme"
+              type="button"
+              data-os-theme-toggle
+              aria-label="Switch to light theme"
+              aria-pressed="false"
+              title="Switch to light theme"
+            >
+              <span class="os-theme-icon" aria-hidden="true">
+                <svg class="os-theme-icon--sun" viewBox="0 0 24 24" focusable="false">
+                  <circle cx="12" cy="12" r="4" />
+                  <path d="M12 2v2" />
+                  <path d="M12 20v2" />
+                  <path d="m4.93 4.93 1.41 1.41" />
+                  <path d="m17.66 17.66 1.41 1.41" />
+                  <path d="M2 12h2" />
+                  <path d="M20 12h2" />
+                  <path d="m4.93 19.07 1.41-1.41" />
+                  <path d="m17.66 6.34 1.41-1.41" />
+                </svg>
+                <svg class="os-theme-icon--moon" viewBox="0 0 24 24" focusable="false">
+                  <path d="M21 14.7A7.8 7.8 0 0 1 9.3 3a8.6 8.6 0 1 0 11.7 11.7Z" />
+                </svg>
+              </span>
+            </button>
+            <button class="os-status-button os-status-button--shutdown" type="button" data-os-lock-button aria-label="Lock screen" title="Lock screen">
               <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
                 <path d="M12 3v8" />
                 <path d="M7.2 6.9a7 7 0 1 0 9.6 0" />
@@ -169,6 +194,31 @@ const windows = [
           <HelpDialog />
           <DownloadConfirmDialog />
         </section>
+      </div>
+
+      <div
+        class="os-lock-screen"
+        data-os-lock-screen
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="os-lock-title"
+        aria-hidden="true"
+        tabindex="-1"
+        hidden
+      >
+        <div class="os-lock-content">
+          <p class="os-lock-kicker">Burak OS</p>
+          <h2 id="os-lock-title">Locked</h2>
+          <p class="os-lock-copy os-lock-copy--desktop">Press Enter key to unlock</p>
+          <p class="os-lock-copy os-lock-copy--touch">Swipe up to unlock</p>
+        </div>
+        <div class="os-lock-swipe-cue" data-os-lock-swipe-cue aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <path d="m12 5 6 6" />
+            <path d="m12 5-6 6" />
+            <path d="M12 5v14" />
+          </svg>
+        </div>
       </div>
     </div>
   </MonitorFrame>

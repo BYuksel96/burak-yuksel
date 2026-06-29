@@ -229,6 +229,18 @@
   line-height: 1.1;
 }
 
+.github-app__profile-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.github-app__profile-link:hover strong,
+.github-app__profile-link:focus-visible strong {
+  color: var(--github-green);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
 .github-app__profile p {
   margin-top: 0.45rem;
   color: var(--os-muted);
@@ -465,8 +477,17 @@
   .github-app__status-card {
     width: 100%;
     min-width: 0;
+    align-items: flex-start;
     justify-content: flex-start;
     text-align: left;
+  }
+
+  .github-app__status-card span:not(.github-app__status-dot) {
+    flex: 1 1 auto;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   .github-app__workspace {
@@ -491,6 +512,18 @@
     align-items: center;
     gap: 0.62rem;
     padding: 0.62rem;
+  }
+
+  .github-app__profile > div {
+    min-width: 0;
+  }
+
+  .github-app__profile strong {
+    overflow-wrap: anywhere;
+  }
+
+  .github-app__profile p {
+    overflow-wrap: anywhere;
   }
 
   .github-app__meta-list {
@@ -529,6 +562,35 @@
 
   .github-app__repo-card {
     min-height: auto;
+  }
+
+  .github-app__repo-card h4 {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .github-app__repo-card p {
+    overflow-wrap: anywhere;
+  }
+
+  .github-app__state h4 {
+    overflow-wrap: anywhere;
+  }
+
+  .github-app__state p {
+    overflow-wrap: anywhere;
+  }
+
+  .github-app__repo-meta span {
+    overflow-wrap: anywhere;
+  }
+
+  .github-app__repo-link {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 }
 

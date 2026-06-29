@@ -88,6 +88,84 @@ export const buildBlogPath = (base = '/', slug = '') => {
   return `${normaliseBase(base)}blog/${cleanSlug}/`.replace(/\/{2,}/g, '/');
 };
 
+export const toBlogPostUid = (slug = '') =>
+  String(slug)
+    .trim()
+    .replace(/^\/+|\/+$/g, '')
+    .replace(/[^a-zA-Z0-9_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+export const normalizeBlogDeepLinkSlug = (value = '') => {
+  let cleanValue = String(value ?? '').trim();
+  if (!cleanValue) return '';
+
+  if (cleanValue.startsWith('#')) {
+    const hashValue = cleanValue.slice(1);
+    const hashParams = new URLSearchParams(hashValue);
+    cleanValue = hashParams.get('blog') ?? hashValue.replace(/^blog=/, '');
+  }
+
+  try {
+    cleanValue = new URL(cleanValue).pathname;
+  } catch {
+    // Plain slugs and relative paths are handled below.
+  }
+
+  cleanValue = cleanValue.split('?')[0].split('#')[0];
+
+  try {
+    cleanValue = decodeURIComponent(cleanValue);
+  } catch {
+    // Keep the original value if it is not valid percent-encoding.
+  }
+
+  const segments = cleanValue.replace(/^\/+|\/+$/g, '').split('/').filter(Boolean);
+  const slug = segments.at(-1) ?? cleanValue;
+  return slug.trim().toLowerCase();
+};
+
+const createBlogDeepLinkRecord = (record = {}) => {
+  const slug = record.slug ?? record.id ?? record.uid ?? '';
+
+  return {
+    uid: record.uid ?? toBlogPostUid(slug),
+    slug,
+    canonicalSlug: record.canonicalSlug ?? record.routeSlug ?? record.data?.canonicalSlug ?? '',
+    canonicalPath: record.canonicalPath ?? record.path ?? record.href ?? '',
+  };
+};
+
+const getBlogDeepLinkRecords = (source = []) => {
+  if (Array.isArray(source)) {
+    return source.map(createBlogDeepLinkRecord);
+  }
+
+  return Array.from(source?.querySelectorAll?.('[data-blog-post-panel]') ?? []).map((panel) =>
+    createBlogDeepLinkRecord({
+      uid: getPostId(panel),
+      canonicalPath: panel.getAttribute('data-blog-canonical-path') ?? '',
+    }),
+  );
+};
+
+const getBlogDeepLinkCandidates = (record = {}) =>
+  [record.slug, record.uid, record.canonicalSlug, record.routeSlug, record.canonicalPath, record.path, record.href]
+    .map(normalizeBlogDeepLinkSlug)
+    .filter(Boolean);
+
+export const resolveBlogDeepLinkUid = (source = [], deepLinkSlug = '') => {
+  const targetSlug = normalizeBlogDeepLinkSlug(deepLinkSlug);
+  if (!targetSlug) return '';
+
+  const match = getBlogDeepLinkRecords(source).find((record) => getBlogDeepLinkCandidates(record).includes(targetSlug));
+  return match?.uid ?? '';
+};
+
+export const createBlogDeepLinkOpenAction = (source = [], deepLinkSlug = '') => {
+  const id = resolveBlogDeepLinkUid(source, deepLinkSlug);
+  return id ? { type: 'open-post', id } : null;
+};
+
 export const buildBlogDisplayAddress = (path = '') => {
   const cleanPath = path ? String(path).replace(/^\/+/, '') : 'blog/archive';
   return `burak-os://${cleanPath}`;
@@ -99,6 +177,8 @@ export const buildLinkedInShareUrl = (absoluteUrl, text = SHARE_COPY) => {
   const prefilled = `${text} ${absoluteUrl}`;
   return `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(prefilled)}`;
 };
+
+export const getBlogScrollBehavior = (reducedMotionQuery = null) => (reducedMotionQuery?.matches ? 'auto' : 'smooth');
 
 export const estimateReadMinutes = (text = '', wordsPerMinute = 140) => {
   const words = String(text)
@@ -251,6 +331,8 @@ export const initBlogApp = (root) => {
   const tabList = root.querySelector('[data-blog-tabs]');
   const address = root.querySelector('[data-blog-address]');
   const toast = root.querySelector('[data-blog-copy-toast]');
+  const reducedMotionQuery =
+    typeof window.matchMedia === 'function' ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
 
   const getTabs = () => Array.from(root.querySelectorAll(SELECTOR_TAB));
   const getTabById = (id) => getTabs().find((tab) => getTabId(tab) === id);
@@ -284,7 +366,7 @@ export const initBlogApp = (root) => {
     const tab = getTabById(id);
     if (tab instanceof HTMLElement) {
       tab.focus({ preventScroll: true });
-      tab.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+      tab.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: getBlogScrollBehavior(reducedMotionQuery) });
     }
   };
 
@@ -368,6 +450,21 @@ export const initBlogApp = (root) => {
   const dispatch = (action, options = {}) => {
     state = reduceBlogTabState(state, action);
     render(options);
+  };
+
+  const openBlogDeepLink = (deepLinkSlug = '', options = {}) => {
+    const action = createBlogDeepLinkOpenAction(root, deepLinkSlug);
+    if (!action) return false;
+
+    dispatch(action, options);
+    return true;
+  };
+
+  const getPendingBlogDeepLink = () => root.getAttribute('data-blog-deep-link') ?? root.dataset.blogDeepLink ?? '';
+
+  const clearPendingBlogDeepLink = () => {
+    delete root.dataset.blogDeepLink;
+    root.removeAttribute('data-blog-deep-link');
   };
 
   const activateRelativeTab = (currentTab, key) => {
@@ -504,7 +601,19 @@ export const initBlogApp = (root) => {
     tabList.scrollLeft += event.deltaY;
   });
 
-  render({ focus: false });
+  root.addEventListener('blog-app:open-deep-link', (event) => {
+    const deepLinkSlug = event.detail?.slug ?? getPendingBlogDeepLink();
+    if (openBlogDeepLink(deepLinkSlug, { focus: Boolean(event.detail?.focus) })) {
+      clearPendingBlogDeepLink();
+    }
+  });
+
+  const pendingBlogDeepLink = getPendingBlogDeepLink();
+  if (pendingBlogDeepLink && openBlogDeepLink(pendingBlogDeepLink, { focus: false })) {
+    clearPendingBlogDeepLink();
+  } else {
+    render({ focus: false });
+  }
 };
 
 export const initBlogApps = (documentRoot = document) => {

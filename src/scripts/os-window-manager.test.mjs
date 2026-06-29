@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import test from 'node:test';
 
+import * as osManager from './os-window-manager.js';
 import {
   bringFolderToFront,
   clampFolderDragPosition,
@@ -11,6 +12,7 @@ import {
   getGameReturnFocusSelector,
   getWindowCloseActions,
   getWindowFocusSelector,
+  parseOsStartupHash,
   reduceOsWindowState,
   shouldOpenDownloadConfirm,
 } from './os-window-manager.js';
@@ -99,6 +101,28 @@ test('folder drag positions are clamped inside the OS screen above the taskbar',
   );
 });
 
+test('saved folder positions can be re-clamped after viewport changes', () => {
+  assert.deepEqual(
+    osManager.clampFolderPositionMap?.({
+      positions: {
+        downloads: { x: 860, y: 640 },
+        bin: { x: -30, y: 24 },
+      },
+      folderRects: {
+        downloads: { width: 320, height: 220 },
+        bin: { width: 260, height: 180 },
+      },
+      screenRect: { width: 800, height: 700 },
+      taskbarRect: { top: 620 },
+      inset: 10,
+    }),
+    {
+      downloads: { x: 470, y: 390 },
+      bin: { x: 10, y: 24 },
+    },
+  );
+});
+
 test('download confirmation opens on desktop double-click and touch single tap only', () => {
   assert.equal(shouldOpenDownloadConfirm({ pointerMode: 'hover', interactionType: 'click' }), false);
   assert.equal(shouldOpenDownloadConfirm({ pointerMode: 'hover', interactionType: 'dblclick' }), true);
@@ -184,11 +208,130 @@ test('taskbar launcher toggles an already-open matching target closed', () => {
   assert.deepEqual(createLauncherOpenAction('taskbar', 'blog', state), { type: 'open', id: 'blog' });
 });
 
+test('launcher focus helpers prefer the opener type before falling back to matching launchers', () => {
+  assert.deepEqual(osManager.getLauncherFocusSelectors?.('resume', 'desktop'), [
+    '[data-os-launcher="desktop"][data-os-target="resume"]',
+    '[data-os-launcher="taskbar"][data-os-target="resume"]',
+  ]);
+  assert.deepEqual(osManager.getLauncherFocusSelectors?.('downloads', 'taskbar'), [
+    '[data-os-launcher="taskbar"][data-os-target="downloads"]',
+    '[data-os-launcher="desktop"][data-os-target="downloads"]',
+  ]);
+  assert.deepEqual(osManager.getLauncherFocusSelectors?.('maze', 'desktop'), []);
+});
+
+test('modal focus helper wraps Tab and Shift+Tab within visible controls', () => {
+  assert.equal(osManager.getNextModalFocusIndex?.({ currentIndex: 0, focusableCount: 2, shiftKey: true }), 1);
+  assert.equal(osManager.getNextModalFocusIndex?.({ currentIndex: 1, focusableCount: 2, shiftKey: false }), 0);
+  assert.equal(osManager.getNextModalFocusIndex?.({ currentIndex: 0, focusableCount: 2, shiftKey: false }), 1);
+  assert.equal(osManager.getNextModalFocusIndex?.({ currentIndex: -1, focusableCount: 2, shiftKey: false }), 0);
+  assert.equal(osManager.getNextModalFocusIndex?.({ currentIndex: 0, focusableCount: 0, shiftKey: false }), -1);
+});
+
 test('formats browser-local status time without seconds', () => {
   const date = new Date('2026-06-11T22:14:30');
 
   assert.equal(formatOsDateTime(date, 'en-GB'), 'Thu 11 Jun 22:14');
   assert.equal(formatOsDateTime(date, 'en-US'), 'Thu Jun 11 22:14');
+});
+
+test('startup hashes resolve to OS app and Blog.exe deep-link routes', () => {
+  assert.deepEqual(parseOsStartupHash('#app=resume'), { id: 'resume', blogSlug: '' });
+  assert.deepEqual(parseOsStartupHash('#app=blog'), { id: 'blog', blogSlug: '' });
+  assert.deepEqual(parseOsStartupHash('#blog=vibe-coding-to-the-max'), { id: 'blog', blogSlug: 'vibe-coding-to-the-max' });
+  assert.deepEqual(parseOsStartupHash('#blog=vibe%20coding'), { id: 'blog', blogSlug: 'vibe coding' });
+  assert.equal(parseOsStartupHash('#app=maze'), null);
+  assert.equal(parseOsStartupHash('#app=unknown'), null);
+  assert.equal(parseOsStartupHash(''), null);
+});
+
+test('OS theme helpers keep overrides session-scoped with a memory fallback', async () => {
+  const manager = await import('./os-window-manager.js');
+
+  assert.equal(typeof manager.resolveOsTheme, 'function');
+  assert.equal(typeof manager.getNextOsTheme, 'function');
+  assert.equal(typeof manager.createOsThemeSessionStore, 'function');
+  assert.equal(manager.resolveOsTheme({ storedTheme: 'light', prefersLight: false }), 'light');
+  assert.equal(manager.resolveOsTheme({ storedTheme: 'dark', prefersLight: true }), 'dark');
+  assert.equal(manager.resolveOsTheme({ storedTheme: null, prefersLight: true }), 'light');
+  assert.equal(manager.resolveOsTheme({ storedTheme: 'sepia', prefersLight: true }), 'light');
+  assert.equal(manager.resolveOsTheme({ storedTheme: null, prefersLight: false }), 'dark');
+  assert.equal(manager.getNextOsTheme('dark'), 'light');
+  assert.equal(manager.getNextOsTheme('light'), 'dark');
+
+  const storedValues = new Map();
+  const store = manager.createOsThemeSessionStore(() => ({
+    getItem: (key) => storedValues.get(key) ?? null,
+    setItem: (key, value) => storedValues.set(key, value),
+  }));
+  assert.equal(store.read(), null);
+  store.write('light');
+  assert.equal(store.read(), 'light');
+  assert.deepEqual([...storedValues.values()], ['light']);
+
+  const blockedStore = manager.createOsThemeSessionStore(() => ({
+    getItem: () => {
+      throw new Error('storage blocked');
+    },
+    setItem: () => {
+      throw new Error('storage blocked');
+    },
+  }));
+  assert.equal(blockedStore.read(), null);
+  blockedStore.write('dark');
+  assert.equal(blockedStore.read(), 'dark');
+
+  const windowManagerSource = readFileSync(new URL('./os-window-manager.js', import.meta.url), 'utf8');
+  assert.match(windowManagerSource, /sessionStorage/);
+  assert.doesNotMatch(windowManagerSource, /localStorage/);
+});
+
+test('lock screen helpers distinguish desktop enter from touch swipe unlocks', async () => {
+  const manager = await import('./os-window-manager.js');
+
+  assert.equal(typeof manager.getLockScreenInstruction, 'function');
+  assert.equal(typeof manager.shouldUnlockLockScreen, 'function');
+  assert.deepEqual(manager.getLockScreenInstruction('hover'), {
+    mode: 'desktop',
+    copy: 'Press Enter key to unlock',
+  });
+  assert.deepEqual(manager.getLockScreenInstruction('touch'), {
+    mode: 'touch',
+    copy: 'Swipe up to unlock',
+  });
+  assert.equal(manager.shouldUnlockLockScreen({ pointerMode: 'hover', interactionType: 'keydown', key: 'Enter' }), true);
+  assert.equal(manager.shouldUnlockLockScreen({ pointerMode: 'hover', interactionType: 'keydown', key: ' ' }), false);
+  assert.equal(
+    manager.shouldUnlockLockScreen({ pointerMode: 'touch', interactionType: 'swipe', swipeStartY: 220, swipeEndY: 140 }),
+    true,
+  );
+  assert.equal(
+    manager.shouldUnlockLockScreen({ pointerMode: 'touch', interactionType: 'swipe', swipeStartY: 220, swipeEndY: 196 }),
+    false,
+  );
+  assert.equal(manager.shouldUnlockLockScreen({ pointerMode: 'touch', interactionType: 'keydown', key: 'Enter' }), false);
+});
+
+test('topbar theme toggle and lock screen expose accessible animated affordances', () => {
+  const osShellSource = readFileSync(new URL('../components/os/OsShell.astro', import.meta.url), 'utf8');
+  const osCss = readFileSync(new URL('../styles/os.css', import.meta.url), 'utf8');
+
+  assert.match(osShellSource, /data-os-theme-toggle/);
+  assert.match(osShellSource, /aria-label="Switch to light theme"/);
+  assert.match(osShellSource, /aria-pressed="false"/);
+  assert.match(osShellSource, /os-theme-icon--sun/);
+  assert.match(osShellSource, /os-theme-icon--moon/);
+  assert.match(osShellSource, /data-os-lock-button/);
+  assert.match(osShellSource, /data-os-lock-screen/);
+  assert.match(osShellSource, /Press Enter key to unlock/);
+  assert.match(osShellSource, /Swipe up to unlock/);
+  assert.match(osShellSource, /data-os-lock-swipe-cue/);
+  assert.match(osCss, /\.os-theme-icon/);
+  assert.match(osCss, /\.os-body\[data-os-theme='light'\]/);
+  assert.match(osCss, /\.os-body\[data-os-theme='dark'\]/);
+  assert.match(osCss, /@keyframes\s+osLockSwipeCue/);
+  assert.match(osCss, /@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{[\s\S]*\.os-theme-icon/);
+  assert.match(osCss, /@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{[\s\S]*\.os-lock-swipe-cue/);
 });
 
 test('taskbar uses custom labels instead of native tooltip or dot indicators', () => {
@@ -316,6 +459,33 @@ test('download confirmation dialog uses OS-local Yes and No actions', () => {
   assert.match(osCss, /\.os-download-confirm-layer/);
 });
 
+test('download confirmation traps keyboard focus and restores the opener on close', () => {
+  const windowManagerSource = readFileSync(new URL('./os-window-manager.js', import.meta.url), 'utf8');
+
+  assert.match(windowManagerSource, /lastDownloadTrigger/);
+  assert.match(windowManagerSource, /focusDownloadConfirmTrigger/);
+  assert.match(windowManagerSource, /trapDownloadConfirmFocus/);
+  assert.match(windowManagerSource, /getFocusableElements\(downloadConfirmDialog\)/);
+  assert.match(windowManagerSource, /event\.key !== 'Tab'/);
+  assert.match(windowManagerSource, /closeDownloadConfirm\(\{\s*restoreFocus:\s*true\s*\}\)/);
+});
+
+test('Downloads links the protected resume PDF through the browser download flow only', () => {
+  const downloadsSource = readFileSync(new URL('../components/os/DownloadsFolder.astro', import.meta.url), 'utf8');
+  const windowManagerSource = readFileSync(new URL('./os-window-manager.js', import.meta.url), 'utf8');
+  const pdfUrl = new URL('../../public/Resume-BURAK-YUKSEL.pdf', import.meta.url);
+
+  assert.equal(existsSync(pdfUrl), true);
+  assert.equal(statSync(pdfUrl).isFile(), true);
+  assert.match(downloadsSource, /data-os-download-url="\/Resume-BURAK-YUKSEL\.pdf"/);
+  assert.match(downloadsSource, /data-os-download-name="Resume-BURAK-YUKSEL\.pdf"/);
+  assert.match(downloadsSource, /aria-label="Download Resume-BURAK-YUKSEL\.pdf"/);
+  assert.equal([...downloadsSource.matchAll(/data-os-download-url=/g)].length, 1);
+  assert.match(windowManagerSource, /const link = document\.createElement\('a'\);[\s\S]*link\.href = pendingDownload\.url;[\s\S]*link\.download = pendingDownload\.name;[\s\S]*document\.body\.append\(link\);[\s\S]*link\.click\(\);[\s\S]*link\.remove\(\);/);
+  assert.doesNotMatch(downloadsSource, /data:application\/pdf|base64|<iframe/i);
+  assert.doesNotMatch(windowManagerSource, /Resume-BURAK-YUKSEL\.pdf|Blob|FileReader|createObjectURL|XMLHttpRequest|fetch\s*\(/);
+});
+
 test('folder windows default above the taskbar and expose a drag affordance', () => {
   const osCss = readFileSync(new URL('../styles/os.css', import.meta.url), 'utf8');
 
@@ -333,6 +503,14 @@ test('GitHub.exe lets GitHubApp fill the whole OS window body', () => {
   assert.match(osCss, /\.os-window--github\s+\.os-window-body\s*\{[\s\S]*padding:\s*0;[\s\S]*overflow:\s*hidden;[\s\S]*place-items:\s*stretch;/);
   assert.match(osCss, /@media\s*\(max-width:\s*760px\)\s*\{[\s\S]*\.os-window--github\s+\.os-window-body\s*\{[\s\S]*padding:\s*0;[\s\S]*overflow:\s*hidden;[\s\S]*place-items:\s*stretch;/);
   assert.match(githubCss, /\.github-app\s*\{[\s\S]*width:\s*100%;[\s\S]*height:\s*100%;/);
+});
+
+test('Resume.exe fills the mobile OS window body on small screens', () => {
+  const osCss = readFileSync(new URL('../styles/os.css', import.meta.url), 'utf8');
+  const resumeCss = readFileSync(new URL('../styles/resume-app.css', import.meta.url), 'utf8');
+
+  assert.match(osCss, /@media\s*\(max-width:\s*760px\)\s*\{[\s\S]*\.os-window--resume\s+\.os-window-body\s*\{[\s\S]*padding:\s*0;[\s\S]*overflow:\s*hidden;[\s\S]*place-items:\s*stretch;/);
+  assert.match(resumeCss, /@media\s*\(max-width:\s*760px\)\s*\{[\s\S]*\.resume-app\s*\{[\s\S]*width:\s*100%;[\s\S]*height:\s*100%;[\s\S]*margin:\s*0;/);
 });
 
 test('shared OS controls use visible glyphs and keep minimise disabled', () => {
@@ -355,7 +533,38 @@ test('shared help dialog traps keyboard focus and restores the help opener', () 
   assert.match(windowManagerSource, /focusHelpDialogTrigger/);
   assert.match(windowManagerSource, /trapHelpDialogFocus/);
   assert.match(windowManagerSource, /event\.key !== 'Tab'/);
-  assert.match(windowManagerSource, /getFocusableElements\(helpDialog\)/);
+  assert.match(windowManagerSource, /trapModalFocus\(event,\s*helpDialog\)/);
+  assert.match(windowManagerSource, /getFocusableElements\(root\)/);
+});
+
+test('launcher open and close paths move focus between launchers and opened windows', () => {
+  const windowManagerSource = readFileSync(new URL('./os-window-manager.js', import.meta.url), 'utf8');
+
+  assert.match(windowManagerSource, /rememberLauncherTrigger/);
+  assert.match(windowManagerSource, /focusLauncherForTarget/);
+  assert.match(windowManagerSource, /dispatch\(createLauncherOpenAction\('taskbar'[\s\S]*focusOpenedWindow\(getTargetId\(taskbarLauncher\)\)/);
+  assert.match(windowManagerSource, /dispatch\(createLauncherOpenAction\('desktop'[\s\S]*focusOpenedWindow\(getTargetId\(desktopLauncher\)\)/);
+  assert.match(windowManagerSource, /focusLauncherForTarget\(closeId\)/);
+  assert.match(windowManagerSource, /if \(isGameApp\(closeId\)\) focusGameReturnTarget\(closeId\);/);
+});
+
+test('OS startup hash opens redirected legacy destinations inside the shell', () => {
+  const windowManagerSource = readFileSync(new URL('./os-window-manager.js', import.meta.url), 'utf8');
+
+  assert.match(windowManagerSource, /applyStartupHashRoute/);
+  assert.match(windowManagerSource, /parseOsStartupHash\(window\.location\.hash\)/);
+  assert.match(windowManagerSource, /dispatch\(\{\s*type:\s*'open',\s*id:\s*route\.id\s*\}\)/);
+  assert.match(windowManagerSource, /data-blog-deep-link/);
+  assert.match(windowManagerSource, /blog-app:open-deep-link/);
+  assert.match(windowManagerSource, /window\.addEventListener\('hashchange',\s*applyStartupHashRoute/);
+});
+
+test('folder drag positions are re-clamped on resize and orientation changes', () => {
+  const windowManagerSource = readFileSync(new URL('./os-window-manager.js', import.meta.url), 'utf8');
+
+  assert.match(windowManagerSource, /reclampFolderPositions/);
+  assert.match(windowManagerSource, /window\.addEventListener\('resize',\s*reclampFolderPositions/);
+  assert.match(windowManagerSource, /window\.addEventListener\('orientationchange',\s*reclampFolderPositions/);
 });
 
 test('Blog.exe uses its own chrome as the window topbar', () => {
