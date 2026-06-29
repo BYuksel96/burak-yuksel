@@ -1,11 +1,15 @@
 ---
-import timeline from '../../content/timeline.json';
-import { getDefaultTimelineId, parseDescriptionLines } from '../../scripts/resume-app.js';
-import '../../styles/resume-app.css';
+import timeline from "../../content/timeline.json";
+import {
+  getDefaultTimelineId,
+  parseDescriptionLines,
+} from "../../scripts/resume-app.js";
+import "../../styles/resume-app.css";
 
-const base = import.meta.env.BASE_URL || '/';
-const linkedinUrl = 'https://www.linkedin.com/in/burak-yuksel96/';
-const resolveImageSrc = (src) => (src.startsWith('/') ? `${base}${src.slice(1)}` : `${base}${src}`);
+const base = import.meta.env.BASE_URL || "/";
+const linkedinUrl = "https://www.linkedin.com/in/burak-yuksel96/";
+const resolveImageSrc = (src) =>
+  src.startsWith("/") ? `${base}${src.slice(1)}` : `${base}${src}`;
 const defaultId = getDefaultTimelineId(timeline);
 
 const entries = timeline.map((item, index) => ({
@@ -16,10 +20,18 @@ const entries = timeline.map((item, index) => ({
 }));
 ---
 
-<section class="resume-app" data-resume-app data-resume-default-id={defaultId} aria-label="Resume.exe career file explorer" data-i18n-aria-label="resume.aria">
+<section
+  class="resume-app"
+  data-resume-app
+  data-resume-default-id={defaultId}
+  aria-label="Resume.exe career file explorer"
+  data-i18n-aria-label="resume.aria"
+>
   <header class="resume-app__header">
     <div class="resume-app__heading">
-      <p class="resume-app__eyebrow" data-i18n="resume.eyebrow">Career File Explorer</p>
+      <p class="resume-app__eyebrow" data-i18n="resume.eyebrow">
+        Career File Explorer
+      </p>
       <h3 data-i18n="resume.title">Timeline archive</h3>
     </div>
 
@@ -28,146 +40,236 @@ const entries = timeline.map((item, index) => ({
         <span data-i18n="resume.selected">Selected:</span>
         <strong data-resume-selected-label></strong>
       </span>
-      <a class="resume-app__linkedin" href={linkedinUrl} target="_blank" rel="noopener noreferrer">
+      <a
+        class="resume-app__linkedin"
+        href={linkedinUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         <span aria-hidden="true">in</span>
-        <span data-i18n="resume.linkedin">LinkedIn</span>
+        LinkedIn Here
       </a>
     </div>
   </header>
 
   <div class="resume-app__workspace">
-    <aside class="resume-app__sidebar" aria-label="Career files" data-i18n-aria-label="resume.filesAria">
+    <aside
+      class="resume-app__sidebar"
+      aria-label="Career files"
+      data-i18n-aria-label="resume.filesAria"
+    >
       <div class="resume-app__panel-head">
-        <span class="resume-app__panel-title" data-i18n="resume.filesTitle">Career Files</span>
-        <span class="resume-app__panel-count" data-i18n="resume.itemCount" data-i18n-vars={JSON.stringify({ count: entries.length })}>{entries.length} items</span>
+        <span class="resume-app__panel-title" data-i18n="resume.filesTitle"
+          >Career Files</span
+        >
+        <span
+          class="resume-app__panel-count"
+          data-i18n="resume.itemCount"
+          data-i18n-vars={JSON.stringify({ count: entries.length })}
+          >{entries.length} items</span
+        >
       </div>
 
-      <div class="resume-app__file-list" data-resume-list role="listbox" aria-label="Select a career file" data-i18n-aria-label="resume.listAria">
-        {entries.map((item) => (
-          <div class="resume-app__file-wrap">
-            <button
-              class="resume-app__file"
-              type="button"
-              role="option"
-              data-resume-select
-              data-resume-event-id={item.id}
-              data-resume-title={item.title}
-              data-resume-title-key={`resume.entries.${item.id}.title`}
-              aria-selected={item.id === defaultId ? 'true' : 'false'}
-              aria-current={item.id === defaultId ? 'true' : 'false'}
-              aria-controls={`resume-record-${item.id}`}
-            >
-              <span class="resume-app__file-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" focusable="false">
-                  <path d="M7 3h7l4 4v14H7z" />
-                  <path d="M14 3v5h5" />
-                  <path d="M9.8 12.2h5.8M9.8 15.6h4.5" />
-                </svg>
-              </span>
-              <span class="resume-app__file-copy">
-                <span class="resume-app__file-title" data-i18n={`resume.entries.${item.id}.title`}>{item.title}</span>
-                <span class="resume-app__file-date" data-i18n={`resume.entries.${item.id}.date`}>{item.date}</span>
-              </span>
-              {item.current && <span class="resume-app__status resume-app__status--current" data-i18n="resume.current">Current</span>}
-            </button>
+      <div
+        class="resume-app__file-list"
+        data-resume-list
+        role="listbox"
+        aria-label="Select a career file"
+        data-i18n-aria-label="resume.listAria"
+      >
+        {
+          entries.map((item) => (
+            <div class="resume-app__file-wrap">
+              <button
+                class="resume-app__file"
+                type="button"
+                role="option"
+                data-resume-select
+                data-resume-event-id={item.id}
+                data-resume-title={item.title}
+                data-resume-title-key={`resume.entries.${item.id}.title`}
+                aria-selected={item.id === defaultId ? "true" : "false"}
+                aria-current={item.id === defaultId ? "true" : "false"}
+                aria-controls={`resume-record-${item.id}`}
+              >
+                <span class="resume-app__file-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false">
+                    <path d="M7 3h7l4 4v14H7z" />
+                    <path d="M14 3v5h5" />
+                    <path d="M9.8 12.2h5.8M9.8 15.6h4.5" />
+                  </svg>
+                </span>
+                <span class="resume-app__file-copy">
+                  <span
+                    class="resume-app__file-title"
+                    data-i18n={`resume.entries.${item.id}.title`}
+                  >
+                    {item.title}
+                  </span>
+                  <span
+                    class="resume-app__file-date"
+                    data-i18n={`resume.entries.${item.id}.date`}
+                  >
+                    {item.date}
+                  </span>
+                </span>
+                {item.current && (
+                  <span
+                    class="resume-app__status resume-app__status--current"
+                    data-i18n="resume.current"
+                  >
+                    Current
+                  </span>
+                )}
+              </button>
 
+              <article
+                class="resume-app__mobile-preview"
+                data-resume-panel
+                data-resume-event-id={item.id}
+                data-resume-active={item.id === defaultId ? true : undefined}
+                hidden={item.id !== defaultId}
+              >
+                <div class="resume-app__mobile-preview-head">
+                  <img src={item.imageSrc} alt="" loading="lazy" />
+                  <div>
+                    <h4 data-i18n={`resume.entries.${item.id}.title`}>
+                      {item.title}
+                    </h4>
+                    <p data-i18n={`resume.entries.${item.id}.date`}>
+                      {item.date}
+                    </p>
+                  </div>
+                </div>
+                <div
+                  class="resume-app__detail-scroll"
+                  data-i18n-html={`resume.entries.${item.id}.detailHtml`}
+                >
+                  {item.blocks.map((block) =>
+                    block.type === "list" ? (
+                      <ul class="resume-app__detail-list">
+                        {block.items.map((entry) => (
+                          <li set:html={entry} />
+                        ))}
+                      </ul>
+                    ) : block.type === "section" ? (
+                      <h5
+                        class="resume-app__detail-section"
+                        set:html={block.html}
+                      />
+                    ) : (
+                      <p
+                        class="resume-app__detail-paragraph"
+                        set:html={block.html}
+                      />
+                    ),
+                  )}
+                </div>
+              </article>
+            </div>
+          ))
+        }
+      </div>
+    </aside>
+
+    <aside
+      class="resume-app__inspector"
+      aria-label="Selected career file inspector"
+    >
+      <div class="resume-app__panel-head">
+        <span class="resume-app__panel-title" data-i18n="resume.previewTitle"
+          >File Preview</span
+        >
+        <span class="resume-app__panel-count" data-i18n="resume.inspector"
+          >Inspector</span
+        >
+      </div>
+
+      <div class="resume-app__record-stack">
+        {
+          entries.map((item) => (
             <article
-              class="resume-app__mobile-preview"
+              id={`resume-record-${item.id}`}
+              class="resume-app__record"
               data-resume-panel
               data-resume-event-id={item.id}
               data-resume-active={item.id === defaultId ? true : undefined}
               hidden={item.id !== defaultId}
             >
-              <div class="resume-app__mobile-preview-head">
-                <img src={item.imageSrc} alt="" loading="lazy" />
-                <div>
-                  <h4 data-i18n={`resume.entries.${item.id}.title`}>{item.title}</h4>
-                  <p data-i18n={`resume.entries.${item.id}.date`}>{item.date}</p>
+              <header class="resume-app__record-head">
+                <div class="resume-app__record-image">
+                  <img src={item.imageSrc} alt="" loading="lazy" />
                 </div>
+                <div class="resume-app__record-title">
+                  <p
+                    data-i18n={
+                      item.current ? "resume.activeFile" : "resume.archiveFile"
+                    }
+                  >
+                    {item.current ? "Active file" : "Archive file"}
+                  </p>
+                  <h4 data-i18n={`resume.entries.${item.id}.title`}>
+                    {item.title}
+                  </h4>
+                  <span data-i18n={`resume.entries.${item.id}.date`}>
+                    {item.date}
+                  </span>
+                </div>
+              </header>
+
+              <div class="resume-app__record-meta">
+                <span>#{String(item.index + 1).padStart(2, "0")}</span>
+                <span
+                  data-i18n={
+                    item.current ? "resume.currentMarker" : "resume.marker"
+                  }
+                >
+                  {item.current ? "Current timeline marker" : "Timeline marker"}
+                </span>
               </div>
-              <div class="resume-app__detail-scroll" data-i18n-html={`resume.entries.${item.id}.detailHtml`}>
-                {item.blocks.map((block) => (
-                  block.type === 'list' ? (
+
+              <div
+                class="resume-app__detail-scroll"
+                data-i18n-html={`resume.entries.${item.id}.detailHtml`}
+              >
+                {item.blocks.map((block) =>
+                  block.type === "list" ? (
                     <ul class="resume-app__detail-list">
                       {block.items.map((entry) => (
-                        <li set:html={entry}></li>
+                        <li set:html={entry} />
                       ))}
                     </ul>
-                  ) : block.type === 'section' ? (
-                    <h5 class="resume-app__detail-section" set:html={block.html}></h5>
+                  ) : block.type === "section" ? (
+                    <h5
+                      class="resume-app__detail-section"
+                      set:html={block.html}
+                    />
                   ) : (
-                    <p class="resume-app__detail-paragraph" set:html={block.html}></p>
-                  )
-                ))}
+                    <p
+                      class="resume-app__detail-paragraph"
+                      set:html={block.html}
+                    />
+                  ),
+                )}
               </div>
             </article>
-          </div>
-        ))}
-      </div>
-    </aside>
-
-    <aside class="resume-app__inspector" aria-label="Selected career file inspector">
-      <div class="resume-app__panel-head">
-        <span class="resume-app__panel-title" data-i18n="resume.previewTitle">File Preview</span>
-        <span class="resume-app__panel-count" data-i18n="resume.inspector">Inspector</span>
-      </div>
-
-      <div class="resume-app__record-stack">
-        {entries.map((item) => (
-          <article
-            id={`resume-record-${item.id}`}
-            class="resume-app__record"
-            data-resume-panel
-            data-resume-event-id={item.id}
-            data-resume-active={item.id === defaultId ? true : undefined}
-            hidden={item.id !== defaultId}
-          >
-            <header class="resume-app__record-head">
-              <div class="resume-app__record-image">
-                <img src={item.imageSrc} alt="" loading="lazy" />
-              </div>
-              <div class="resume-app__record-title">
-                <p data-i18n={item.current ? 'resume.activeFile' : 'resume.archiveFile'}>{item.current ? 'Active file' : 'Archive file'}</p>
-                <h4 data-i18n={`resume.entries.${item.id}.title`}>{item.title}</h4>
-                <span data-i18n={`resume.entries.${item.id}.date`}>{item.date}</span>
-              </div>
-            </header>
-
-            <div class="resume-app__record-meta">
-              <span>#{String(item.index + 1).padStart(2, '0')}</span>
-              <span data-i18n={item.current ? 'resume.currentMarker' : 'resume.marker'}>{item.current ? 'Current timeline marker' : 'Timeline marker'}</span>
-            </div>
-
-            <div class="resume-app__detail-scroll" data-i18n-html={`resume.entries.${item.id}.detailHtml`}>
-              {item.blocks.map((block) => (
-                block.type === 'list' ? (
-                  <ul class="resume-app__detail-list">
-                    {block.items.map((entry) => (
-                      <li set:html={entry}></li>
-                    ))}
-                  </ul>
-                ) : block.type === 'section' ? (
-                  <h5 class="resume-app__detail-section" set:html={block.html}></h5>
-                ) : (
-                  <p class="resume-app__detail-paragraph" set:html={block.html}></p>
-                )
-              ))}
-            </div>
-          </article>
-        ))}
+          ))
+        }
       </div>
     </aside>
   </div>
 </section>
 
 <script>
-  import { initResumeApps } from '../../scripts/resume-app.js';
+  import { initResumeApps } from "../../scripts/resume-app.js";
 
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     const setupResumeApp = () => initResumeApps(document);
 
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', setupResumeApp, { once: true });
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", setupResumeApp, {
+        once: true,
+      });
     } else {
       setupResumeApp();
     }
