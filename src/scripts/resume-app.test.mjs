@@ -68,7 +68,7 @@ test('Resume.exe LinkedIn action opens a safe real browser tab', () => {
   const source = readResumeAppSource();
   const linkedInTag = getLinkedInTag(source);
 
-  assert.match(source, /const linkedinUrl = 'https:\/\/www\.linkedin\.com\/in\/burak-yuksel96\/';/);
+  assert.match(source, /const linkedinUrl = ['"]https:\/\/www\.linkedin\.com\/in\/burak-yuksel96\/['"];/);
   assert.match(linkedInTag, /href=\{linkedinUrl\}/);
   assert.match(linkedInTag, /target="_blank"/);
   assert.match(linkedInTag, /rel="noopener noreferrer"/);

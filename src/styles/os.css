@@ -191,7 +191,7 @@
 .os-orientation-lock {
   position: absolute;
   inset: 0;
-  z-index: 20;
+  z-index: 90;
   display: none;
   place-items: center;
   padding: 1rem;
@@ -330,7 +330,7 @@
 .os-lock-screen {
   position: absolute;
   inset: 0;
-  z-index: 30;
+  z-index: 80;
   display: grid;
   place-items: center;
   padding: clamp(1.2rem, 4vw, 2.5rem);
@@ -433,6 +433,8 @@
 }
 
 .os-topbar {
+  position: relative;
+  z-index: 45;
   min-height: 2.45rem;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
@@ -504,10 +506,11 @@
   position: absolute;
   top: calc(100% + 0.42rem);
   right: 0;
-  z-index: 35;
+  z-index: 65;
   min-width: 9.2rem;
   display: grid;
   gap: 0.18rem;
+  pointer-events: auto;
   padding: 0.32rem;
   border: 1px solid var(--os-screen-line-strong);
   border-radius: 8px;
