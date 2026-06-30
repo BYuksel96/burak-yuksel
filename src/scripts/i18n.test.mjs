@@ -115,3 +115,14 @@ test('OS shell exposes a language picker instead of the old inert EN button', ()
   assert.match(osCss, /\.os-language-menu/);
   assert.match(i18nSource, /window\.dispatchEvent\(new CustomEvent\(LANGUAGE_CHANGE_EVENT/);
 });
+
+test('language picker overlays desktop layers for pointer and touch selection', () => {
+  const osCss = readFileSync(new URL('../styles/os.css', import.meta.url), 'utf8');
+  const topbarRule = osCss.match(/\.os-topbar\s*\{(?<body>[\s\S]*?)\n\}/)?.groups?.body ?? '';
+  const menuRule = osCss.match(/\.os-language-menu\s*\{(?<body>[\s\S]*?)\n\}/)?.groups?.body ?? '';
+
+  assert.match(topbarRule, /position:\s*relative;/);
+  assert.match(topbarRule, /z-index:\s*4[0-9];/);
+  assert.match(menuRule, /pointer-events:\s*auto;/);
+  assert.match(menuRule, /z-index:\s*6[0-9];/);
+});
