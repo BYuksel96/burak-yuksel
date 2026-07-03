@@ -492,9 +492,13 @@ test('Downloads links the protected resume PDF through the browser download flow
   const downloadsSource = readFileSync(new URL('../components/os/DownloadsFolder.astro', import.meta.url), 'utf8');
   const windowManagerSource = readFileSync(new URL('./os-window-manager.js', import.meta.url), 'utf8');
   const pdfUrl = new URL('../../public/Resume-BURAK-YUKSEL.pdf', import.meta.url);
+  const pdfStats = statSync(pdfUrl);
+  const pdfHeader = readFileSync(pdfUrl, { encoding: 'utf8', flag: 'r' }).slice(0, 5);
 
   assert.equal(existsSync(pdfUrl), true);
-  assert.equal(statSync(pdfUrl).isFile(), true);
+  assert.equal(pdfStats.isFile(), true);
+  assert.ok(pdfStats.size > 1024);
+  assert.equal(pdfHeader, '%PDF-');
   assert.match(downloadsSource, /data-os-download-url="\/Resume-BURAK-YUKSEL\.pdf"/);
   assert.match(downloadsSource, /data-os-download-name="Resume-BURAK-YUKSEL\.pdf"/);
   assert.match(downloadsSource, /aria-label="Download Resume-BURAK-YUKSEL\.pdf"/);
