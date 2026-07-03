@@ -66,6 +66,8 @@ test('translation helper interpolates localized UI copy', () => {
   assert.equal(translate('downloads.confirmTitle', 'tr'), "Burak'in ozgecmisini indirmeye devam edilsin mi?");
   assert.equal(translate('blog.tagsByKey.vibe-coding', 'tr'), 'Vibe Coding');
   assert.equal(translate('blog.tagsByKey.welcome', 'tr'), 'hos geldiniz');
+  assert.equal(translate('blog.tagsByKey.codex', 'en'), 'Codex');
+  assert.equal(translate('blog.tagsByKey.portfolio', 'de'), 'Portfolio');
 });
 
 test('language mode exposes stable locales for date formatting', () => {
@@ -82,9 +84,30 @@ test('content-heavy blog and resume entries have localized session copy', () => 
   const frenchPost = getTranslatedBlogPost('vibe-coding', 'fr');
   assert.match(frenchPost.bodyHtml, /codage au feeling/i);
 
+  const englishRevampPost = getTranslatedBlogPost('burak-os-revamp', 'en');
+  assert.equal(englishRevampPost.title, 'Rebuilding My Portfolio Helped Me Find the Builder In Me Again');
+  assert.match(englishRevampPost.bodyHtml, /Burak OS/);
+  assert.match(englishRevampPost.bodyHtml, /builder/i);
+
+  const turkishRevampPost = getTranslatedBlogPost('burak-os-revamp', 'tr');
+  assert.match(turkishRevampPost.bodyHtml, /Burak OS/);
+  assert.match(turkishRevampPost.bodyHtml, /Codex/);
+
   const germanEntry = getTranslatedResumeEntry('university', 'de');
   assert.match(germanEntry.title, /Software Engineering/);
   assert.match(germanEntry.detailHtml, /Universitaet/);
+
+  const englishDiscoverEntry = getTranslatedResumeEntry('discover', 'en');
+  assert.match(englishDiscoverEntry.title, /Capital One/);
+  assert.equal(englishDiscoverEntry.date, 'Mar 2024 - Apr 2026');
+  assert.match(englishDiscoverEntry.detailHtml, /Mar 2025 - Apr 2026/);
+
+  const englishCareerBreakEntry = getTranslatedResumeEntry('careerBreak', 'en');
+  assert.equal(englishCareerBreakEntry.title, 'Career Break');
+  assert.equal(englishCareerBreakEntry.date, 'Apr 2026 - Present');
+  assert.match(englishCareerBreakEntry.detailHtml, /Taking time to travel, recharge and enjoy the freedom to choose what comes next/);
+  assert.match(englishCareerBreakEntry.detailHtml, /currently travelling, enjoying life and exploring what I want the next chapter to look like/);
+  assert.match(englishCareerBreakEntry.detailHtml, /personal projects and making the most of the freedom to decide what comes next/);
 
   const turkishEntry = getTranslatedResumeEntry('future', 'tr');
   assert.match(turkishEntry.detailHtml, /kaderle/);

@@ -150,16 +150,22 @@ export const ES_TRANSLATIONS = {
           '<h5>Stack tecnologico:</h5><ul><li>Herramienta empresarial internacional full-stack: PHP, MySQL, HTML/CSS, JavaScript, AJAX, jQuery, XML, Python</li><li>Depuracion, mejoras de rendimiento y codigo mantenible con impacto a largo plazo en mente</li></ul><h5>Agile &amp; SDLC:</h5><ul><li>Cadencia estilo Scrum con refinamiento de backlog, entrega iterativa y revisiones entre pares</li><li>Flujo completo de SDLC con verificacion y validacion antes de la aprobacion</li></ul><h5>Colaboracion:</h5><ul><li>Colabore con equipos locales y globales para desbloquear dependencias y entregar a tiempo con estandares de usuario final</li><li>Construi bases tempranas en trabajo distribuido, colaboracion con stakeholders y autoconciencia profesional.</li></ul>',
       },
       barclays: {
-        title: 'Barclaycard',
-        date: '2018 - 2024',
+        title: 'Barclaycard (Barclays)',
+        date: 'Jun 2018 - Mar 2024',
         detailHtml:
-          '<p><strong><em>Aqui fue donde realmente deje de aprender en teoria y empece a entregar en la realidad!</em></strong></p><h5>Programa de graduados e ingenieria</h5><p>Me uni a Barclaycard despues de la universidad, contribui a productos reales desde el primer dia y construi una base solida en ingenieria de software, infraestructura cloud y practicas DevOps.</p><h5>DevOps y Scrum Mastery</h5><p>Creci hacia la responsabilidad de entrega, coaching, facilitacion Scrum/Kanban, alineacion de stakeholders y resultados mas amplios de equipo, hasta pasar a tiempo completo a Scrum Mastery.</p><h5>Resultados</h5><ul><li>Apoye infraestructura compatible con PCI, CI/CD y fiabilidad de plataforma.</li><li>Mejore la previsibilidad, la calidad del backlog y la madurez de entrega en equipos multifuncionales.</li></ul>',
+          '<p><strong><em>Aqui fue donde realmente deje de aprender en teoria y empece a entregar en la realidad!</em></strong></p><h5>Scrum Master (Abr 2022 - Mar 2024)</h5><p>Lidere y acompane a 2 equipos multifuncionales de desarrollo de aplicaciones que entregaban plataformas seguras dentro de un entorno bancario regulado.</p><h5>DevOps Engineer / Software Engineer (Jun 2018 - Abr 2022)</h5><p>Construi y apoye plataformas basadas en AWS usando Terraform, Jenkins, Chef, Packer, Ruby y OpenShift, ayudando a equipos a pasar de infraestructura on-prem a AWS y mejores formas de trabajo CI/CD.</p><h5>Resultados</h5><ul><li>Mejore la previsibilidad a 80%+ y reduje el desperdicio de backlog en 33%.</li><li>Apoye la adopcion de Jira, pruebas de migracion, preparacion operativa y rutas de soporte de plataforma entre varios equipos.</li></ul>',
       },
       discover: {
-        title: 'Discover Financial Services',
-        date: 'Mar 2024 - Presente',
+        title: 'Discover Financial Services / Capital One',
+        date: 'Mar 2024 - Abr 2026',
         detailHtml:
-          '<p><strong><em>El miedo al fracaso es el enemigo del progreso. No hacer es fracasar. Asi que elijo hacer. Intentar. Aprender. Crecer.</em></strong></p><h5>Agile Programme Manager (Mar 2025 - Presente):</h5><ul><li>Liderando la entrega entre equipos de ingenieria con planificacion transparente de programa, gestion de riesgos y ritmos de entrega previsibles.</li><li>Mejore la previsibilidad de sprints, el cycle time de epics, la madurez del backlog, dashboards, PI Planning, gestion RAID y alineacion de releases entre equipos.</li></ul><h5>Scrum Master (Mar 2024 - Mar 2025):</h5><ul><li>Facilite ceremonias Agile y eleve practicas de entrega en equipos de Reino Unido e India.</li><li>Mejore informes de previsibilidad, coaching a Product Owners, mentoring de ingenieros y resiliencia de equipo.</li></ul>',
+          '<p><strong><em>El miedo al fracaso es el enemigo del progreso. No hacer es fracasar. Asi que elijo hacer. Intentar. Aprender. Crecer.</em></strong></p><h5>Agile &amp; Technical Programme Manager (Mar 2025 - Abr 2026):</h5><ul><li>Lidere la entrega Agile y la ejecucion de programa en 7 equipos de ingenieria, apoyando la actividad de merger de Capital One y la preparacion de una migracion de tokens por oleadas.</li><li>Mejore la previsibilidad de entrega de 65% a 85%, reduje el cycle time de epics de 100+ dias a ~55 dias y fortalezi gestion RAID, PI planning, readiness y decisiones de escalabilidad basadas en evidencia.</li></ul><h5>Scrum Master (Mar 2024 - Mar 2025):</h5><ul><li>Coache equipos distribuidos de ingenieria en Reino Unido e India en autoorganizacion, ownership y disciplina de entrega.</li><li>Mejore refinamiento, dashboards, capacity planning, soporte a Product Owners y retrospectivas sin culpa.</li></ul>',
+      },
+      careerBreak: {
+        title: 'Pausa profesional',
+        date: 'Abr 2026 - Presente',
+        detailHtml:
+          '<p><strong><em>Tomando tiempo para viajar, recargar energia y disfrutar de la libertad de elegir lo que viene despues.</em></strong></p><h5>Estado actual</h5><p>Despues de completar mi etapa en Discover Financial Services / Capital One en abril de 2026, decidi alejarme del trabajo a tiempo completo y tomar una pausa profesional de verdad.</p><p>Actualmente estoy viajando, disfrutando la vida y explorando como quiero que sea el proximo capitulo. Eso podria ser la oportunidad permanente adecuada, trabajo de contrato o construir un negocio propio, pero no tengo prisa por elegir un camino solo por volver a trabajar.</p><p>Por ahora, el foco esta en nuevas experiencias, proyectos personales y aprovechar al maximo la libertad de decidir que viene despues.</p>',
       },
       future: {
         title: 'El proximo capitulo',
@@ -191,7 +197,9 @@ export const ES_TRANSLATIONS = {
       'vibe-coding': 'Vibe Coding',
       agile: 'Agile',
       'building-in-public': 'Construyendo en publico',
+      codex: 'Codex',
       'product-thinking': 'Pensamiento de producto',
+      portfolio: 'Portfolio',
       'software-development': 'Desarrollo de software',
       welcome: 'bienvenida',
       resume: 'resume',
@@ -224,6 +232,13 @@ export const ES_TRANSLATIONS = {
         description: 'Como pase de hacer doom-scrolling a vibe coding.',
         bodyHtml:
           '<h2>Vibe coding al maximo</h2><p>Empece con vibe coding porque estaba procrastinando, viendo a otras personas lanzar sitios web, apps y herramientas, y al final me pregunte que me impedia unirme.</p><h2>La chispa</h2><p>Todo empezo con PureOrigins.uk, luego viendo a un amigo construir forefinder.golf mediante vibe coding. El impulso era adictivo.</p><h2>Empieza pequeno</h2><p>Queria sentir como era realmente construir con AI. Pequenas herramientas, experimentos, proyectos de amigos y este sitio web se convirtieron en el camino para volver a construir.</p><h2>La mayor leccion: AI no es una maquina de un solo intento</h2><p>AI funciona mejor cuando se guia de forma incremental. Construye pequeno, lanza rapido, prueba el comportamiento e itera como un equipo Agile disciplinado.</p><h2>AI no es solo una herramienta. Es una extension</h2><p>AI construye, pero tu diriges. El pensamiento de producto, resultados claros y prompts cuidadosos importan.</p><h2>La verdad</h2><p>Vibe coding trata de dar vida a las ideas: desordenado, incremental, imperfecto, pero vivo.</p>',
+      },
+      'burak-os-revamp': {
+        title: 'Reconstruir mi portfolio me ayudo a encontrar de nuevo al builder en mi',
+        description:
+          'Como reconstruir mi portfolio en Burak OS se convirtio en un experimento creativo con AI, disciplina de entrega y el placer de volver a construir.',
+        bodyHtml:
+          '<h2>TL;DR</h2><p>Reconstrui mi portfolio como Burak OS, un experimento creativo con Codex, y me ayudo a reconectar con construir despues de pasar mas tiempo en entrega y liderazgo de programas.</p><h2>Por que Burak OS?</h2><p>El portfolio anterior no estaba mal, pero queria algo mas interactivo, descubrible y personal: un pequeno espacio de trabajo que la gente pudiera explorar en vez de una pagina plana de CV.</p><h2>Que construimos</h2><p>Resume.exe, Blog.exe, GitHub.exe, Downloads, Bin, Maze.exe, Quiz.exe, temas, pantalla de bloqueo, idiomas y mucho pulido responsive convirtieron el sitio en un sistema operativo estatico y jugueton.</p><h2>Que me enseno Codex</h2><p>El desarrollo asistido por AI es potente, pero no es magia de un solo prompt. AI construye, pero tu sigues dirigiendo con criterio, estructura, pruebas y disciplina de entrega.</p><h2>La verdad</h2><p>Este proyecto me recordo que el builder en mi no habia desaparecido. Solo esperaba la excusa correcta.</p>',
       },
     },
   },

@@ -801,16 +801,22 @@ export const TR_TRANSLATIONS = {
           '<h5>Tech stack:</h5><ul><li>Full-stack uluslararasi is arac seti: PHP, MySQL, HTML/CSS, JavaScript, AJAX, jQuery, XML, Python</li><li>Uzun vadeli etkiyi dusunerek hata ayiklama, performans iyilestirmeleri ve surdurulebilir kod</li></ul><h5>Agile &amp; SDLC:</h5><ul><li>Backlog grooming, yinelemeli teslim ve peer review iceren Scrum tarzi kadans</li><li>Imza oncesi dogrulama ve validasyonla tam SDLC akisi</li></ul><h5>Is birligi:</h5><ul><li>Bagimliliklari acmak ve son kullanici standartlarina zamaninda teslim etmek icin yerel ve global ekiplerle calistim</li><li>Dagitik ekip calismasi, paydas is birligi ve profesyonel oz farkindalik icin erken temeller attim.</li></ul>',
       },
       barclays: {
-        title: 'Barclaycard',
-        date: '2018 - 2024',
+        title: 'Barclaycard (Barclays)',
+        date: 'Jun 2018 - Mar 2024',
         detailHtml:
-          '<p><strong><em>Teoride ogrenmeyi birakip gercekte teslim etmeye basladigim yer burasiydi!</em></strong></p><h5>Graduate Programme ve Muhendislik</h5><p>Universiteden sonra Barclaycarda katildim, ilk gunden gercek urunlere katkida bulundum ve yazilim muhendisligi, cloud altyapisi ve DevOps pratiklerinde guclu bir temel kurdum.</p><h5>DevOps ve Scrum Masterlik</h5><p>Teslim sahipligi, kocluk, Scrum/Kanban fasilitasyonu, paydas hizalama ve daha genis ekip sonuclari alaninda buyudum; sonunda tam zamanli Scrum Masterlige gectim.</p><h5>Sonuclar</h5><ul><li>PCI uyumlu altyapiyi, CI/CDyi ve platform guvenilirligini destekledim.</li><li>Cross-functional ekiplerde tahmin edilebilirligi, backlog kalitesini ve teslim olgunlugunu iyilestirdim.</li></ul>',
+          '<p><strong><em>Teoride ogrenmeyi birakip gercekte teslim etmeye basladigim yer burasiydi!</em></strong></p><h5>Scrum Master (Apr 2022 - Mar 2024)</h5><p>Regule banking ortaminda guvenli platformlar teslim eden 2 cross-functional application development ekibine liderlik ettim ve kocluk yaptim.</p><h5>DevOps Engineer / Software Engineer (Jun 2018 - Apr 2022)</h5><p>Terraform, Jenkins, Chef, Packer, Ruby ve OpenShift kullanarak AWS tabanli platformlar kurdum ve destekledim; ekiplerin on-prem altyapidan AWSye ve daha guclu CI/CD calisma bicimlerine gecisine yardim ettim.</p><h5>Sonuclar</h5><ul><li>Tahmin edilebilirligi 80%+ seviyesine cikardim ve backlog waste oranini 33% azalttim.</li><li>Jira adaptasyonu, migration testing, operational readiness ve birden fazla ekip icin platform support yollarini destekledim.</li></ul>',
       },
       discover: {
-        title: 'Discover Financial Services',
-        date: 'Mar 2024 - Present',
+        title: 'Discover Financial Services / Capital One',
+        date: 'Mar 2024 - Apr 2026',
         detailHtml:
-          '<p><strong><em>Basarisizlik korkusu ilerlemenin dusmanidir. Yapmamak basarisiz olmaktir. Bu yuzden yapmayi seciyorum. Denemeyi. Ogrenmeyi. Buyumeyi.</em></strong></p><h5>Agile Programme Manager (Mar 2025 - Present):</h5><ul><li>Seffaf program planlama, risk yonetimi ve tahmin edilebilir teslim ritimleriyle muhendislik ekiplerinde teslimata liderlik ediyorum.</li><li>Sprint tahmin edilebilirligi, epic cycle time, backlog olgunlugu, dashboardlar, PI Planning, RAID yonetimi ve ekipler arasi surum hizalamasini iyilestirdim.</li></ul><h5>Scrum Master (Mar 2024 - Mar 2025):</h5><ul><li>Agile seremonileri fasilite ettim ve UK ile India ekiplerinde teslim pratiklerini yukselttim.</li><li>Tahmin edilebilirlik raporlamasi, Product Owner koclugu, muhendis mentorlugu ve ekip dayanikliligini iyilestirdim.</li></ul>',
+          '<p><strong><em>Basarisizlik korkusu ilerlemenin dusmanidir. Yapmamak basarisiz olmaktir. Bu yuzden yapmayi seciyorum. Denemeyi. Ogrenmeyi. Buyumeyi.</em></strong></p><h5>Agile &amp; Technical Programme Manager (Mar 2025 - Apr 2026):</h5><ul><li>7 engineering ekibinde Agile delivery ve program execution liderligi yaptim; Capital One merger aktivitesi ve multi-wave token migration readiness calismalarini destekledim.</li><li>Delivery predictability oranini 65%ten 85%e cikardim, epic cycle time suresini 100+ gunden ~55 gune indirdim; RAID governance, PI planning, readiness ve veriye dayali scalability kararlarini guclendirdim.</li></ul><h5>Scrum Master (Mar 2024 - Mar 2025):</h5><ul><li>UK ve India genelinde dagitik engineering ekiplerine self-organisation, ownership ve delivery discipline konularinda kocluk yaptim.</li><li>Refinement, dashboardlar, capacity planning, Product Owner destegi ve no-blame retrospectives pratiklerini iyilestirdim.</li></ul>',
+      },
+      careerBreak: {
+        title: 'Kariyer Molasi',
+        date: 'Apr 2026 - Present',
+        detailHtml:
+          '<p><strong><em>Seyahat etmek, enerji toplamak ve sirada ne gelecegini secme ozgurlugunun tadini cikarmak icin zaman ayiriyorum.</em></strong></p><h5>Guncel durum</h5><p>Discover Financial Services / Capital One donemimi Nisan 2026da tamamladiktan sonra full-time isten uzaklasip gercek bir kariyer molasi almaya karar verdim.</p><p>Su anda seyahat ediyor, hayatin tadini cikariyor ve sonraki bolumun nasil gorunmesini istedigimi kesfediyorum. Bu dogru bir kalici firsat, kontratli calisma veya kendi isimi kurmak olabilir, ama sadece ise donmek icin aceleyle bir yol secmek istemiyorum.</p><p>Simdilik odak yeni deneyimler, kisisel projeler ve sirada ne gelecegine karar verme ozgurlugunu en iyi sekilde kullanmak.</p>',
       },
       future: {
         title: 'Sonraki Bolum',
@@ -842,7 +848,9 @@ export const TR_TRANSLATIONS = {
       'vibe-coding': 'Vibe Coding',
       agile: 'Agile',
       'building-in-public': 'Acik sekilde insa etmek',
+      codex: 'Codex',
       'product-thinking': 'Urun dusuncesi',
+      portfolio: 'Portfolio',
       'software-development': 'Yazilim gelistirme',
       welcome: 'hos geldiniz',
       resume: 'ozgecmis',
@@ -875,6 +883,13 @@ export const TR_TRANSLATIONS = {
         description: 'Doom-scrolldan vibe codinge nasil gectim.',
         bodyHtml:
           '<h2>Vibe Coding Sonuna Kadar 🚀</h2><p>Vibe codinge basladim cunku erteliyordum, insanlarin websiteleri, uygulamalar ve araclar yayina almasini izliyordum ve sonunda kendime neden katilmayayim diye sordum.</p><h2>Kivilcim 🔥</h2><p>PureOrigins.uk ile basladi, sonra bir arkadasimin forefinder.golfu vibe coding ile insa etmesini izledim. Momentum bagimlilik yapti.</p><h2>Kucuk Baslamaya Bak 🤏</h2><p>AI ile insa etmenin gercekte nasil hissettirdigini anlamak istedim. Kucuk araclar, deneyler, arkadas projeleri ve bu website yeniden insa etmeye donus yolum oldu.</p><h2>En Buyuk Ders: AI Tek Atislik Bir Makine Degil 🧠</h2><p>AI en iyi adim adim yonlendirildiginde calisir. Disiplinli bir Agile ekip gibi kucuk insa et, hizli yayinla, davranisi test et ve yinele.</p><h2>AI Sadece Bir Arac Degil. Bir Uzanti 🤖</h2><p>AI insa eder, ama direksiyonda sen varsindir. Urun dusuncesi, net sonuclar ve dikkatli promptlar onemlidir.</p><h2>Gercek</h2><p>Vibe coding fikirleri hayata gecirmekle ilgilidir: daginik, artimli, kusurlu ama canli.</p>',
+      },
+      'burak-os-revamp': {
+        title: 'Portfolyomu yeniden yapmak icimdeki builderi yeniden bulmami sagladi',
+        description:
+          'Portfolyomu Burak OS haline getirmenin AI destekli gelistirme, teslim disiplini ve yeniden insa etme keyfiyle nasil yaratici bir deneye donustugu.',
+        bodyHtml:
+          '<h2>TL;DR</h2><p>Portfolyomu Codex ile yaratici bir deney olarak Burak OS seklinde yeniden yaptim ve teslim/program liderligine daha fazla kaydiktan sonra yeniden insa etmeyle bag kurmami sagladi.</p><h2>Neden Burak OS?</h2><p>Eski portfolio kotu degildi, ama daha etkilesimli, kesfedilebilir ve kisisel bir sey istedim: duz bir CV sayfasi yerine gezilebilen kucuk bir calisma alani.</p><h2>Ne insa ettik</h2><p>Resume.exe, Blog.exe, GitHub.exe, Downloads, Bin, Maze.exe, Quiz.exe, tema kontrolleri, kilit ekrani, dil destegi ve bolca responsive polish siteyi oyuncu bir statik isletim sistemine cevirdi.</p><h2>Codex bana ne ogretti</h2><p>AI destekli gelistirme guclu, ama tek promptluk sihir degil. AI insa eder, ama zevk, yapi, test ve teslim disipliniyle direksiyonda hala sen varsindir.</p><h2>Gercek</h2><p>Bu proje bana icimdeki builderin kaybolmadigini hatirlatti. Sadece dogru bahaneyi bekliyordu.</p>',
       },
     },
   },

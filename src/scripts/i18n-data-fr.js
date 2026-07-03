@@ -150,16 +150,22 @@ export const FR_TRANSLATIONS = {
           '<h5>Stack technique:</h5><ul><li>Ensemble d outils metier international full-stack: PHP, MySQL, HTML/CSS, JavaScript, AJAX, jQuery, XML, Python</li><li>Debogage, ameliorations de performance et code maintenable avec un impact long terme en tete</li></ul><h5>Agile &amp; SDLC:</h5><ul><li>Cadence type Scrum avec affinage du backlog, livraison iterative et revues par les pairs</li><li>Cycle SDLC complet avec verification et validation avant validation finale</li></ul><h5>Collaboration:</h5><ul><li>Partenariat avec des equipes sur site et mondiales pour debloquer les dependances et livrer a temps selon les standards des utilisateurs finaux</li><li>Bases precoces posees en travail distribue, collaboration avec les parties prenantes et conscience professionnelle de soi.</li></ul>',
       },
       barclays: {
-        title: 'Barclaycard',
-        date: '2018 - 2024',
+        title: 'Barclaycard (Barclays)',
+        date: 'Jun 2018 - Mar 2024',
         detailHtml:
-          '<p><strong><em>C est la que j ai vraiment cesse d apprendre en theorie et commence a livrer dans la realite !</em></strong></p><h5>Graduate Programme et ingenierie</h5><p>Arrive chez Barclaycard apres l universite, j ai contribue a de vrais produits des le premier jour et construit une base solide en ingenierie logicielle, infrastructure cloud et pratiques DevOps.</p><h5>DevOps et Scrum Mastery</h5><p>J ai evolue vers la responsabilite de livraison, le coaching, la facilitation Scrum/Kanban, l alignement des parties prenantes et des resultats d equipe plus larges, avant de passer a plein temps en Scrum Mastery.</p><h5>Resultats</h5><ul><li>Soutien d une infrastructure conforme PCI, du CI/CD et de la fiabilite de plateforme.</li><li>Amelioration de la previsibilite, de la qualite du backlog et de la maturite de livraison au sein d equipes transverses.</li></ul>',
+          '<p><strong><em>C est la que j ai vraiment cesse d apprendre en theorie et commence a livrer dans la realite !</em></strong></p><h5>Scrum Master (Avr 2022 - Mar 2024)</h5><p>J ai dirige et coache 2 equipes applicatives transverses livrant des plateformes securisees dans un environnement bancaire regule.</p><h5>DevOps Engineer / Software Engineer (Jun 2018 - Avr 2022)</h5><p>J ai construit et soutenu des plateformes AWS avec Terraform, Jenkins, Chef, Packer, Ruby et OpenShift, tout en aidant les equipes a passer de l infrastructure on-prem a AWS et a de meilleures pratiques CI/CD.</p><h5>Resultats</h5><ul><li>Previsibilite amelioree a 80%+ et gaspillage du backlog reduit de 33%.</li><li>Soutien a l adoption de Jira, aux tests de migration, a la preparation operationnelle et aux circuits de support plateforme entre plusieurs equipes.</li></ul>',
       },
       discover: {
-        title: 'Discover Financial Services',
-        date: 'Mar 2024 - Present',
+        title: 'Discover Financial Services / Capital One',
+        date: 'Mar 2024 - Avr 2026',
         detailHtml:
-          '<p><strong><em>La peur de l echec est l ennemi du progres. Ne pas faire, c est echouer. Alors je choisis de faire. D essayer. D apprendre. De grandir.</em></strong></p><h5>Agile Programme Manager (Mar 2025 - Present):</h5><ul><li>Pilotage de la livraison entre equipes d ingenierie avec une planification programme transparente, une gestion des risques et des rythmes de livraison previsibles.</li><li>Amelioration de la previsibilite des sprints, du cycle time des epics, de la maturite du backlog, des tableaux de bord, du PI Planning, de la gestion RAID et de l alignement des releases entre equipes.</li></ul><h5>Scrum Master (Mar 2024 - Mar 2025):</h5><ul><li>Facilitation des ceremonies Agile et elevation des pratiques de livraison dans des equipes au Royaume-Uni et en Inde.</li><li>Amelioration du reporting de previsibilite, du coaching Product Owner, du mentorat des ingenieurs et de la resilience d equipe.</li></ul>',
+          '<p><strong><em>La peur de l echec est l ennemi du progres. Ne pas faire, c est echouer. Alors je choisis de faire. D essayer. D apprendre. De grandir.</em></strong></p><h5>Agile &amp; Technical Programme Manager (Mar 2025 - Avr 2026):</h5><ul><li>J ai dirige la livraison Agile et l execution programme sur 7 equipes d ingenierie, en soutien de l activite de merger Capital One et de la preparation d une migration de tokens par vagues.</li><li>Previsibilite de livraison amelioree de 65% a 85%, cycle time des epics reduit de 100+ jours a ~55 jours, avec gouvernance RAID, PI planning, readiness et decisions de scalabilite basees sur les donnees.</li></ul><h5>Scrum Master (Mar 2024 - Mar 2025):</h5><ul><li>Coaching d equipes d ingenierie distribuees au Royaume-Uni et en Inde sur l auto-organisation, l ownership et la discipline de livraison.</li><li>Amelioration du refinement, des dashboards, du capacity planning, du support Product Owner et des retrospectives sans blame.</li></ul>',
+      },
+      careerBreak: {
+        title: 'Pause professionnelle',
+        date: 'Avr 2026 - Present',
+        detailHtml:
+          '<p><strong><em>Prendre le temps de voyager, de recharger les batteries et de profiter de la liberte de choisir la suite.</em></strong></p><h5>Statut actuel</h5><p>Apres avoir termine mon parcours chez Discover Financial Services / Capital One en avril 2026, j ai choisi de m eloigner du travail a temps plein et de prendre une vraie pause professionnelle.</p><p>Je voyage actuellement, je profite de la vie et j explore ce que je veux que le prochain chapitre devienne. Cela pourrait etre la bonne opportunite permanente, du travail en contrat ou la creation de ma propre entreprise, mais je ne suis pas presse de choisir une voie simplement pour revenir au travail.</p><p>Pour l instant, l accent est mis sur de nouvelles experiences, des projets personnels et la liberte de decider ce qui vient ensuite.</p>',
       },
       future: {
         title: 'Le prochain chapitre',
@@ -191,7 +197,9 @@ export const FR_TRANSLATIONS = {
       'vibe-coding': 'Codage au feeling',
       agile: 'Agile',
       'building-in-public': 'Construction publique',
+      codex: 'Codex',
       'product-thinking': 'Pensee produit',
+      portfolio: 'Portfolio',
       'software-development': 'Developpement logiciel',
       welcome: 'bienvenue',
       resume: 'CV',
@@ -224,6 +232,13 @@ export const FR_TRANSLATIONS = {
         description: 'Comment je suis passe du doom-scrolling au codage au feeling.',
         bodyHtml:
           '<h2>Codage au feeling a fond 🚀</h2><p>J ai commence le codage au feeling parce que je procrastinais, je regardais des gens livrer des sites, des applis et des outils, puis je me suis enfin demande ce qui m empechait de les rejoindre.</p><h2>L etincelle 🔥</h2><p>Tout a commence avec PureOrigins.uk, puis en regardant un ami construire forefinder.golf grace au codage au feeling. L elan etait addictif.</p><h2>Commencer petit 🤏</h2><p>Je voulais sentir ce que construire avec l IA voulait vraiment dire. De petits outils, des experiences, des projets d amis et ce site sont devenus le chemin qui m a ramene a la construction.</p><h2>La plus grande lecon: l IA n est pas une machine a reussite instantanee 🧠</h2><p>L IA fonctionne mieux quand elle est guidee progressivement. Construire petit, livrer vite, tester le comportement et iterer comme une equipe Agile disciplinee.</p><h2>L IA n est pas juste un outil. C est une extension 🤖</h2><p>L IA construit, mais vous tenez le volant. La pensee produit, des resultats clairs et des prompts soignes comptent.</p><h2>La verite</h2><p>Le codage au feeling consiste a donner vie aux idees: brouillon, incremental, imparfait, mais en ligne.</p>',
+      },
+      'burak-os-revamp': {
+        title: 'Reconstruire mon portfolio m a aide a retrouver le builder en moi',
+        description:
+          'Comment reconstruire mon portfolio en Burak OS est devenu une experience creative avec l IA, la discipline de livraison et le plaisir de construire.',
+        bodyHtml:
+          '<h2>TL;DR</h2><p>J ai reconstruit mon portfolio en Burak OS, une experience creative avec Codex, et cela m a aide a me reconnecter a la construction apres plus de temps passe dans la livraison et le leadership programme.</p><h2>Pourquoi Burak OS?</h2><p>L ancien portfolio n etait pas mauvais, mais je voulais quelque chose de plus interactif, decouvrable et personnel: un petit espace de travail a explorer plutot qu une page de CV plate.</p><h2>Ce que nous avons construit</h2><p>Resume.exe, Blog.exe, GitHub.exe, Downloads, Bin, Maze.exe, Quiz.exe, themes, ecran de verrouillage, langues et beaucoup de polish responsive ont transforme le site en petit systeme d exploitation statique et joueur.</p><h2>Ce que Codex m a appris</h2><p>Le developpement assiste par IA est puissant, mais ce n est pas de la magie en un prompt. L IA construit, mais il faut toujours guider avec gout, structure, tests et discipline de livraison.</p><h2>La verite</h2><p>Ce projet m a rappele que le builder en moi n avait pas disparu. Il attendait seulement la bonne excuse.</p>',
       },
     },
   },
