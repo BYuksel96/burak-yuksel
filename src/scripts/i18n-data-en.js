@@ -169,16 +169,22 @@ export const EN_TRANSLATIONS = {
           '<h5>Tech stack:</h5><ul><li>Full-stack international business toolset: PHP, MySQL, HTML/CSS, JavaScript, AJAX, jQuery, XML, Python</li><li>Debugging, performance improvements, and maintainable code with long-term impact in mind</li></ul><h5>Agile &amp; SDLC:</h5><ul><li>Scrum-style cadence with backlog grooming, iterative delivery, and peer reviews</li><li>Full SDLC flow with verification and validation before sign-off</li></ul><h5>Collaboration:</h5><ul><li>Partnered with on-site and global teams to unblock dependencies and deliver to end-user standards on time</li><li>Built early foundations in distributed teamwork, stakeholder collaboration and professional self-awareness.</li></ul>',
       },
       barclays: {
-        title: 'Barclaycard',
-        date: '2018 - 2024',
+        title: 'Barclaycard (Barclays)',
+        date: 'Jun 2018 - Mar 2024',
         detailHtml:
-          '<p><strong><em>This was where I really stopped learning in theory and started delivering in reality!</em></strong></p><h5>Graduate Programme and Engineering</h5><p>Joined Barclaycard after university, contributed to real products from day one, and built a strong foundation in software engineering, cloud infrastructure and DevOps practices.</p><h5>DevOps and Scrum Mastery</h5><p>Grew into delivery ownership, coaching, Scrum/Kanban facilitation, stakeholder alignment and broader team outcomes, eventually moving full-time into Scrum Mastery.</p><h5>Outcomes</h5><ul><li>Supported PCI-compliant infrastructure, CI/CD and platform reliability.</li><li>Improved predictability, backlog quality and delivery maturity across cross-functional teams.</li></ul>',
+          '<p><strong><em>This was where I really stopped learning in theory and started delivering in reality!</em></strong></p><h5>Scrum Master (Apr 2022 - Mar 2024)</h5><p>Led and coached 2 cross-functional application development teams delivering secure platforms within a regulated banking environment.</p><h5>DevOps Engineer / Software Engineer (Jun 2018 - Apr 2022)</h5><p>Built and supported AWS-based platforms using Terraform, Jenkins, Chef, Packer, Ruby and OpenShift, while helping teams move from on-prem infrastructure to AWS and stronger CI/CD ways of working.</p><h5>Outcomes</h5><ul><li>Improved predictability to 80%+ and reduced backlog waste by 33%.</li><li>Supported Jira adoption, migration testing, operational readiness and platform support routes across multiple teams.</li></ul>',
       },
       discover: {
-        title: 'Discover Financial Services',
-        date: 'Mar 2024 - Present',
+        title: 'Discover Financial Services / Capital One',
+        date: 'Mar 2024 - Apr 2026',
         detailHtml:
-          '<p><strong><em>Fear of failure is the enemy of progress. To not do is to fail. So I choose to do. To try. To learn. To grow.</em></strong></p><h5>Agile Programme Manager (Mar 2025 - Present):</h5><ul><li>Leading delivery across engineering teams with transparent programme planning, risk management and predictable delivery rhythms.</li><li>Improved sprint predictability, epic cycle time, backlog maturity, dashboards, PI Planning, RAID management and cross-team release alignment.</li></ul><h5>Scrum Master (Mar 2024 - Mar 2025):</h5><ul><li>Facilitated Agile ceremonies and uplifted delivery practices across UK and India teams.</li><li>Improved predictability reporting, Product Owner coaching, engineer mentoring and team resilience.</li></ul>',
+          '<p><strong><em>Fear of failure is the enemy of progress. To not do is to fail. So I choose to do. To try. To learn. To grow.</em></strong></p><h5>Agile &amp; Technical Programme Manager (Mar 2025 - Apr 2026):</h5><ul><li>Led Agile delivery and programme execution across 7 engineering teams, supporting Capital One merger activity and multi-wave token migration readiness.</li><li>Improved delivery predictability from 65% to 85%, reduced epic cycle time from 100+ days to ~55 days, and strengthened RAID governance, PI planning, readiness and evidence-based scalability decisions.</li></ul><h5>Scrum Master (Mar 2024 - Mar 2025):</h5><ul><li>Coached distributed UK and India engineering teams on self-organisation, ownership and delivery discipline.</li><li>Improved refinement, dashboards, capacity planning, Product Owner support and no-blame retrospectives.</li></ul>',
+      },
+      careerBreak: {
+        title: 'Career Break',
+        date: 'Apr 2026 - Present',
+        detailHtml:
+          '<p><strong><em>Taking time to travel, recharge and enjoy the freedom to choose what comes next.</em></strong></p><h5>Current status</h5><p>After completing my time with Discover Financial Services / Capital One in April 2026, I chose to step away from full-time work and take a proper career break.</p><p>I am currently travelling, enjoying life and exploring what I want the next chapter to look like. That could mean the right permanent opportunity, contract work, or building a business of my own—but I am in no rush to choose a path simply for the sake of returning to work.</p><p>For now, the focus is on new experiences, personal projects and making the most of the freedom to decide what comes next.</p>',
       },
       future: {
         title: 'The Next Chapter',
@@ -210,7 +216,9 @@ export const EN_TRANSLATIONS = {
       'vibe-coding': 'Vibe Coding',
       agile: 'Agile',
       'building-in-public': 'Building in Public',
+      codex: 'Codex',
       'product-thinking': 'Product Thinking',
+      portfolio: 'Portfolio',
       'software-development': 'Software Development',
       welcome: 'welcome',
       resume: 'resume',
@@ -243,6 +251,13 @@ export const EN_TRANSLATIONS = {
         description: 'How I went from doom-scrolling to vibe coding.',
         bodyHtml:
           '<h2>Vibe Coding to the Max 🚀</h2><p>I started vibe coding because I was procrastinating, watching people ship websites, apps and tools, and finally asked what was stopping me from joining in.</p><h2>The Spark 🔥</h2><p>It began with PureOrigins.uk, then watching a friend build forefinder.golf through vibe coding. The momentum was addictive.</p><h2>Look To Start Small 🤏</h2><p>I wanted to feel what building with AI was actually like. Small tools, experiments, friends projects and this website became the path back into building.</p><h2>The Biggest Lesson: AI Is Not a One-Shot Machine 🧠</h2><p>AI works best when guided incrementally. Build small, ship fast, test behaviour and iterate like a disciplined Agile team.</p><h2>AI Isnt Just a Tool. Its an Extension 🤖</h2><p>AI builds, but you steer. Product thinking, clear outcomes and careful prompts matter.</p><h2>The Truth</h2><p>Vibe coding is about bringing ideas to life: messy, incremental, imperfect, but live.</p>',
+      },
+      'burak-os-revamp': {
+        title: 'Rebuilding My Portfolio Helped Me Find the Builder In Me Again',
+        description:
+          'How rebuilding my portfolio into Burak OS became a creative experiment in AI-assisted development, delivery discipline and rediscovering the joy of building.',
+        bodyHtml:
+          '<h2>TL;DR</h2><p>I rebuilt my portfolio into Burak OS as a creative Codex experiment, and it helped me reconnect with hands-on building after spending more time in delivery and programme leadership.</p><h2>Why Burak OS?</h2><p>The old portfolio was not bad, but I wanted something more interactive, discoverable and personal: a tiny workspace people could explore instead of a flat CV page.</p><h2>What We Built</h2><p>Resume.exe, Blog.exe, GitHub.exe, Downloads, Bin, Maze.exe, Quiz.exe, theme controls, a lock screen, language support and a lot of responsive polish turned the site into a playful static operating system.</p><h2>What Codex Taught Me</h2><p>AI-assisted development is powerful, but it is not one-shot magic. AI builds, but you still steer with taste, structure, testing and delivery discipline.</p><h2>The Truth</h2><p>This project reminded me that the builder in me did not disappear. It was waiting for the right excuse.</p>',
       },
     },
   },

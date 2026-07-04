@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import test from 'node:test';
 
 import * as resumeApp from './resume-app.js';
@@ -7,6 +7,7 @@ import { getDefaultTimelineId, parseDescriptionLines } from './resume-app.js';
 
 const readResumeAppSource = () => readFileSync(new URL('../components/os/ResumeApp.astro', import.meta.url), 'utf8');
 const readResumeAppStyles = () => readFileSync(new URL('../styles/resume-app.css', import.meta.url), 'utf8');
+const readTimeline = () => JSON.parse(readFileSync(new URL('../content/timeline.json', import.meta.url), 'utf8'));
 
 const getLinkedInTag = (source) => source.match(/<a\b[^>]*class="resume-app__linkedin"[^>]*>/i)?.[0] ?? '';
 
@@ -27,6 +28,30 @@ test('default resume selection falls back to final item when no current item exi
   ];
 
   assert.equal(getDefaultTimelineId(items), 'last');
+});
+
+test('Resume.exe timeline marks the career break as current after Discover and Capital One', () => {
+  const timeline = readTimeline();
+  const discover = timeline.find((item) => item.id === 'discover');
+  const careerBreak = timeline.find((item) => item.id === 'careerBreak');
+  const currentItems = timeline.filter((item) => item.current);
+
+  assert.equal(discover.title, 'Discover Financial Services / Capital One');
+  assert.equal(discover.date, 'Mar 2024 - Apr 2026');
+  assert.equal(discover.current, false);
+  assert.match(discover.description.join('\n'), /Agile & Technical Programme Manager \(Mar 2025 - Apr 2026\)/);
+  assert.match(discover.description.join('\n'), /Scrum Master \(Mar 2024 - Mar 2025\)/);
+  assert.equal(careerBreak.title, 'Career Break');
+  assert.equal(careerBreak.date, 'Apr 2026 - Present');
+  assert.equal(careerBreak.imageSrc, '/career-break-beach.png');
+  assert.equal(existsSync(new URL('../../public/career-break-beach.png', import.meta.url)), true);
+  assert.ok(statSync(new URL('../../public/career-break-beach.png', import.meta.url)).size > 1024);
+  assert.equal(readFileSync(new URL('../../public/career-break-beach.png', import.meta.url)).subarray(1, 4).toString('utf8'), 'PNG');
+  assert.match(careerBreak.description.join('\n'), /Taking time to travel, recharge and enjoy the freedom to choose what comes next/);
+  assert.match(careerBreak.description.join('\n'), /currently travelling, enjoying life and exploring what I want the next chapter to look like/);
+  assert.match(careerBreak.description.join('\n'), /personal projects and making the most of the freedom to decide what comes next/);
+  assert.deepEqual(currentItems.map((item) => item.id), ['careerBreak']);
+  assert.equal(timeline.findIndex((item) => item.id === 'careerBreak'), timeline.findIndex((item) => item.id === 'future') - 1);
 });
 
 test('description parser preserves trusted html and groups bullets after section headings', () => {

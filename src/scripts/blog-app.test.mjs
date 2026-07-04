@@ -20,6 +20,8 @@ import {
 const readBlogAppSource = () => readFileSync(new URL('../components/os/BlogApp.astro', import.meta.url), 'utf8');
 const readBlogAppScript = () => readFileSync(new URL('./blog-app.js', import.meta.url), 'utf8');
 const readBlogAppStyles = () => readFileSync(new URL('../styles/blog-app.css', import.meta.url), 'utf8');
+const readBurakOsRevampPost = () =>
+  readFileSync(new URL('../content/blog/burak-os-revamp.md', import.meta.url), 'utf8');
 const readResumePageSource = () => readFileSync(new URL('../pages/resume.astro', import.meta.url), 'utf8');
 const readBlogIndexPageSource = () => readFileSync(new URL('../pages/blog/index.astro', import.meta.url), 'utf8');
 const readBlogSlugPageSource = () => readFileSync(new URL('../pages/blog/[slug].astro', import.meta.url), 'utf8');
@@ -67,6 +69,23 @@ test('formats blog dates using the active language locale', () => {
   assert.equal(formatBlogDate(date, 'row', 'en'), 'Jun 20');
   assert.match(formatBlogDate(date, 'long', 'tr'), /Haziran|Haz/);
   assert.match(formatBlogDate(date, 'row', 'de'), /Juni|Jun/);
+});
+
+test('Burak OS revamp post captures the approved builder story', () => {
+  const post = readBurakOsRevampPost();
+
+  assert.match(post, /title: "Rebuilding My Portfolio Helped Me Find the Builder In Me Again"/);
+  assert.match(post, /canonicalSlug: "rebuilding-my-portfolio-helped-me-find-the-builder-in-me-again"/);
+  assert.match(post, /## TL;DR/);
+  assert.match(post, /The Portfolio Wasn't Bad\. It Just Felt Flat\./);
+  assert.match(post, /Finding the Builder Again/);
+  assert.match(post, /What We Built/);
+  assert.match(post, /The Funny-Honest Reality of Building With Codex/);
+  assert.match(post, /The Role Is Changing/);
+  assert.match(post, /Maze\.exe/);
+  assert.match(post, /delivery discipline/);
+  assert.match(post, /AI builds, but you still steer/);
+  assert.doesNotMatch(post, /career break/i);
 });
 
 test('resolves canonical and entry slugs to existing Blog.exe post uids', () => {
